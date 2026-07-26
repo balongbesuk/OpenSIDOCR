@@ -42,6 +42,7 @@ images/
 images/*
 screenshots/
 screenshots/*
+apple-touch-icon.png
 
 # Abaikan file cache milik phpintel (plugin sublime text)
 .phpintel/*
