@@ -28,6 +28,8 @@ generate-route.php
 UpdateBackup.txt
 results.json
 google*.html
+DESIGN.md
+.github/DESIGN.md
 
 # OneSignal & PWA
 OneSignalSDKWorker.js
