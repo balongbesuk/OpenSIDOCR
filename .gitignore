@@ -30,6 +30,8 @@ results.json
 google*.html
 DESIGN.md
 .github/DESIGN.md
+AI_CONTEXT.md
+.github/AI_CONTEXT.md
 
 # OneSignal & PWA
 OneSignalSDKWorker.js
