@@ -185,6 +185,20 @@ class Penduduk_model extends MY_Model
         }
     }
 
+    protected function nama_ayah_sql()
+    {
+        if (! empty($this->session->nama_ayah)) {
+            $this->db->like('u.nama_ayah', $this->session->nama_ayah);
+        }
+    }
+
+    protected function nama_ibu_sql()
+    {
+        if (! empty($this->session->nama_ibu)) {
+            $this->db->like('u.nama_ibu', $this->session->nama_ibu);
+        }
+    }
+
     protected function umur_max_sql()
     {
         $kf = $this->session->umur_max;
@@ -457,6 +471,8 @@ class Penduduk_model extends MY_Model
         $this->hamil_sql(); // Filter blum digunakan
         $this->tag_id_card_sql(); // Filter blum digunakan
         $this->nik_sementara_sql(); // NIK Sementara
+        $this->nama_ayah_sql(); // Hanya u/ Pencarian Spesifik
+        $this->nama_ibu_sql(); // Hanya u/ Pencarian Spesifik
     }
 
     // Perlu di urut sebelum paging dan sesudah paging
@@ -772,6 +788,8 @@ class Penduduk_model extends MY_Model
         $this->akta_kelahiran_sql(); // Kode 17
         $this->hamil_sql(); // Filter blum digunakan
         $this->tag_id_card_sql(); // Filter blum digunakan
+        $this->nama_ayah_sql(); // Hanya u/ Pencarian Spesifik
+        $this->nama_ibu_sql(); // Hanya u/ Pencarian Spesifik
 
         return $this->config_id('u')->get()->result_array();
     }
