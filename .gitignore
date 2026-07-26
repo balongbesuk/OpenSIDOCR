@@ -27,6 +27,7 @@ generate-route.php
 # File sementara / backup lokal
 UpdateBackup.txt
 results.json
+google*.html
 
 # OneSignal & PWA
 OneSignalSDKWorker.js
