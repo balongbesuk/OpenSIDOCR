@@ -1,0 +1,100 @@
+# Abaikan folder desa
+desa/
+desa/*
+
+# Abaikan backup_inkremental
+backup_inkremental/
+backup_inkremental/*
+
+# Abaikan file & arsip
+*.log
+log-*.php
+info.php
+**/.DS_Store
+sftp-config.json
+.php-cs-fixer.cache
+rector.php
+.htaccess
+*.sql
+*.sql.gz
+*.zip
+*.tar.gz
+*.rar
+*.7z
+mitra
+generate-route.php
+
+# File sementara / backup lokal
+UpdateBackup.txt
+results.json
+
+# OneSignal & PWA
+OneSignalSDKWorker.js
+OneSignalSDKUpdaterWorker.js
+manifest.json
+pwabuilder-sw.js
+pwabuilder-sw-register.js
+offline.html
+
+# Images & Screenshots
+images/
+images/*
+screenshots/
+screenshots/*
+
+# Abaikan file cache milik phpintel (plugin sublime text)
+.phpintel/*
+.idea/*
+.vscode/*
+
+# Abaikan file milik library Release dan Curly
+*.pem
+version.json
+
+# obfuscator
+Obfuscator.php
+make_obfuscate.php
+
+# Abaikan tema premium
+vendor/themes/denatra/
+vendor/themes/silir/
+vendor/themes/batuah/
+vendor/themes/denava/
+
+# Abaikan isian folder vendor
+vendor/codeigniter/framework/*
+!vendor/codeigniter/framework/system/
+
+# Abaikan dokumentasi
+vendor/*/*/.github
+vendor/*/*/*.md
+!vendor/*/*/catatan_rilis.md
+vendor/*/*/*.TXT
+vendor/*/*/*.cache
+vendor/*/*/*.yml
+vendor/*/*/*.dist
+vendor/*/*/*.xml
+vendor/*/*/.gitignore
+vendor/*/*/LICENSE
+vendor/*/*/tests/
+test/
+tests/
+doc/
+docs/
+example/
+examples/
+/tools/
+
+vendor/tinymce/*
+vendor/_laravel_ide
+vendor/libreoffice/*
+vendor/mikey179/*
+/node_modules
+.cache-rector/*
+!.cache-rector/.gitkeep
+
+# Struktur Laravel & Storage
+storage/framework/*
+storage/logs/*
+!storage/logs/.gitignore
+assets/filemanager/index.html
