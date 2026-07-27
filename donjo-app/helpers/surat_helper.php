@@ -215,52 +215,74 @@ if (! function_exists('QRCodeExist')) {
             return [];
         }
         // Kumpulkan semua isian (tag input) di form surat
-        // Asumsi di form surat, struktur input seperti ini
-        // <tr>
-        // 		<th>Keterangan Isian</th>
-        // 		<td><input><td>
-        // </tr>
         $inputs = [];
+
+        $is_valid_name = static function ($name) {
+            if (empty($name)) {
+                return false;
+            }
+            if (strpos($name, '<?') !== false || strpos($name, '?>') !== false || strpos($name, '$') !== false) {
+                return false;
+            }
+            if (strpos($name, '[') !== false || strpos($name, ']') !== false) {
+                return false;
+            }
+            if (preg_match('/^(chk_|sm_|m_|da_|id_cb)/i', $name)) {
+                return false;
+            }
+
+            return true;
+        };
+
+        $get_label = static function ($element) {
+            $label = '';
+            if ($element->title == 'Pilih Tanggal' || $element->type == 'radio' || $element->id == 'jam_1' || $element->id == 'input_group') {
+                $label = $element->parent->parent->parent->children[0]->innertext ?? '';
+            } else {
+                $label = $element->parent->parent->children[0]->innertext ?? '';
+            }
+            $clean = trim(strip_tags($label));
+
+            return preg_replace('/\s+/', ' ', $clean);
+        };
 
         foreach ($html->find('input') as $input) {
             if ($input->type == 'hidden') {
                 continue;
             }
-            if ($input->title == 'Pilih Tanggal') {
-                $inputs[$input->name] = $input->parent->parent->parent->children[0]->innertext;
-
+            if (! $is_valid_name($input->name)) {
                 continue;
             }
-            if ($input->type == 'radio') {
-                $inputs[$input->name] = $input->parent->parent->parent->children[0]->innertext;
-
-                continue;
+            $label = $get_label($input);
+            if (! empty($label) && strpos($label, '<?') === false && strpos($label, '<') === false) {
+                $inputs[$input->name] = $label;
             }
-            if ($input->id == 'jam_1') {
-                $inputs[$input->name] = $input->parent->parent->parent->children[0]->innertext;
-
-                continue;
-            }
-            if ($input->id == 'input_group') {
-                $inputs[$input->name] = $input->parent->parent->parent->children[0]->innertext;
-
-                continue;
-            }
-            $inputs[$input->name] = $input->parent->parent->children[0]->innertext;
         }
 
         foreach ($html->find('textarea') as $input) {
             if ($input->type == 'hidden') {
                 continue;
             }
-            $inputs[$input->name] = $input->parent->parent->children[0]->innertext;
+            if (! $is_valid_name($input->name)) {
+                continue;
+            }
+            $label = $get_label($input);
+            if (! empty($label) && strpos($label, '<?') === false && strpos($label, '<') === false) {
+                $inputs[$input->name] = $label;
+            }
         }
 
         foreach ($html->find('select') as $input) {
             if ($input->type == 'hidden') {
                 continue;
             }
-            $inputs[$input->name] = $input->parent->parent->children[0]->innertext;
+            if (! $is_valid_name($input->name)) {
+                continue;
+            }
+            $label = $get_label($input);
+            if (! empty($label) && strpos($label, '<?') === false && strpos($label, '<') === false) {
+                $inputs[$input->name] = $label;
+            }
         }
 
         $html->clear();

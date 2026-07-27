@@ -57,7 +57,7 @@
                         @forelse ($suratMaster->kode_isian as $kode => $keterangan)
                             <tr>
                                 <td style="padding-top : 10px;padding-bottom : 10px; ">[form_{{ $kode }}]</td>
-                                <td>{{ $keterangan }}</td>
+                                <td>{{ strip_tags(trim($keterangan)) }}</td>
                             </tr>
                         @empty
                             <tr>
