@@ -42,7 +42,7 @@
             <li class="header">MENU UTAMA</li>
 
             <?php foreach ($modul as $mod): ?>
-            <?php if (count($mod['submodul']) == 0): ?>
+            <?php if (empty($mod['submodul'])): ?>
             <li class="<?= jecho($modul_ini, $mod['slug'], 'active') ?>">
                 <a href="<?= route($mod['url']) ?>">
                     <i

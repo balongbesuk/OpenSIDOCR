@@ -71,6 +71,7 @@ Terima kasih pada @ruririzal dan @syahransaputra yang terus berkontribusi.
 35. [#6887](https://github.com/OpenSID/OpenSID/issues/6887) Perbaikan notifikasi untuk NIK dan No KK yang kurang dari 16 digit.
 36. [#6910](https://github.com/OpenSID/OpenSID/issues/6910) Perbaikan ambil rilis terbaru dari github jika terdapat batasan harian.
 37. [#6912](https://github.com/OpenSID/OpenSID/issues/6912) Perbaikan menampilkan foto penduduk pada halaman pemetaan.
+38. Perbaikan Impor KK PDF untuk penduduk lama yang datang kembali (penanganan status_dasar=1, log datang kembali kode_peristiwa=5, serta form input Alamat Asal).
 
 #### Perubahan Teknis
 

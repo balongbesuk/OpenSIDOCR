@@ -856,7 +856,8 @@ class Keluarga extends Admin_Controller
             $m['diff']                   = [];
 
             if ($p) {
-                $m['db_id'] = $p['id'];
+                $m['db_id']             = $p['id'];
+                $m['alamat_sebelumnya'] = $p['alamat_sebelumnya'];
 
                 if ($p['id_kk'] && $kk && $p['id_kk'] != $kk['id']) {
                     $kk_lama = $this->db->where('id', $p['id_kk'])->get('tweb_keluarga')->row_array();
@@ -1065,7 +1066,8 @@ class Keluarga extends Admin_Controller
                 $p = $this->db->where('nik', $nik)->get('tweb_penduduk')->row_array();
             }
 
-            $status_dasar = $p ? ($p['status_dasar'] ?: 1) : 1;
+            $is_datang_kembali = $p && $p['status_dasar'] != 1;
+            $status_dasar      = 1;
 
             $data_pend = [
                 'config_id'         => $config_id,
@@ -1094,7 +1096,26 @@ class Keluarga extends Admin_Controller
 
             if ($p) {
                 $pend_id = $p['id'];
+                if ($is_datang_kembali) {
+                    $data_pend['alamat_sebelumnya'] = $alamat_asal;
+                }
                 $this->db->where('id', $pend_id)->update('tweb_penduduk', $data_pend);
+
+                if ($is_datang_kembali) {
+                    $tgl_peristiwa_log = ! empty($header['tgl_cetak']) ? date('Y-m-d H:i:s', strtotime($header['tgl_cetak'])) : date('Y-m-d H:i:s');
+                    $this->db->insert('log_penduduk', [
+                        'config_id'      => $config_id,
+                        'id_pend'        => $pend_id,
+                        'kode_peristiwa' => 5,
+                        'tgl_lapor'      => date('Y-m-d H:i:s'),
+                        'tgl_peristiwa'  => $tgl_peristiwa_log,
+                        'no_kk'          => $header['no_kk'],
+                        'nama_kk'        => $header['kepala_keluarga'],
+                        'catatan'        => 'Datang kembali melalui Impor KK PDF',
+                        'created_at'     => date('Y-m-d H:i:s'),
+                        'created_by'     => $this->session->user ?? 1,
+                    ]);
+                }
             } else {
                 $data_pend['alamat_sebelumnya'] = $alamat_asal;
                 $data_pend['created_at']        = date('Y-m-d H:i:s');
@@ -1103,12 +1124,13 @@ class Keluarga extends Admin_Controller
                 $pend_id = $this->db->insert_id();
 
                 // Catat log_penduduk untuk Penduduk Masuk (kode_peristiwa = 5)
+                $tgl_peristiwa_log = ! empty($header['tgl_cetak']) ? date('Y-m-d H:i:s', strtotime($header['tgl_cetak'])) : date('Y-m-d H:i:s');
                 $this->db->insert('log_penduduk', [
                     'config_id'      => $config_id,
                     'id_pend'        => $pend_id,
                     'kode_peristiwa' => 5,
                     'tgl_lapor'      => date('Y-m-d H:i:s'),
-                    'tgl_peristiwa'  => date('Y-m-d H:i:s'),
+                    'tgl_peristiwa'  => $tgl_peristiwa_log,
                     'no_kk'          => $header['no_kk'],
                     'nama_kk'        => $header['kepala_keluarga'],
                     'created_at'     => date('Y-m-d H:i:s'),

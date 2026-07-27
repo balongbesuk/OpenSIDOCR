@@ -171,8 +171,8 @@
 										</td>
 										<td><?= $m['nama_ayah'] ?> / <?= $m['nama_ibu'] ?></td>
 										<td>
-											<?php if (empty($m['db_exists'])): ?>
-												<input type="text" name="alamat_sebelumnya[<?= $m['nik'] ?>]" class="form-control input-sm" placeholder="Alamat asal sebelumnya..." value="<?= html_escape($parsed['header']['alamat']) ?>" style="min-width: 150px;">
+											<?php if (empty($m['db_exists']) || (!empty($m['status_dasar']) && $m['status_dasar'] != 1)): ?>
+												<input type="text" name="alamat_sebelumnya[<?= $m['nik'] ?>]" class="form-control input-sm" placeholder="Alamat asal sebelumnya..." value="<?= html_escape(!empty($m['alamat_sebelumnya']) ? $m['alamat_sebelumnya'] : $parsed['header']['alamat']) ?>" style="min-width: 150px;">
 											<?php else: ?>
 												<span class="text-muted"><i class="fa fa-check"></i> Data DB</span>
 											<?php endif; ?>
