@@ -21,7 +21,17 @@
 				<table class="table table-bordered table-striped text-sm">
 					<tr>
 						<th width="20%">No. Kartu Keluarga</th>
-						<td width="30%"><strong><?= $parsed['header']['no_kk'] ?></strong></td>
+						<td width="30%">
+							<strong>
+								<?php if (!empty($id_kk)): ?>
+									<a href="<?= site_url("keluarga/kartu_keluarga/1/0/{$id_kk}") ?>" target="_blank" title="Buka Detail Kartu Keluarga di Tab Baru" style="color: #3c8dbc; text-decoration: underline;">
+										<?= $parsed['header']['no_kk'] ?> <i class="fa fa-external-link text-xs"></i>
+									</a>
+								<?php else: ?>
+									<?= $parsed['header']['no_kk'] ?>
+								<?php endif; ?>
+							</strong>
+						</td>
 						<th width="20%">Nama Kepala Keluarga</th>
 						<td width="30%"><strong><?= $parsed['header']['kepala_keluarga'] ?></strong></td>
 					</tr>

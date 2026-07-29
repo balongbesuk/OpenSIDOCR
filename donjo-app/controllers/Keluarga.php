@@ -748,6 +748,7 @@ class Keluarga extends Admin_Controller
 
         $kk                = $this->db->where('no_kk', $parsed['header']['no_kk'])->get('tweb_keluarga')->row_array();
         $data['kk_exists'] = ! empty($kk);
+        $data['id_kk']     = $kk ? $kk['id'] : null;
 
         if ($kk && ! empty($kk['tgl_cetak_kk']) && ! empty($parsed['header']['tgl_cetak'])) {
             $tgl_pdf = date('Y-m-d', strtotime($parsed['header']['tgl_cetak']));
@@ -1197,7 +1198,7 @@ class Keluarga extends Admin_Controller
 
         $this->cache->hapus_cache_untuk_semua('_wilayah');
         set_session('success', 1);
-        set_session('flash_message', 'Data Kartu Keluarga dan Anggota berhasil disimpan/diperbarui.');
+        set_session('flash_message', 'Data Kartu Keluarga dan Anggota berhasil disimpan/diperbarui. <a href="' . site_url("keluarga/kartu_keluarga/1/0/{$id_kk}") . '" target="_blank" class="btn btn-xs btn-primary" style="margin-left: 10px; color: #fff; text-decoration: none;"><i class="fa fa-external-link"></i> Lihat Kartu Keluarga</a>');
 
         redirect('keluarga');
     }
