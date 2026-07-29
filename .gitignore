@@ -1,12 +1,11 @@
 # Abaikan folder desa
-desa/
 desa/*
 
 # Abaikan backup_inkremental
-backup_inkremental/
 backup_inkremental/*
+!backup_inkremental/index.html
 
-# Abaikan file & arsip
+# Abaikan file
 *.log
 log-*.php
 info.php
@@ -16,42 +15,11 @@ sftp-config.json
 rector.php
 .htaccess
 *.sql
-*.sql.gz
-*.zip
-*.tar.gz
-*.rar
-*.7z
 mitra
-generate-route.php
-
-# File sementara / backup lokal
-UpdateBackup.txt
-results.json
-google*.html
-DESIGN.md
-.github/DESIGN.md
-AI_CONTEXT.md
-.github/AI_CONTEXT.md
-
-# OneSignal & PWA
-OneSignalSDKWorker.js
-OneSignalSDKUpdaterWorker.js
-manifest.json
-pwabuilder-sw.js
-pwabuilder-sw-register.js
-offline.html
-
-# Images & Screenshots
-images/
-images/*
-screenshots/
-screenshots/*
-apple-touch-icon.png
 
 # Abaikan file cache milik phpintel (plugin sublime text)
 .phpintel/*
 .idea/*
-.vscode/*
 
 # Abaikan file milik library Release dan Curly
 *.pem
@@ -74,7 +42,6 @@ vendor/codeigniter/framework/*
 # Abaikan dokumentasi
 vendor/*/*/.github
 vendor/*/*/*.md
-!vendor/*/*/catatan_rilis.md
 vendor/*/*/*.TXT
 vendor/*/*/*.cache
 vendor/*/*/*.yml
@@ -82,7 +49,6 @@ vendor/*/*/*.dist
 vendor/*/*/*.xml
 vendor/*/*/.gitignore
 vendor/*/*/LICENSE
-vendor/*/*/tests/
 test/
 tests/
 doc/
@@ -91,16 +57,11 @@ example/
 examples/
 /tools/
 
-vendor/tinymce/*
-vendor/_laravel_ide
 vendor/libreoffice/*
 vendor/mikey179/*
+.vscode/*
 /node_modules
-.cache-rector/*
-!.cache-rector/.gitkeep
 
-# Struktur Laravel & Storage
-storage/framework/*
-storage/logs/*
-!storage/logs/.gitignore
+# Struktur Laravel
+storage/framework/
 assets/filemanager/index.html

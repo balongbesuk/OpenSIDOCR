@@ -4,7 +4,8 @@ Terima kasih pada @ruririzal dan @syahransaputra yang terus berkontribusi.
 
 #### Penambahan Fitur
 
-1. [#6783](https://github.com/OpenSID/OpenSID/issues/6783) Penambahan pengaturan dan tampilkan data orang tua.
+1. Migrasi dan integrasi RapidOCR ONNX Engine mengganti Tesseract OCR untuk Impor Scan/Foto Kartu Keluarga (KK), mendukung format berkas (.jpg, .jpeg, .png, .pdf) baik KK Format Lama (TTD Manual/Stempel) maupun KK Format Baru (Barcode TTE BSrE) dilengkapi ekstraksi otomatis tanggal perkawinan, pemisahan spasi kata nama rapat, dan pembacaan presisi data orang tua.
+2. [#6783](https://github.com/OpenSID/OpenSID/issues/6783) Penambahan pengaturan dan tampilkan data orang tua.
 2. [#5903](https://github.com/OpenSID/OpenSID/issues/5903) Penambahan surat TinyMCE keterangan beda identitas KIS.
 3. [#6782](https://github.com/OpenSID/OpenSID/issues/6782) Penambahan kode isian perisitiwa kematian.
 4. [#5771](https://github.com/OpenSID/OpenSID/issues/5771) Penambahan surat TinyMCE keterangan kematian.
@@ -76,6 +77,7 @@ Terima kasih pada @ruririzal dan @syahransaputra yang terus berkontribusi.
 40. Perbaikan Impor KK PDF: pemetaan status perkawinan (KAWIN BELUM TERCATAT, CERAI TERCATAT, CERAI BELUM TERCATAT) dan pembacaan nama orang tua ketika nama ayah kosong/dash.
 41. Penambahan tautan nomor KK pada pratinjau impor KK PDF dan tombol akses langsung Kartu Keluarga di tab baru setelah berhasil disimpan.
 42. Perbaikan duplikasi menu Impor KK (PDF) pada tombol Pilih Aksi Lainnya di halaman Data Keluarga.
+43. Penambahan fitur Impor Scan / Foto KK (OCR) menggunakan RapidOCR ONNX Deep Learning engine portabel untuk mengekstrak data dari fotokopi atau foto Kartu Keluarga secara presisi dan akurat.
 
 #### Perubahan Teknis
 

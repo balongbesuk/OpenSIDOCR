@@ -722,6 +722,87 @@ class Keluarga extends Admin_Controller
         $this->load->view('sid/kependudukan/ajax_import_pdf_form');
     }
 
+    public function dialog_import_scan_kk()
+    {
+        $this->redirect_hak_akses('u');
+        $this->load->view('sid/kependudukan/ajax_import_scan_form');
+    }
+
+    public function proses_import_scan_kk()
+    {
+        $this->redirect_hak_akses('u');
+
+        if (empty($_FILES['kk_scan']['tmp_name'])) {
+            set_session('error_msg', 'Silakan pilih berkas foto / scan Kartu Keluarga terlebih dahulu.');
+            redirect('keluarga');
+        }
+
+        $tmpFile = $_FILES['kk_scan']['tmp_name'];
+        $ext     = strtolower(pathinfo($_FILES['kk_scan']['name'], PATHINFO_EXTENSION));
+
+        $parsed = \App\Libraries\KkScanOcrParser::parseImage($tmpFile, $_FILES['kk_scan']['name']);
+
+        if (empty($parsed['header']['no_kk']) && empty($parsed['members'])) {
+            set_session('error_msg', 'Gagal membaca teks dari hasil scan / foto KK. Pastikan gambar cukup terang, tidak miring, dan tulisan terbaca jelas.');
+            redirect('keluarga');
+        }
+
+        $target_dir = FCPATH . LOKASI_DOKUMEN;
+        if (! is_dir($target_dir)) {
+            mkdir($target_dir, 0755, true);
+        }
+        $no_kk         = ! empty($parsed['header']['no_kk']) ? $parsed['header']['no_kk'] : 'SCAN_' . date('YmdHis');
+        $scan_filename = 'KK_SCAN_' . $no_kk . '_' . date('YmdHis') . '.' . ($ext ?: 'jpg');
+        @copy($tmpFile, $target_dir . $scan_filename);
+        $parsed['pdf_file'] = $scan_filename;
+
+        $kk                = $this->db->where('no_kk', $parsed['header']['no_kk'])->get('tweb_keluarga')->row_array();
+        $data['kk_exists'] = ! empty($kk);
+        $data['id_kk']     = $kk ? $kk['id'] : null;
+
+        $norm       = static fn ($str) => strtolower(preg_replace('/\s+/', '', (string) $str));
+        $norm_clean = static fn ($str) => strtoupper(preg_replace('/[^A-Z0-9]/', '', (string) $str));
+
+        $ref_sex       = [1 => 'LAKI-LAKI', 2 => 'PEREMPUAN'];
+        $ref_kawin_map = [
+            $norm_clean('BELUM KAWIN')          => 1,
+            $norm_clean('KAWIN TERCATAT')       => 2,
+            $norm_clean('KAWIN BELUM TERCATAT') => 2,
+            $norm_clean('KAWIN')                => 2,
+            $norm_clean('NIKAH')                => 2,
+            $norm_clean('CERAI HIDUP')          => 3,
+            $norm_clean('CERAI TERCATAT')       => 3,
+            $norm_clean('CERAI BELUM TERCATAT') => 3,
+            $norm_clean('CERAI MATI')           => 4,
+        ];
+        $kawin_rows = $this->db->get('tweb_penduduk_kawin')->result_array();
+        $ref_kawin_label = [];
+        foreach ($kawin_rows as $row) {
+            $ref_kawin_label[$row['id']] = strtoupper(trim($row['nama']));
+        }
+
+        foreach ($parsed['members'] as &$m) {
+            $nik  = $m['nik'];
+            $p    = ! empty($nik) ? $this->db->where('nik', $nik)->get('tweb_penduduk')->row_array() : null;
+            $m['db_exists']              = ! empty($p);
+            $m['is_nik_sementara_match'] = false;
+            $m['nik_lama']               = null;
+            $m['status_dasar']           = $p ? $p['status_dasar'] : 1;
+            $m['pindah_kk']              = false;
+            $m['no_kk_lama']             = null;
+            $m['kepala_kk_lama']         = null;
+            $m['diff']                   = [];
+        }
+
+        $data['parsed'] = $parsed;
+
+        if ($this->input->is_ajax_request()) {
+            $this->load->view('sid/kependudukan/ajax_import_pdf_preview', $data);
+        } else {
+            $this->render('sid/kependudukan/import_pdf_preview', $data);
+        }
+    }
+
     public function proses_import_pdf()
     {
         $this->redirect_hak_akses('u');
