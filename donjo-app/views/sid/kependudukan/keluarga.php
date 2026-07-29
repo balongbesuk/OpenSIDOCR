@@ -70,9 +70,6 @@
 					<a class="btn btn-social btn-flat btn-info btn-sm" data-toggle="dropdown"><i class='fa fa-arrow-circle-down'></i> Pilih Aksi Lainnya</a>
 					<ul class="dropdown-menu" role="menu">
 						<li>
-							<a href="<?= site_url('keluarga/dialog_import_pdf')?>" class="btn btn-social btn-flat btn-block btn-sm" title="Impor Data Kartu Keluarga dari file PDF" data-remote="false" data-toggle="modal" data-target="#modalBox" data-title="Impor Kartu Keluarga (PDF)"><i class="fa fa-file-pdf-o"></i> Impor KK (PDF)</a>
-						</li>
-						<li>
 							<a href="<?= site_url('keluarga/search_kumpulan_kk')?>" class="btn btn-social btn-flat btn-block btn-sm" title="Pilihan Kumpulan KK" data-remote="false" data-toggle="modal" data-target="#modalBox" data-title="Pilihan Kumpulan KK"><i class="fa fa-search"></i> Pilihan Kumpulan KK</a>
 						</li>
 						<li>
