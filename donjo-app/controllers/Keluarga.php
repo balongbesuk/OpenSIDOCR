@@ -757,8 +757,26 @@ class Keluarga extends Admin_Controller
             }
         }
 
+        $norm_clean = static fn ($str) => strtoupper(preg_replace('/[^A-Z0-9]/', '', (string) $str));
+
         $ref_sex   = [1 => 'LAKI-LAKI', 2 => 'PEREMPUAN'];
-        $ref_kawin = [1 => 'BELUM KAWIN', 2 => 'KAWIN TERCATAT', 3 => 'CERAI HIDUP', 4 => 'CERAI MATI'];
+        $ref_kawin_map = [
+            $norm_clean('BELUM KAWIN')          => 1,
+            $norm_clean('KAWIN TERCATAT')       => 2,
+            $norm_clean('KAWIN BELUM TERCATAT') => 2,
+            $norm_clean('KAWIN')                => 2,
+            $norm_clean('NIKAH')                => 2,
+            $norm_clean('CERAI HIDUP')          => 3,
+            $norm_clean('CERAI TERCATAT')       => 3,
+            $norm_clean('CERAI BELUM TERCATAT') => 3,
+            $norm_clean('CERAI MATI')           => 4,
+        ];
+        $kawin_rows = $this->db->get('tweb_penduduk_kawin')->result_array();
+        $ref_kawin_label = [];
+        foreach ($kawin_rows as $row) {
+            $ref_kawin_label[$row['id']] = strtoupper(trim($row['nama']));
+        }
+
         $ref_shdk  = [
             1  => 'KEPALA KELUARGA', 2 => 'SUAMI', 3 => 'ISTRI', 4 => 'ANAK', 5 => 'MENANTU',
             6  => 'CUCU', 7 => 'ORANG TUA', 8 => 'MERTUA', 9 => 'FAMILI LAIN', 10 => 'MEMBANTU', 11 => 'LAINNYA',
@@ -900,9 +918,10 @@ class Keluarga extends Admin_Controller
                 if (! empty($m['hubungan']) && $norm($db_shdk) !== $norm($m['hubungan'])) {
                     $m['diff']['hubungan'] = $db_shdk;
                 }
-                $db_kawin = $ref_kawin[$p['status_kawin']] ?? '';
-                if (! empty($m['status_kawin']) && $norm($db_kawin) !== $norm($m['status_kawin'])) {
-                    $m['diff']['status_kawin'] = $db_kawin;
+                $db_kawin_id  = $p['status_kawin'];
+                $pdf_kawin_id = $ref_kawin_map[$norm_clean($m['status_kawin'])] ?? 1;
+                if (! empty($m['status_kawin']) && $db_kawin_id != $pdf_kawin_id) {
+                    $m['diff']['status_kawin'] = $ref_kawin_label[$db_kawin_id] ?? 'BELUM KAWIN';
                 }
                 if (! empty($m['tanggalperkawinan']) && $p['tanggalperkawinan'] != $m['tanggalperkawinan']) {
                     $m['diff']['tanggalperkawinan'] = $p['tanggalperkawinan'];
@@ -947,8 +966,15 @@ class Keluarga extends Admin_Controller
 
         $ref_sex   = [$norm_clean('LAKI-LAKI') => 1, $norm_clean('PEREMPUAN') => 2];
         $ref_kawin = [
-            $norm_clean('BELUM KAWIN') => 1, $norm_clean('KAWIN TERCATAT') => 2,
-            $norm_clean('KAWIN')       => 2, $norm_clean('CERAI HIDUP') => 3, $norm_clean('CERAI MATI') => 4,
+            $norm_clean('BELUM KAWIN')          => 1,
+            $norm_clean('KAWIN TERCATAT')       => 2,
+            $norm_clean('KAWIN BELUM TERCATAT') => 2,
+            $norm_clean('KAWIN')                => 2,
+            $norm_clean('NIKAH')                => 2,
+            $norm_clean('CERAI HIDUP')          => 3,
+            $norm_clean('CERAI TERCATAT')       => 3,
+            $norm_clean('CERAI BELUM TERCATAT') => 3,
+            $norm_clean('CERAI MATI')           => 4,
         ];
         $ref_shdk = [
             $norm_clean('KEPALA KELUARGA') => 1, $norm_clean('SUAMI') => 2, $norm_clean('ISTRI') => 3,
