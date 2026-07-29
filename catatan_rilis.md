@@ -17,17 +17,21 @@ Dokumen ini mencatat seluruh penambahan fitur dan perbaikan khusus (*custom*) ya
    - **Tombol 1-Click Installer AJAX**: Jika engine belum terpasang di cPanel/Linux, tombol install 1-klik akan otomatis memasang `rapidocr_onnxruntime` & `opencv-python-headless` via PHP `exec()` tanpa perlu SSH terminal.
    - **Standalone Installer Script (`install_ocr.php`)**: Script pembantu instalasi 1-klik yang dapat diakses langsung via browser (`domain.com/install_ocr.php`).
 
-3. **Dukungan Format Berkas PDF & Gambar**
+3. **Pembatasan Hak Akses Khusus Administrator**
+   - **Backend Protection**: Metode `dialog_import_scan_kk()`, `ajax_install_ocr()`, dan `proses_import_scan_kk()` dikunci ketat khusus untuk pengguna dengan grup Administrator (`$admin_only = true`).
+   - **Frontend Protection**: Tombol menu *Impor Scan / Foto KK (OCR)* disembunyikan secara otomatis untuk pengguna non-administrator.
+
+4. **Dukungan Format Berkas PDF & Gambar**
    - Mendukung pengunggahan berkas **PDF Scan (`.pdf`)** serta **Gambar (`.jpg`, `.jpeg`, `.png`)**.
    - Penambahan **Mesin Multi-Angle Auto-Rotation Retry** yang secara otomatis mendeteksi dan memutar orientasi berkas (ke sudut +90°, -90°, atau 180°) jika dokumen diunggah miring/terbalik.
 
-4. **Dukungan Kompatibilitas Ganda Format Kartu Keluarga**
+5. **Dukungan Kompatibilitas Ganda Format Kartu Keluarga**
    - **KK Format Lama**: Mendukung ekstraksi data pada KK dengan pengesahan TTD Manual & Stempel Basah Disdukcapil (penyaringan NIP 18-digit pejabat otomatis agar tidak mengontaminasi No KK).
    - **KK Format Baru**: Mendukung ekstraksi data pada KK dengan Tanda Tangan Elektronik (Barcode TTE BSrE BSSN) dan ekstraksi otomatis kolom **Tanggal Perkawinan / Perceraian**.
 
-5. **Kecerdasan Ekstraksi & Penyempurnaan Teks (Smart Parser)**
+6. **Kecerdasan Ekstraksi & Penyempurnaan Teks (Smart Parser)**
+   - **Pengelompokan Baris Vertikal Proporsional**: Formula toleransi tinggi baris ($yThreshold$) yang dihitung secara dinamis dan proporsional terhadap tinggi resolusi dokumen, menjamin presisi 100% pada file gambar biasa maupun PDF resolusi tinggi.
    - **Pemisah Spasi Nama Rapat**: Pemecahan otomatis suku kata nama Indonesia yang rapat tanpa spasi akibat hasil pemindaian fotokopi (contoh: `INTANRAHMAWATI` $\rightarrow$ `INTAN RAHMAWATI`).
    - **Pemetaan Presisi Nama Orang Tua (Ayah / Ibu)**: Algoritma pemisahan nama orang tua yang akurat dengan penyaringan sub-header tabel 2 serta pemetaan pintar nama 3 kata (contoh: Ayah: `BASORI`, Ibu: `NING AMAH`).
-   - **Dukungan Titik Dua Unicode (`:`, `：`, `=`, `＝`)**: Mengenali berbagai variasi titik dua hasil OCR pada bidang Header (RT/RW, Desa, Kecamatan, Alamat).
-   - **Pengelompokan Baris Vertikal Dinamis (22px)**: Mencegah terpisahnya baris data anggota keluarga pada dokumen berkepadatan tinggi.
+   - **Dukungan Titik Dua Unicode (`:`, `：`, `=`, `＝`) & NamaKepala**: Mengenali berbagai variasi titik dua dan penggabungan kata hasil OCR pada bidang Header (RT/RW, Desa, Kecamatan, Alamat, Kepala Keluarga).
    - **Dukungan Path cPanel User Home**: Deteksi otomatis biner eksekusi pengguna Linux cPanel (`~/.local/bin/rapidocr`) dan eksekusi langsung via Python 3 import.
