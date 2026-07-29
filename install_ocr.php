@@ -20,7 +20,7 @@ if (!function_exists('exec')) {
 echo "<p>Status fungsi <code>exec()</code>: <b style='color:green;'>AKTIF ✅</b></p>";
 echo "<p>Menjalankan instalasi <code>rapidocr_onnxruntime</code> via Python Pip...</p>";
 
-$cmd = 'python3 -m pip install --user rapidocr_onnxruntime 2>&1';
+$cmd = 'python3 -m pip install --user --upgrade opencv-python-headless rapidocr_onnxruntime 2>&1';
 @exec($cmd, $output, $returnVar);
 
 echo "<pre>" . implode("\n", $output) . "</pre>";

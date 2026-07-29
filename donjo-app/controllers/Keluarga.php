@@ -742,12 +742,12 @@ class Keluarga extends Admin_Controller
             return;
         }
 
-        $cmd    = 'python3 -m pip install --user rapidocr_onnxruntime 2>&1';
+        $cmd    = 'python3 -m pip install --user --upgrade opencv-python-headless rapidocr_onnxruntime 2>&1';
         $output = [];
         @exec($cmd, $output, $code);
 
         if (! \App\Libraries\KkScanOcrParser::isAvailable()) {
-            $cmd2 = 'pip3 install --user rapidocr_onnxruntime 2>&1';
+            $cmd2 = 'pip3 install --user --upgrade opencv-python-headless rapidocr_onnxruntime 2>&1';
             @exec($cmd2, $output, $code);
         }
 
