@@ -724,14 +724,14 @@ class Keluarga extends Admin_Controller
 
     public function dialog_import_scan_kk()
     {
-        $this->redirect_hak_akses('u');
+        $this->redirect_hak_akses('u', '', '', true);
         $data['ocr_available'] = \App\Libraries\KkScanOcrParser::isAvailable();
         $this->load->view('sid/kependudukan/ajax_import_scan_form', $data);
     }
 
     public function ajax_install_ocr()
     {
-        $this->redirect_hak_akses('u');
+        $this->redirect_hak_akses('u', '', '', true);
 
         if (! function_exists('exec')) {
             echo json_encode([
@@ -768,7 +768,7 @@ class Keluarga extends Admin_Controller
 
     public function proses_import_scan_kk()
     {
-        $this->redirect_hak_akses('u');
+        $this->redirect_hak_akses('u', '', '', true);
 
         if (empty($_FILES['kk_scan']['tmp_name'])) {
             set_session('error_msg', 'Silakan pilih berkas foto / scan Kartu Keluarga terlebih dahulu.');

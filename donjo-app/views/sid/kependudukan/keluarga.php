@@ -42,9 +42,11 @@
 							<li>
 								<a href="<?= site_url('keluarga/dialog_import_pdf')?>" class="btn btn-social btn-flat btn-block btn-sm" title="Impor Data Kartu Keluarga dari file PDF" data-remote="false" data-toggle="modal" data-target="#modalBox" data-title="Impor Kartu Keluarga (PDF)"><i class="fa fa-file-pdf-o"></i> Impor KK (PDF)</a>
 							</li>
+							<?php if ($this->CI->grup == 1): ?>
 							<li>
 								<a href="<?= site_url('keluarga/dialog_import_scan_kk')?>" class="btn btn-social btn-flat btn-block btn-sm" title="Impor Data Kartu Keluarga dari hasil scan / foto fotokopi KK menggunakan RapidOCR ONNX" data-remote="false" data-toggle="modal" data-target="#modalBox" data-title="Impor Scan / Foto KK (OCR)"><i class="fa fa-camera"></i> Impor Scan / Foto KK (OCR)</a>
 							</li>
+							<?php endif; ?>
 						</ul>
 					</div>
 				<?php endif; ?>
