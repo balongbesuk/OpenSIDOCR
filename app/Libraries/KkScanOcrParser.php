@@ -22,7 +22,17 @@ class KkScanOcrParser
             return $localLinux;
         }
 
-        return 'rapidocr';
+        $home = getenv('HOME') ?: ($_SERVER['HOME'] ?? '');
+        if (! empty($home) && file_exists($home . '/.local/bin/rapidocr')) {
+            return $home . '/.local/bin/rapidocr';
+        }
+
+        $userHomeBin = '/home/' . get_current_user() . '/.local/bin/rapidocr';
+        if (file_exists($userHomeBin)) {
+            return $userHomeBin;
+        }
+
+        return 'python3 -m rapidocr_onnxruntime';
     }
 
     public static function isAvailable(): bool
@@ -32,23 +42,34 @@ class KkScanOcrParser
             return true;
         }
 
-        $command = (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') ? 'where rapidocr' : 'which rapidocr';
-        @exec($command, $output, $returnCode);
+        if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') {
+            @exec('where rapidocr', $out, $code);
 
-        if ($returnCode === 0 && ! empty($output)) {
+            return $code === 0 && ! empty($out);
+        }
+
+        // Cek lokasi .local/bin/rapidocr di Linux cPanel
+        $home = getenv('HOME') ?: ($_SERVER['HOME'] ?? '');
+        if (! empty($home) && file_exists($home . '/.local/bin/rapidocr')) {
             return true;
         }
 
-        // Otomatis jalankan pip install --user di Linux jika fungsi exec aktif
-        if (strtoupper(substr(PHP_OS, 0, 3)) !== 'WIN' && function_exists('exec')) {
-            @exec('python3 -m pip install --user rapidocr_onnxruntime 2>&1');
-            $outputCheck = [];
-            @exec('which rapidocr', $outputCheck, $codeCheck);
-
-            return $codeCheck === 0 && ! empty($outputCheck);
+        $userHomeBin = '/home/' . get_current_user() . '/.local/bin/rapidocr';
+        if (file_exists($userHomeBin)) {
+            return true;
         }
 
-        return false;
+        // Cek via modul python3 -m rapidocr_onnxruntime
+        $outPy = [];
+        @exec('python3 -m rapidocr_onnxruntime -h 2>&1', $outPy, $codePy);
+        $outPyStr = implode(' ', $outPy);
+        if ($codePy === 0 || strpos($outPyStr, 'rapidocr') !== false || strpos($outPyStr, 'usage') !== false || strpos($outPyStr, 'options') !== false) {
+            return true;
+        }
+
+        @exec('which rapidocr 2>&1', $outWhich, $codeWhich);
+
+        return $codeWhich === 0 && ! empty($outWhich);
     }
 
     /**
@@ -83,13 +104,29 @@ class KkScanOcrParser
     {
         $bin          = self::getRapidOcrBinary();
         $escapedImage = escapeshellarg($imagePath);
-        $escapedBin   = (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN' && file_exists($bin)) ? '"' . $bin . '"' : escapeshellarg($bin);
 
-        $cmd = "{$escapedBin} {$escapedImage} 2>&1";
+        if (strpos($bin, ' ') !== false) {
+            $cmd = "{$bin} -img {$escapedImage} 2>&1";
+        } else {
+            $escapedBin = (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN' && file_exists($bin)) ? '"' . $bin . '"' : escapeshellarg($bin);
+            $cmd        = "{$escapedBin} {$escapedImage} 2>&1";
+        }
+
         @exec($cmd, $outputArray, $returnVar);
 
         $jsonStr = implode("\n", $outputArray);
         $items   = json_decode($jsonStr, true);
+
+        if (! is_array($items)) {
+            // Fallback panggil modul python3 -m rapidocr_onnxruntime jika binary name gagal
+            if (strtoupper(substr(PHP_OS, 0, 3)) !== 'WIN' && strpos($bin, 'python3') === false) {
+                $altCmd      = "python3 -m rapidocr_onnxruntime -img {$escapedImage} 2>&1";
+                $outputArray = [];
+                @exec($altCmd, $outputArray, $altReturn);
+                $jsonStr = implode("\n", $outputArray);
+                $items   = json_decode($jsonStr, true);
+            }
+        }
 
         if (! is_array($items)) {
             log_message('error', 'RapidOCR Output Decode Failed: ' . substr($jsonStr, 0, 200));
