@@ -160,7 +160,7 @@
 											<br><small class="text-danger"><i>(Lama: <?= $m['diff']['hubungan'] ?>)</i></small>
 										<?php endif; ?>
 									</td>
-									<td><?= $m['nama_ayah'] ?> / <?= $m['nama_ibu'] ?></td>
+									<td><?= ($m['nama_ayah'] ?: '-') ?> / <?= ($m['nama_ibu'] ?: '-') ?></td>
 									<td>
 										<?php if (empty($m['db_exists']) || (!empty($m['status_dasar']) && $m['status_dasar'] != 1)): ?>
 											<input type="text" name="alamat_sebelumnya[<?= $m['nik'] ?>]" class="form-control input-sm" placeholder="Alamat asal sebelumnya..." value="<?= html_escape(!empty($m['alamat_sebelumnya']) ? $m['alamat_sebelumnya'] : $parsed['header']['alamat']) ?>" style="min-width: 150px;">

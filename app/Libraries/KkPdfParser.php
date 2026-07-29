@@ -105,39 +105,113 @@ class KkPdfParser
         }
 
         // Extract Members Table 2
+        $shdk_list  = ['KEPALA KELUARGA', 'SUAMI', 'ISTRI', 'ANAK', 'MENANTU', 'CUCU', 'ORANG TUA', 'MERTUA', 'FAMILI LAIN', 'PEMBANTU', 'LAINNYA'];
+        $kawin_list = ['KAWIN TERCATAT', 'KAWIN', 'BELUM KAWIN', 'CERAI HIDUP', 'CERAI MATI', 'KAWIN BELUM TERCATAT', 'CERAI TERCATAT'];
+
+        $t2_start = -1;
         for ($i = 0; $i < count($lines); $i++) {
-            if (in_array($lines[$i], ['KAWIN TERCATAT', 'KAWIN', 'BELUM KAWIN', 'CERAI HIDUP', 'CERAI MATI']) && preg_match('/^\d{1,2}$/', $lines[$i - 1] ?? '')) {
-                $no = $lines[$i - 1];
-                if (isset($members[$no])) {
-                    $status_kawin   = $lines[$i];
-                    $idx            = $i + 1;
-                    $tgl_perkawinan = '';
-                    if (isset($lines[$idx]) && preg_match('/^\d{2}-\d{2}-\d{4}$/', $lines[$idx])) {
-                        $tgl_perkawinan = self::formatDate($lines[$idx]);
+            if (preg_match('/^\(17\)$/', $lines[$i]) || strpos($lines[$i], 'Nama Orang Tua') !== false) {
+                $t2_start = $i + 1;
+                break;
+            }
+        }
+        if ($t2_start === -1) {
+            for ($i = 0; $i < count($lines); $i++) {
+                if (in_array($lines[$i], $kawin_list)) {
+                    $t2_start = $i - 1;
+                    break;
+                }
+            }
+        }
+
+        if ($t2_start !== -1) {
+            $t2_lines = array_slice($lines, $t2_start);
+
+            foreach ($members as $no => &$mem) {
+                $rowIdx = -1;
+                for ($i = 0; $i < count($t2_lines); $i++) {
+                    if ($t2_lines[$i] === (string) $no) {
+                        for ($j = 1; $j <= 4; $j++) {
+                            if (isset($t2_lines[$i + $j]) && (in_array($t2_lines[$i + $j], $kawin_list) || in_array($t2_lines[$i + $j], $shdk_list))) {
+                                $rowIdx = $i;
+                                break 2;
+                            }
+                        }
+                    }
+                }
+
+                if ($rowIdx !== -1) {
+                    $nextNo = (int) $no + 1;
+                    $endIdx = count($t2_lines);
+                    for ($i = $rowIdx + 1; $i < count($t2_lines); $i++) {
+                        if ($t2_lines[$i] === (string) $nextNo || (preg_match('/^\d{1,2}$/', $t2_lines[$i]) && (int) $t2_lines[$i] > (int) $no)) {
+                            $endIdx = $i;
+                            break;
+                        }
+                        if (strpos($t2_lines[$i], 'Dikeluarkan Tanggal') !== false) {
+                            $endIdx = $i;
+                            break;
+                        }
+                    }
+
+                    $rowTokens = array_slice($t2_lines, $rowIdx + 1, $endIdx - $rowIdx - 1);
+
+                    $status_kawin    = '';
+                    $tgl_perkawinan  = '';
+                    $shdk            = '';
+                    $kewarganegaraan = '';
+
+                    $idx = 0;
+                    if (isset($rowTokens[$idx]) && in_array($rowTokens[$idx], $kawin_list)) {
+                        $status_kawin = $rowTokens[$idx];
                         $idx++;
-                    } elseif (isset($lines[$idx]) && $lines[$idx] === '-') {
+                    }
+                    if (isset($rowTokens[$idx]) && preg_match('/^\d{2}-\d{2}-\d{4}$/', $rowTokens[$idx])) {
+                        $tgl_perkawinan = self::formatDate($rowTokens[$idx]);
+                        $idx++;
+                    } elseif (isset($rowTokens[$idx]) && $rowTokens[$idx] === '-' && isset($rowTokens[$idx + 1]) && in_array($rowTokens[$idx + 1], $shdk_list)) {
+                        $idx++;
+                    }
+                    if (isset($rowTokens[$idx]) && in_array($rowTokens[$idx], $shdk_list)) {
+                        $shdk = $rowTokens[$idx];
+                        $idx++;
+                    }
+                    if (isset($rowTokens[$idx]) && in_array($rowTokens[$idx], ['WNI', 'WNA', 'DUA KEWARGANEGARAAN'])) {
+                        $kewarganegaraan = $rowTokens[$idx];
                         $idx++;
                     }
 
-                    $shdk = $lines[$idx] ?? '';
-                    $idx++;
-                    $kewarganegaraan = $lines[$idx] ?? '';
-                    $idx++;
+                    $rem = array_slice($rowTokens, $idx);
 
-                    while (isset($lines[$idx]) && $lines[$idx] === '-') {
-                        $idx++;
+                    $nama_ayah = '';
+                    $nama_ibu  = '';
+
+                    if (count($rem) >= 4) {
+                        $nama_ayah = $rem[count($rem) - 2];
+                        $nama_ibu  = $rem[count($rem) - 1];
+                    } elseif (count($rem) == 3) {
+                        $nama_ayah = $rem[1];
+                        $nama_ibu  = $rem[2];
+                    } elseif (count($rem) == 2) {
+                        $nama_ayah = $rem[0];
+                        $nama_ibu  = $rem[1];
+                    } elseif (count($rem) == 1) {
+                        $nama_ibu  = $rem[0];
                     }
 
-                    $nama_ayah = $lines[$idx] ?? '';
-                    $idx++;
-                    $nama_ibu = $lines[$idx] ?? '';
+                    if ($nama_ayah === '-') {
+                        $nama_ayah = '';
+                    }
+                    if ($nama_ibu === '-') {
+                        $nama_ibu = '';
+                    }
 
-                    $members[$no]['status_kawin']      = $status_kawin;
-                    $members[$no]['tanggalperkawinan'] = $tgl_perkawinan;
-                    $members[$no]['hubungan']          = $shdk;
-                    $members[$no]['kewarganegaraan']   = $kewarganegaraan;
-                    $members[$no]['nama_ayah']         = $nama_ayah;
-                    $members[$no]['nama_ibu']          = $nama_ibu;
+                    $mem['status_kawin']      = $status_kawin;
+                    $mem['tanggalperkawinan'] = $tgl_perkawinan;
+                    $mem['hubungan']          = $shdk;
+                    $mem['kewarganegaraan']   = $kewarganegaraan;
+                    $mem['nama_ayah']         = $nama_ayah;
+                    $mem['nama_ibu']          = $nama_ibu;
                 }
             }
         }

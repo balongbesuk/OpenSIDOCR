@@ -73,6 +73,7 @@ Terima kasih pada @ruririzal dan @syahransaputra yang terus berkontribusi.
 37. [#6912](https://github.com/OpenSID/OpenSID/issues/6912) Perbaikan menampilkan foto penduduk pada halaman pemetaan.
 38. Perbaikan Impor KK PDF untuk penduduk lama yang datang kembali (penanganan status_dasar=1, log datang kembali kode_peristiwa=5, serta form input Alamat Asal).
 39. Perbaikan pembacaan kode isian format surat (helper kode_isian) agar menyaring variabel/tag PHP mentah dan kontrol internal form.
+40. Perbaikan pembacaan nama orang tua (ayah/ibu) pada Impor KK PDF ketika data nama ayah kosong/dash.
 
 #### Perubahan Teknis
 
