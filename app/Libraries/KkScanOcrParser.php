@@ -35,7 +35,20 @@ class KkScanOcrParser
         $command = (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') ? 'where rapidocr' : 'which rapidocr';
         @exec($command, $output, $returnCode);
 
-        return $returnCode === 0 && ! empty($output);
+        if ($returnCode === 0 && ! empty($output)) {
+            return true;
+        }
+
+        // Otomatis jalankan pip install --user di Linux jika fungsi exec aktif
+        if (strtoupper(substr(PHP_OS, 0, 3)) !== 'WIN' && function_exists('exec')) {
+            @exec('python3 -m pip install --user rapidocr_onnxruntime 2>&1');
+            $outputCheck = [];
+            @exec('which rapidocr', $outputCheck, $codeCheck);
+
+            return $codeCheck === 0 && ! empty($outputCheck);
+        }
+
+        return false;
     }
 
     /**
