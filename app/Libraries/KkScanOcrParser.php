@@ -251,12 +251,16 @@ class KkScanOcrParser
             ];
         }
 
-        // Urutkan item berdasarkan koordinat Y (posisi vertikal)
-        usort($items, static function ($a, $b) {
-            return $a['box'][0][1] <=> $b['box'][0][1];
-        });
+        // Hitung estimasi tinggi gambar dari Y max untuk menentukan threshold Y yang proporsional
+        $maxY = 1100;
+        foreach ($items as $it) {
+            if (isset($it['box'][2][1]) && $it['box'][2][1] > $maxY) {
+                $maxY = $it['box'][2][1];
+            }
+        }
+        $yThreshold = max(12, (int) round(14 * ($maxY / 1100)));
 
-        // Kelompokkan item menjadi baris-baris horizontal (threshold Y 15px)
+        // Kelompokkan item menjadi baris-baris horizontal
         $lines = [];
         foreach ($items as $item) {
             $box  = $item['box'];
@@ -264,9 +268,23 @@ class KkScanOcrParser
             $y    = $box[0][1];
             $x    = $box[0][0];
 
+            $itemHasNik = (bool) preg_match('/\b\d{16}\b/', $text);
+
             $foundLine = false;
             foreach ($lines as &$line) {
-                if (abs($line['y'] - $y) <= 22) {
+                if (abs($line['y'] - $y) <= $yThreshold) {
+                    $lineHasNik = false;
+                    foreach ($line['items'] as $li) {
+                        if (preg_match('/\b\d{16}\b/', $li['text'])) {
+                            $lineHasNik = true;
+                            break;
+                        }
+                    }
+
+                    if ($itemHasNik && $lineHasNik) {
+                        continue;
+                    }
+
                     $line['items'][] = ['x' => $x, 'text' => $text];
                     $foundLine       = true;
 
@@ -307,7 +325,7 @@ class KkScanOcrParser
             } elseif (empty($header['no_kk']) && preg_match('/(\d{16})/', $line, $m)) {
                 $header['no_kk'] = $m[1];
             }
-            if (preg_match('/Nama\s*Kepala\s*Keluarga\s*[:=：＝\s]*(.+)/u', $line, $m)) {
+            if (preg_match('/Nama\s*[\/\.\-]?\s*Kepala\s*Keluarga\s*[:=：＝\s]*(.+)/iu', $line, $m)) {
                 $rawNama                   = preg_replace('/(Kecamatan|Alamat|RT|RW|Kabupaten|Desa).*/iu', '', $m[1]);
                 $header['kepala_keluarga'] = self::splitConcatenatedName(strtoupper(trim(preg_replace('/[^a-zA-Z\s\,\.\']/u', '', $rawNama))));
             }
