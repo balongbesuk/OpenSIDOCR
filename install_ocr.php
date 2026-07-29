@@ -25,17 +25,14 @@ $cmd = 'python3 -m pip install --user --upgrade opencv-python-headless rapidocr_
 
 echo "<pre>" . implode("\n", $output) . "</pre>";
 
-$checkCmd = 'which rapidocr 2>&1';
-@exec($checkCmd, $checkOut, $checkVar);
+$checkPy = 'python3 -c "from rapidocr_onnxruntime import RapidOCR; print(\'OK\')" 2>&1';
+@exec($checkPy, $checkOutPy, $checkVarPy);
 
-if (!empty($checkOut)) {
-    echo "<p style='color:green;font-size:18px;'><b>🎉 BERHASIL! Engine RapidOCR telah terinstall di: " . htmlspecialchars(implode(' ', $checkOut)) . "</b></p>";
-    echo "<p>Fitur Impor Scan KK (OCR) di OpenSID siap digunakan 100%!</p>";
+if (trim(implode(' ', $checkOutPy)) === 'OK') {
+    echo "<p style='color:green;font-size:18px;'><b>🎉 BERHASIL! Engine RapidOCR & opencv-python-headless telah terpasang 100% sempurna di server!</b></p>";
+    echo "<p>Fitur Impor Scan KK (OCR) di OpenSID Anda kini siap digunakan!</p>";
 } else {
-    echo "<p style='color:orange;'>⚠️ Perintah rapidocr belum terdeteksi di PATH. Mencoba alternatif instalasi global...</p>";
-    $cmd2 = 'pip3 install --user rapidocr_onnxruntime 2>&1';
-    @exec($cmd2, $output2, $returnVar2);
-    echo "<pre>" . implode("\n", $output2) . "</pre>";
+    echo "<p style='color:orange;'>⚠️ Pengecekan modul: " . htmlspecialchars(implode(' ', $checkOutPy)) . "</p>";
 }
 
 echo "<hr><p style='color:gray;'><i>Catatan Keamanan: Setelah instalasi berhasil, Anda dapat menghapus file <b>install_ocr.php</b> ini.</i></p>";
