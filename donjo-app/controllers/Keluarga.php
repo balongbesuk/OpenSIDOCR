@@ -725,7 +725,45 @@ class Keluarga extends Admin_Controller
     public function dialog_import_scan_kk()
     {
         $this->redirect_hak_akses('u');
-        $this->load->view('sid/kependudukan/ajax_import_scan_form');
+        $data['ocr_available'] = \App\Libraries\KkScanOcrParser::isAvailable();
+        $this->load->view('sid/kependudukan/ajax_import_scan_form', $data);
+    }
+
+    public function ajax_install_ocr()
+    {
+        $this->redirect_hak_akses('u');
+
+        if (! function_exists('exec')) {
+            echo json_encode([
+                'status'  => false,
+                'message' => 'Fungsi PHP exec() dinonaktifkan di server hosting.',
+            ]);
+
+            return;
+        }
+
+        $cmd    = 'python3 -m pip install --user rapidocr_onnxruntime 2>&1';
+        $output = [];
+        @exec($cmd, $output, $code);
+
+        if (! \App\Libraries\KkScanOcrParser::isAvailable()) {
+            $cmd2 = 'pip3 install --user rapidocr_onnxruntime 2>&1';
+            @exec($cmd2, $output, $code);
+        }
+
+        $available = \App\Libraries\KkScanOcrParser::isAvailable();
+
+        if ($available) {
+            echo json_encode([
+                'status'  => true,
+                'message' => 'RapidOCR ONNX Engine berhasil terpasang di server!',
+            ]);
+        } else {
+            echo json_encode([
+                'status'  => false,
+                'message' => 'Gagal memasang RapidOCR. Pesan: ' . implode(' ', array_slice($output, -2)),
+            ]);
+        }
     }
 
     public function proses_import_scan_kk()
