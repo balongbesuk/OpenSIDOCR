@@ -4,10 +4,45 @@ Aplikasi **OpenSID Custom** ini merupakan versi modifikasi dari **OpenSID v2403.
 
 ---
 
+## 📦 Tutorial Instalasi Engine RapidOCR
+
+Engine RapidOCR dapat terpasang di server Anda melalui salah satu dari **3 metode mudah** di bawah ini:
+
+### 🌟 Metode 1: 1-Click Installer di Pop-up Modal OpenSID (Paling Mudah)
+1. Masuk ke halaman admin OpenSID $\rightarrow$ Menu **Kependudukan** $\rightarrow$ **Keluarga**.
+2. Klik tombol **Tambah KK Baru** $\rightarrow$ pilih **Impor Scan / Foto KK (OCR)**.
+3. Jika engine belum terpasang di server, modal akan menampilkan peringatan ⚠️ beserta tombol:  
+   `[ 📥 Install Engine RapidOCR Sekarang (1-Click) ]`
+4. Klik tombol tersebut, tunggu 10-30 detik hingga proses download selesai otomatis. Modal akan siap digunakan!
+
+---
+
+### 🌐 Metode 2: 1-Click Browser Installer (`install_ocr.php`)
+1. Unggah file `install_ocr.php` ke folder utama web hosting Anda (`public_html/install_ocr.php`).
+2. Akses file tersebut melalui browser:
+   ```text
+   https://domain-anda.com/install_ocr.php
+   ```
+3. Script akan otomatis mengunduh paket `rapidocr_onnxruntime` & `opencv-python-headless` yang sesuai dengan OS server Anda via fungsi PHP `exec()`.
+4. Setelah muncul pesan **🎉 BERHASIL**, Anda dapat menghapus file `install_ocr.php` demi keamanan.
+
+---
+
+### 💻 Metode 3: Instalasi Manual via Terminal SSH / Command Line
+Jika Anda memiliki akses terminal SSH di VPS/Server:
+- **Di Linux Server / VPS (Ubuntu / Debian / cPanel)**:
+  ```bash
+  pip3 install --user --upgrade opencv-python-headless rapidocr_onnxruntime
+  ```
+- **Di Local Windows Server (XAMPP / Laragon)**:
+  Aplikasi secara otomatis sudah menyertakan executable portabel `bin/rapidocr/win64/rapidocr.exe`, sehingga **langsung aktif 100% tanpa perlu instalasi apapun**!
+
+---
+
 ## 🎯 Fitur Unggulan Custom
 
 ### 1. Engine OCR Super Cepat & Lokal (RapidOCR ONNX Engine)
-- Menggantikan Tesseract OCR bawaan dengan **RapidOCR ONNX Engine** (`bin/rapidocr/win64/rapidocr.exe`).
+- Menggantikan Tesseract OCR bawaan dengan **RapidOCR ONNX Engine** (`bin/rapidocr/win64/rapidocr.exe` di Windows) dan paket PyPI `rapidocr_onnxruntime` di Linux.
 - Berjalan sepenuhnya secara lokal tanpa ketergantungan pada *cloud API* maupun instalasi dependensi tambahan.
 
 ### 2. Kompatibilitas Multi-Format File (`.pdf`, `.jpg`, `.jpeg`, `.png`)
