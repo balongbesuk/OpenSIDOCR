@@ -105,31 +105,46 @@ class KkScanOcrParser
         $bin          = self::getRapidOcrBinary();
         $escapedImage = escapeshellarg($imagePath);
 
-        if (strpos($bin, ' ') !== false) {
-            $cmd = "{$bin} -img {$escapedImage} 2>&1";
-        } else {
-            $escapedBin = (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN' && file_exists($bin)) ? '"' . $bin . '"' : escapeshellarg($bin);
+        // 1. Coba binary executable lokal (win64 / linux64)
+        if (file_exists($bin)) {
+            $escapedBin = (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') ? '"' . $bin . '"' : escapeshellarg($bin);
             $cmd        = "{$escapedBin} {$escapedImage} 2>&1";
+            $outputArray = [];
+            @exec($cmd, $outputArray, $returnVar);
+
+            $jsonStr = implode("\n", $outputArray);
+            $items   = json_decode($jsonStr, true);
+            if (is_array($items) && ! empty($items)) {
+                return $items;
+            }
         }
 
-        @exec($cmd, $outputArray, $returnVar);
+        // 2. Coba lokasi binary cPanel ~/.local/bin/rapidocr
+        $home = getenv('HOME') ?: ($_SERVER['HOME'] ?? '');
+        $cpanelBin = ! empty($home) ? $home . '/.local/bin/rapidocr' : '/home/' . get_current_user() . '/.local/bin/rapidocr';
+        if (file_exists($cpanelBin)) {
+            $cmd = escapeshellarg($cpanelBin) . " {$escapedImage} 2>&1";
+            $outputArray = [];
+            @exec($cmd, $outputArray, $returnVar);
+
+            $jsonStr = implode("\n", $outputArray);
+            $items   = json_decode($jsonStr, true);
+            if (is_array($items) && ! empty($items)) {
+                return $items;
+            }
+        }
+
+        // 3. Fallback via Python 1-liner import (100% crash-proof untuk paket pip rapidocr_onnxruntime di Linux)
+        $pyCode = escapeshellarg("import sys, json; from rapidocr_onnxruntime import RapidOCR; engine = RapidOCR(); res, _ = engine(sys.argv[1]); items = [{'box': r[0], 'text': r[1], 'score': float(r[2])} for r in (res or [])]; print(json.dumps(items))");
+        $pyCmd  = "python3 -c {$pyCode} {$escapedImage} 2>&1";
+        $outputArray = [];
+        @exec($pyCmd, $outputArray, $returnVar);
 
         $jsonStr = implode("\n", $outputArray);
         $items   = json_decode($jsonStr, true);
 
         if (! is_array($items)) {
-            // Fallback panggil modul python3 -m rapidocr_onnxruntime jika binary name gagal
-            if (strtoupper(substr(PHP_OS, 0, 3)) !== 'WIN' && strpos($bin, 'python3') === false) {
-                $altCmd      = "python3 -m rapidocr_onnxruntime -img {$escapedImage} 2>&1";
-                $outputArray = [];
-                @exec($altCmd, $outputArray, $altReturn);
-                $jsonStr = implode("\n", $outputArray);
-                $items   = json_decode($jsonStr, true);
-            }
-        }
-
-        if (! is_array($items)) {
-            log_message('error', 'RapidOCR Output Decode Failed: ' . substr($jsonStr, 0, 200));
+            log_message('error', 'RapidOCR Output Decode Failed: ' . substr($jsonStr, 0, 300));
 
             return [];
         }
