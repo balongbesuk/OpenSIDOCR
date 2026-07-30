@@ -19,15 +19,13 @@ namespace Google\Service\Script;
 
 class UpdateDeploymentRequest extends \Google\Model
 {
-  /**
-   * @var DeploymentConfig
-   */
-  public $deploymentConfig;
   protected $deploymentConfigType = DeploymentConfig::class;
   protected $deploymentConfigDataType = '';
 
   /**
-   * @param DeploymentConfig
+   * The deployment configuration.
+   *
+   * @param DeploymentConfig $deploymentConfig
    */
   public function setDeploymentConfig(DeploymentConfig $deploymentConfig)
   {

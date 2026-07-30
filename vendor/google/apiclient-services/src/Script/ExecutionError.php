@@ -21,22 +21,27 @@ class ExecutionError extends \Google\Collection
 {
   protected $collection_key = 'scriptStackTraceElements';
   /**
+   * The error message thrown by Apps Script, usually localized into the user's
+   * language.
+   *
    * @var string
    */
   public $errorMessage;
   /**
+   * The error type, for example `TypeError` or `ReferenceError`. If the error
+   * type is unavailable, this field is not included.
+   *
    * @var string
    */
   public $errorType;
-  /**
-   * @var ScriptStackTraceElement[]
-   */
-  public $scriptStackTraceElements;
   protected $scriptStackTraceElementsType = ScriptStackTraceElement::class;
   protected $scriptStackTraceElementsDataType = 'array';
 
   /**
-   * @param string
+   * The error message thrown by Apps Script, usually localized into the user's
+   * language.
+   *
+   * @param string $errorMessage
    */
   public function setErrorMessage($errorMessage)
   {
@@ -50,7 +55,10 @@ class ExecutionError extends \Google\Collection
     return $this->errorMessage;
   }
   /**
-   * @param string
+   * The error type, for example `TypeError` or `ReferenceError`. If the error
+   * type is unavailable, this field is not included.
+   *
+   * @param string $errorType
    */
   public function setErrorType($errorType)
   {
@@ -64,7 +72,10 @@ class ExecutionError extends \Google\Collection
     return $this->errorType;
   }
   /**
-   * @param ScriptStackTraceElement[]
+   * An array of objects that provide a stack trace through the script to show
+   * where the execution failed, with the deepest call first.
+   *
+   * @param ScriptStackTraceElement[] $scriptStackTraceElements
    */
   public function setScriptStackTraceElements($scriptStackTraceElements)
   {

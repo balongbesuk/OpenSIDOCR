@@ -20,27 +20,17 @@ namespace Google\Service\Script;
 class Metrics extends \Google\Collection
 {
   protected $collection_key = 'totalExecutions';
-  /**
-   * @var MetricsValue[]
-   */
-  public $activeUsers;
   protected $activeUsersType = MetricsValue::class;
   protected $activeUsersDataType = 'array';
-  /**
-   * @var MetricsValue[]
-   */
-  public $failedExecutions;
   protected $failedExecutionsType = MetricsValue::class;
   protected $failedExecutionsDataType = 'array';
-  /**
-   * @var MetricsValue[]
-   */
-  public $totalExecutions;
   protected $totalExecutionsType = MetricsValue::class;
   protected $totalExecutionsDataType = 'array';
 
   /**
-   * @param MetricsValue[]
+   * Number of active users.
+   *
+   * @param MetricsValue[] $activeUsers
    */
   public function setActiveUsers($activeUsers)
   {
@@ -54,7 +44,9 @@ class Metrics extends \Google\Collection
     return $this->activeUsers;
   }
   /**
-   * @param MetricsValue[]
+   * Number of failed executions.
+   *
+   * @param MetricsValue[] $failedExecutions
    */
   public function setFailedExecutions($failedExecutions)
   {
@@ -68,7 +60,9 @@ class Metrics extends \Google\Collection
     return $this->failedExecutions;
   }
   /**
-   * @param MetricsValue[]
+   * Number of total executions.
+   *
+   * @param MetricsValue[] $totalExecutions
    */
   public function setTotalExecutions($totalExecutions)
   {
