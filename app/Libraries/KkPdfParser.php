@@ -106,7 +106,7 @@ class KkPdfParser
 
         // Extract Members Table 2
         $shdk_list  = ['KEPALA KELUARGA', 'SUAMI', 'ISTRI', 'ANAK', 'MENANTU', 'CUCU', 'ORANG TUA', 'MERTUA', 'FAMILI LAIN', 'PEMBANTU', 'LAINNYA'];
-        $kawin_list = ['KAWIN TERCATAT', 'KAWIN', 'BELUM KAWIN', 'CERAI HIDUP', 'CERAI MATI', 'KAWIN BELUM TERCATAT', 'CERAI TERCATAT'];
+        $kawin_list = ['KAWIN TERCATAT', 'KAWIN', 'BELUM KAWIN', 'CERAI HIDUP', 'CERAI MATI', 'KAWIN BELUM TERCATAT', 'CERAI TERCATAT', 'CERAI BELUM TERCATAT'];
 
         $t2_start = -1;
         for ($i = 0; $i < count($lines); $i++) {

@@ -423,8 +423,22 @@ class KkScanOcrParser
                 }
 
                 $pendidikan = 'SLTA/SEDERAJAT';
-                if (strpos($upperLine, 'DIPLOMA') !== false || strpos($upperLine, 'STRATA') !== false || strpos($upperLine, 'S.PD') !== false) {
-                    $pendidikan = 'DIPLOMA IV/STRATA I';
+                if (preg_match('/DIPLOMA\s*(I\s*[\/\-]\s*II|1\s*[\/\-]\s*2)\b/i', $upperLine) || strpos($upperLine, 'DIPLOMA I/II') !== false || strpos($upperLine, 'DIPLOMA I / II') !== false) {
+                    $pendidikan = 'DIPLOMA I/II';
+                } elseif (strpos($upperLine, 'DIPLOMA III') !== false || strpos($upperLine, 'AKADEMI') !== false || strpos($upperLine, 'S.MUDA') !== false) {
+                    $pendidikan = 'AKADEMI/ DIPLOMA III/S. MUDA';
+                } elseif (strpos($upperLine, 'DIPLOMA IV') !== false || strpos($upperLine, 'STRATA I') !== false || strpos($upperLine, 'STRATA 1') !== false || strpos($upperLine, 'S.PD') !== false) {
+                    $pendidikan = 'DIPLOMA IV/ STRATA I';
+                } elseif (strpos($upperLine, 'STRATA II') !== false || strpos($upperLine, 'STRATA 2') !== false) {
+                    $pendidikan = 'STRATA II';
+                } elseif (strpos($upperLine, 'STRATA III') !== false || strpos($upperLine, 'STRATA 3') !== false) {
+                    $pendidikan = 'STRATA III';
+                } elseif (strpos($upperLine, 'SLTA') !== false || strpos($upperLine, 'SMA') !== false || strpos($upperLine, 'SMK') !== false || strpos($upperLine, 'MA') !== false) {
+                    $pendidikan = 'SLTA/SEDERAJAT';
+                } elseif (strpos($upperLine, 'SLTP') !== false || strpos($upperLine, 'SMP') !== false || strpos($upperLine, 'MTS') !== false) {
+                    $pendidikan = 'SLTP/SEDERAJAT';
+                } elseif (strpos($upperLine, 'TAMAT SD') !== false || strpos($upperLine, 'SD/SEDERAJAT') !== false) {
+                    $pendidikan = 'TAMAT SD/SEDERAJAT';
                 } elseif (strpos($upperLine, 'BELUM') !== false && strpos($upperLine, 'SD') !== false) {
                     $pendidikan = 'BELUM TAMAT SD/SEDERAJAT';
                 } elseif (strpos($upperLine, 'TIDAK') !== false && strpos($upperLine, 'SEKOLAH') !== false) {
@@ -520,8 +534,29 @@ class KkScanOcrParser
                     }
                 }
 
-                if ($namaAyah !== '-' || $namaIbu !== '-') {
+                $statusKawin = '';
+                $upperCleanLine = strtoupper(preg_replace('/\s+/', ' ', $line));
+                if (strpos($upperCleanLine, 'CERAI BELUM TERCATAT') !== false || strpos($upperCleanLine, 'CERAIBELUMTERCATAT') !== false) {
+                    $statusKawin = 'CERAI BELUM TERCATAT';
+                } elseif (strpos($upperCleanLine, 'CERAI TERCATAT') !== false || strpos($upperCleanLine, 'CERAITERCATAT') !== false) {
+                    $statusKawin = 'CERAI TERCATAT';
+                } elseif (strpos($upperCleanLine, 'CERAI HIDUP') !== false || strpos($upperCleanLine, 'CERAIHIDUP') !== false) {
+                    $statusKawin = 'CERAI HIDUP';
+                } elseif (strpos($upperCleanLine, 'CERAI MATI') !== false || strpos($upperCleanLine, 'CERAIMATI') !== false) {
+                    $statusKawin = 'CERAI MATI';
+                } elseif (strpos($upperCleanLine, 'KAWIN BELUM TERCATAT') !== false || strpos($upperCleanLine, 'KAWINBELUMTERCATAT') !== false) {
+                    $statusKawin = 'KAWIN BELUM TERCATAT';
+                } elseif (strpos($upperCleanLine, 'KAWIN TERCATAT') !== false || strpos($upperCleanLine, 'KAWINTERCATAT') !== false) {
+                    $statusKawin = 'KAWIN TERCATAT';
+                } elseif (strpos($upperCleanLine, 'BELUM KAWIN') !== false || strpos($upperCleanLine, 'BELUMKAWIN') !== false) {
+                    $statusKawin = 'BELUM KAWIN';
+                } elseif (preg_match('/\bKAWIN\b/', $upperCleanLine)) {
+                    $statusKawin = 'KAWIN';
+                }
+
+                if ($namaAyah !== '-' || $namaIbu !== '-' || ! empty($statusKawin)) {
                     $table2Rows[] = [
+                        'status_kawin'      => $statusKawin,
                         'nama_ayah'         => self::splitConcatenatedName($namaAyah),
                         'nama_ibu'          => self::splitConcatenatedName($namaIbu),
                         'tanggalperkawinan' => $tglKawin,
@@ -537,13 +572,13 @@ class KkScanOcrParser
 
             if ($idx === 0) {
                 $finalHub   = 'KEPALA KELUARGA';
-                $finalKawin = 'KAWIN';
+                $finalKawin = ! empty($t2['status_kawin']) ? $t2['status_kawin'] : 'KAWIN';
             } elseif ($idx === 1 && $t1['sex'] === 'PEREMPUAN') {
                 $finalHub   = 'ISTRI';
-                $finalKawin = 'KAWIN';
+                $finalKawin = ! empty($t2['status_kawin']) ? $t2['status_kawin'] : 'KAWIN';
             } else {
                 $finalHub   = 'ANAK';
-                $finalKawin = 'BELUM KAWIN';
+                $finalKawin = ! empty($t2['status_kawin']) ? $t2['status_kawin'] : 'BELUM KAWIN';
             }
 
             $members[] = [

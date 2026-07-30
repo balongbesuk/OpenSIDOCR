@@ -930,6 +930,9 @@ class Keluarga extends Admin_Controller
 
         $norm_pend = static function ($str) {
             $clean = strtoupper(trim(preg_replace('/\s+/', ' ', (string) $str)));
+            if (preg_match('/^DIPLOMA\s*(I\s*[\/\-]\s*II|1\s*[\/\-]\s*2)/i', $clean) || $clean === 'DIPLOMA I/II' || $clean === 'DIPLOMA I / II') {
+                return 'diplomai_ii';
+            }
             if (strpos($clean, 'AKADEMI') !== false || strpos($clean, 'DIPLOMA III') !== false || strpos($clean, 'SARJANA MUDA') !== false || strpos($clean, 'S. MUDA') !== false || strpos($clean, 'S.MUDA') !== false) {
                 return 'akademidiplomaiiismuda';
             }
@@ -1110,17 +1113,36 @@ class Keluarga extends Admin_Controller
             $ref_agama[$norm_clean($row['nama'])] = $row['id'];
         }
 
+        $norm_clean_pend = static function ($str) use ($norm_clean) {
+            $clean = strtoupper(trim((string) $str));
+            if ($clean === 'DIPLOMA I/II' || $clean === 'DIPLOMA I / II' || $clean === 'DIPLOMA I/ II' || $clean === 'DIPLOMA I /II' || preg_match('/^DIPLOMA\s*(I\s*[\/\-]\s*II|1\s*[\/\-]\s*2)/i', $clean)) {
+                return 'DIPLOMAI_II';
+            }
+            if ($clean === 'DIPLOMA III' || $clean === 'DIPLOMA 3' || strpos($clean, 'AKADEMI') !== false || strpos($clean, 'SARJANA MUDA') !== false || strpos($clean, 'S. MUDA') !== false) {
+                return 'DIPLOMAIII';
+            }
+            if ($clean === 'DIPLOMA IV/ STRATA I' || $clean === 'DIPLOMA IV / STRATA I' || $clean === 'DIPLOMA IV' || $clean === 'STRATA I' || $clean === 'STRATA 1' || $clean === 'S1' || $clean === 'D4') {
+                return 'DIPLOMAIV_STRATAI';
+            }
+            return $norm_clean($clean);
+        };
+
         $pendidikan_rows = $this->db->get('tweb_penduduk_pendidikan_kk')->result_array();
         $ref_pendidikan  = [];
         foreach ($pendidikan_rows as $row) {
-            $ref_pendidikan[$norm_clean($row['nama'])] = $row['id'];
+            $ref_pendidikan[$norm_clean_pend($row['nama'])] = $row['id'];
+            if ($row['id'] == 6) {
+                $ref_pendidikan['DIPLOMAI_II'] = 6;
+                $ref_pendidikan[$norm_clean_pend('DIPLOMA I/II')]   = 6;
+                $ref_pendidikan[$norm_clean_pend('DIPLOMA I / II')] = 6;
+            }
             if ($row['id'] == 7) {
-                $ref_pendidikan[$norm_clean('AKADEMI/DIPLOMA III/SARJANA MUDA')]   = 7;
-                $ref_pendidikan[$norm_clean('AKADEMI/ DIPLOMA III/ SARJANA MUDA')] = 7;
-                $ref_pendidikan[$norm_clean('DIPLOMA III')]                       = 7;
-                $ref_pendidikan[$norm_clean('DIPLOMA III/SARJANA MUDA')]           = 7;
-                $ref_pendidikan[$norm_clean('AKADEMI/ DIPLOMA III/S. MUDA')]       = 7;
-                $ref_pendidikan[$norm_clean('AKADEMI/DIPLOMA III/S.MUDA')]         = 7;
+                $ref_pendidikan[$norm_clean_pend('AKADEMI/DIPLOMA III/SARJANA MUDA')]   = 7;
+                $ref_pendidikan[$norm_clean_pend('AKADEMI/ DIPLOMA III/ SARJANA MUDA')] = 7;
+                $ref_pendidikan[$norm_clean_pend('DIPLOMA III')]                       = 7;
+                $ref_pendidikan[$norm_clean_pend('DIPLOMA III/SARJANA MUDA')]           = 7;
+                $ref_pendidikan[$norm_clean_pend('AKADEMI/ DIPLOMA III/S. MUDA')]       = 7;
+                $ref_pendidikan[$norm_clean_pend('AKADEMI/DIPLOMA III/S.MUDA')]         = 7;
             }
         }
 
@@ -1194,7 +1216,7 @@ class Keluarga extends Admin_Controller
 
             $sex_id          = $ref_sex[$norm_clean($m['sex'])] ?? 1;
             $agama_id        = $ref_agama[$norm_clean($m['agama'])] ?? 1;
-            $pendidikan_id   = $ref_pendidikan[$norm_clean($m['pendidikan'])] ?? 1;
+            $pendidikan_id   = $ref_pendidikan[$norm_clean_pend($m['pendidikan'])] ?? 1;
             $pekerjaan_id    = $ref_pekerjaan[$norm_clean($m['pekerjaan'])] ?? 1;
             $status_kawin_id = $ref_kawin[$norm_clean($m['status_kawin'])] ?? 1;
             $shdk_id         = $ref_shdk[$norm_clean($m['hubungan'])] ?? 4;

@@ -147,7 +147,7 @@
 											<?php endif; ?>
 										</td>
 										<td <?= (isset($m['diff']['status_kawin']) || isset($m['diff']['tanggalperkawinan'])) ? 'style="background-color: #fff3cd;"' : '' ?>>
-											<?= $m['status_kawin'] ?? '-' ?>
+											<?= !empty($m['status_kawin']) ? $m['status_kawin'] : '-' ?>
 											<?php if (!empty($m['tanggalperkawinan'])): ?>
 												<br><small class="text-muted"><i class="fa fa-calendar"></i> Tgl: <?= tgl_indo($m['tanggalperkawinan']) ?></small>
 											<?php endif; ?>

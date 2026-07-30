@@ -35,3 +35,18 @@ Dokumen ini mencatat seluruh penambahan fitur dan perbaikan khusus (*custom*) ya
    - **Pemetaan Presisi Nama Orang Tua (Ayah / Ibu)**: Algoritma pemisahan nama orang tua yang akurat dengan penyaringan sub-header tabel 2 serta pemetaan pintar nama 3 kata (contoh: Ayah: `BASORI`, Ibu: `NING AMAH`).
    - **Dukungan Titik Dua Unicode (`:`, `：`, `=`, `＝`) & NamaKepala**: Mengenali berbagai variasi titik dua dan penggabungan kata hasil OCR pada bidang Header (RT/RW, Desa, Kecamatan, Alamat, Kepala Keluarga).
    - **Dukungan Path cPanel User Home**: Deteksi otomatis biner eksekusi pengguna Linux cPanel (`~/.local/bin/rapidocr`) dan eksekusi langsung via Python 3 import.
+
+---
+
+## Versi Custom 2403.0.1 (Perbaikan Impor PDF/Scan KK)
+
+### 🐛 Perbaikan Bug & Penyempurnaan Parser KK
+
+1. **Perbaikan Pembacaan & Pemetaan Status Perkawinan `CERAI BELUM TERCATAT`**
+   - Menambahkan `'CERAI BELUM TERCATAT'` ke dalam daftar referensi status perkawinan pada `App\Libraries\KkPdfParser` dan `App\Libraries\KkScanOcrParser`.
+   - Memastikan status perkawinan "CERAI BELUM TERCATAT" dari kolom (10) Kartu Keluarga elektronik maupun scan terbaca dengan presisi dan tidak menjadi kosong di pratinjau maupun database.
+
+2. **Perbaikan Pemetaan & Penyimpanan Tingkat Pendidikan `DIPLOMA I/II`**
+   - Mengatasi masalah tabrakan kunci normalisasi string (*string collision*) pada `Keluarga.php` di mana kunci normalisasi `"DIPLOMA I / II"` sebelumnya menghasilkan string `"DIPLOMAIII"`, yang menyebabkan tertimpa oleh ID `7` (`AKADEMI/ DIPLOMA III/S. MUDA`) dan gagal tersimpan sebagai ID `6` (`DIPLOMA I / II`).
+   - Menambahkan fungsi normalisasi khusus `$norm_clean_pend` yang memisahkan kunci `DIPLOMA I/II` (`DIPLOMAI_II`) dan `DIPLOMA III` (`DIPLOMAIII`) sehingga data pendidikan `DIPLOMA I/II` tersimpan secara presisi ke database `tweb_penduduk` (`pendidikan_kk_id = 6`).
+   - Menyempurnakan deteksi tingkat pendidikan pada `KkScanOcrParser.php`.
