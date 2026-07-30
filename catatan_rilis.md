@@ -69,3 +69,6 @@ Dokumen ini mencatat seluruh penambahan fitur dan perbaikan khusus (*custom*) ya
 
 4. **Proteksi Helper Autocomplete (`opensid_helper.php`)**
    - Menambahkan *guard check* `if (empty($data) || !is_array($data) ...)` pada fungsi `autocomplete_data_ke_str()` untuk mencegah error `array_keys()` null argument pada PHP 8.3+.
+
+5. **Pembaruan Dokumentasi Utam (`README.md`)**
+   - Menambahkan seksi Fitur Unggulan Custom Pindah Penduduk Kolektif 1 KK / Pindah Sebagian & Otomatisasi Permendagri 108/2019 serta panduan penggunaannya pada `README.md`.
