@@ -179,6 +179,7 @@
 												<?php if ($this->CI->cek_hak_akses('u')): ?>
 													<?php if ($data['status_dasar'] == 1): ?>
 														<a href="<?= site_url("keluarga/edit_nokk/{$p}/{$o}/{$data['id']}")?>" title="Ubah Data" data-remote="false" data-toggle="modal" data-target="#modalBox" data-title="Ubah Data KK" class="btn bg-orange btn-flat btn-sm"><i class="fa fa-edit"></i></a>
+														<a href="<?= site_url("keluarga/dialog_pindah_kk/{$data['id']}")?>" title="Pindah Penduduk (1 KK / Sebagian)" data-remote="false" data-toggle="modal" data-target="#modalBox" data-title="Ubah Status Pindah (1 KK / Sebagian)" class="btn bg-olive btn-flat btn-sm"><i class="fa fa-truck"></i></a>
 													<?php else: ?>
 														<?php if ($data['jumlah_anggota'] > 0): ?>
 															<a href="<?= site_url("keluarga/form_pecah_semua/{$data['id']}")?>" title="Pecah semua anggota ke keluarga baru" data-remote="false" data-toggle="modal" data-target="#modalBox" data-title="Pecah menjadi keluarga baru" class="btn bg-purple btn-flat btn-sm"><i class="fa fa-cut"></i></a>

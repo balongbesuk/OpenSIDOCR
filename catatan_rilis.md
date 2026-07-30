@@ -50,3 +50,22 @@ Dokumen ini mencatat seluruh penambahan fitur dan perbaikan khusus (*custom*) ya
    - Mengatasi masalah tabrakan kunci normalisasi string (*string collision*) pada `Keluarga.php` di mana kunci normalisasi `"DIPLOMA I / II"` sebelumnya menghasilkan string `"DIPLOMAIII"`, yang menyebabkan tertimpa oleh ID `7` (`AKADEMI/ DIPLOMA III/S. MUDA`) dan gagal tersimpan sebagai ID `6` (`DIPLOMA I / II`).
    - Menambahkan fungsi normalisasi khusus `$norm_clean_pend` yang memisahkan kunci `DIPLOMA I/II` (`DIPLOMAI_II`) dan `DIPLOMA III` (`DIPLOMAIII`) sehingga data pendidikan `DIPLOMA I/II` tersimpan secara presisi ke database `tweb_penduduk` (`pendidikan_kk_id = 6`).
    - Menyempurnakan deteksi tingkat pendidikan pada `KkScanOcrParser.php`.
+
+### 🚀 Fitur Baru: Pindah Penduduk Kolektif (Satu KK / Pindah Sebagian)
+
+1. **Fitur Ubah Status Dasar Pindah Kolektif (Batch Family Relocation)**
+   - Menambahkan fitur pengubahan status dasar `PINDAH` sekaligus untuk seluruh anggota keluarga (1 KK) atau sebagian anggota keluarga yang dicentang (*checkbox*) dalam 1 formulir terpadu (*Single Batch Form*).
+   - Menyediakan tombol aksi `[ 🚚 Pindah KK / Sebagian ]` pada Halaman Anggota Keluarga (`keluarga/anggota`) dan Tabel Data Keluarga (`keluarga`).
+
+2. **Otomatisasi Pecah KK & Pembuatan No. KK Sementara Sesuai Permendagri No. 108/2019**
+   - Apabila Kepala Keluarga lama ikut pindah dan terdapat sisa anggota keluarga yang ditinggalkan (tidak pindah), sistem secara otomatis membuatkan **Kartu Keluarga Baru (No. KK Sementara)** untuk sisa anggota tersebut.
+   - Sistem menyarankan secara otomatis Kepala KK Baru dari **anggota tersisa yang tertua**, serta memberikan *dropdown select* bagi operator jika ingin menentukan Kepala KK Baru lain berdasarkan kesepakatan keluarga.
+   - Seluruh transaksi mutasi dilakukan secara aman dalam *Database Transaction* (`$this->db->trans_start()`) dan memperbarui `log_penduduk` serta `log_keluarga`.
+   - Mengatasi masalah evaluasi kunci status dasar anggota tersisa sehingga alur pemecahan KK Baru berjalan 100% presisi.
+
+3. **Penyempurnaan UI Modal & Penyelarasan Datepicker**
+   - Perombakan tampilan modal dialog `ajax_pindah_kk_form.php` agar 100% seragam dengan desain form bawaan OpenSID AdminLTE (`box box-danger`, header tabel `bg-gray disabled color-palette`, dan tombol `btn-social btn-flat`).
+   - Penyelarasan format tanggal peristiwa dan tanggal lapor menggunakan format Indonesia `DD-MM-YYYY`.
+
+4. **Proteksi Helper Autocomplete (`opensid_helper.php`)**
+   - Menambahkan *guard check* `if (empty($data) || !is_array($data) ...)` pada fungsi `autocomplete_data_ke_str()` untuk mencegah error `array_keys()` null argument pada PHP 8.3+.

@@ -68,6 +68,9 @@
 						</ul>
 					</div>
 				<?php endif; ?>
+				<?php if ($this->CI->cek_hak_akses('u')): ?>
+					<a href="<?= site_url("keluarga/dialog_pindah_kk/{$kk}") ?>" class="btn btn-social btn-flat bg-olive btn-sm visible-xs-block visible-sm-inline-block visible-md-inline-block visible-lg-inline-block" data-remote="false" data-toggle="modal" data-target="#modalBox" data-title="Ubah Status Pindah (1 KK / Sebagian)" title="Pindah Penduduk (1 KK atau Sebagian)"><i class="fa fa-truck"></i> Pindah KK / Sebagian</a>
+				<?php endif; ?>
 				<a href="<?= site_url("keluarga/kartu_keluarga/{$p}/{$o}/{$kk}")?>" class="btn btn-social btn-flat bg-purple btn-sm visible-xs-block visible-sm-inline-block visible-md-inline-block visible-lg-inline-block"><i class="fa fa-book"></i> Kartu Keluarga</a>
 				<a href="<?=site_url("keluarga/index/{$p}/{$o}")?>" class="btn btn-social btn-flat btn-info btn-sm btn-sm visible-xs-block visible-sm-inline-block visible-md-inline-block visible-lg-inline-block" title="Kembali Ke Daftar Keluarga"><i class="fa fa-arrow-circle-left "></i>Kembali Ke Daftar Keluarga
 				</a>

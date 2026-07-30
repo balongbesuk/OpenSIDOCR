@@ -1343,4 +1343,142 @@ class Keluarga extends Admin_Controller
 
         redirect('keluarga');
     }
+
+    public function dialog_pindah_kk($id_kk = 0)
+    {
+        $this->redirect_hak_akses('u');
+
+        $data['kk']              = $this->keluarga_model->get_keluarga($id_kk);
+        $data['anggota']         = $this->keluarga_model->list_anggota($id_kk);
+        $data['list_ref_pindah'] = $this->referensi_model->list_data('ref_pindah');
+        $data['form_action']     = site_url("{$this->controller}/proses_pindah_kk/{$id_kk}");
+
+        $this->load->view('sid/kependudukan/ajax_pindah_kk_form', $data);
+    }
+
+    public function proses_pindah_kk($id_kk = 0)
+    {
+        $this->redirect_hak_akses('u');
+
+        $id_pend_pindah    = $this->input->post('id_cb') ?: [];
+        $tgl_peristiwa     = rev_tgl($this->input->post('tgl_peristiwa'));
+        $tgl_lapor         = rev_tgl($this->input->post('tgl_lapor'));
+        $ref_pindah        = $this->input->post('ref_pindah');
+        $alamat_tujuan     = strip_tags($this->input->post('alamat_tujuan'));
+        $catatan           = alfanumerik_spasi($this->input->post('catatan'));
+        $kepala_kk_baru_id = $this->input->post('kepala_kk_baru');
+
+        if (empty($id_pend_pindah)) {
+            session_error('Pilih minimal satu anggota keluarga yang akan dipindahkan.');
+            redirect("{$this->controller}/anggota/1/0/{$id_kk}");
+        }
+
+        $this->db->trans_start();
+
+        $kk_lama       = $this->keluarga_model->get_keluarga($id_kk);
+        $semua_anggota = $this->keluarga_model->list_anggota($id_kk);
+
+        // 1. Ubah Status Dasar Pindah (3) untuk anggota yang dicentang
+        foreach ($id_pend_pindah as $id_pend) {
+            $pend = $this->penduduk_model->get_penduduk($id_pend);
+
+            $this->db->where('id', $id_pend)->update('tweb_penduduk', [
+                'status_dasar' => 3,
+                'updated_at'   => date('Y-m-d H:i:s'),
+                'updated_by'   => $this->session->user,
+            ]);
+
+            $log_pend = [
+                'config_id'      => identitas('id'),
+                'id_pend'        => $id_pend,
+                'no_kk'          => $pend['no_kk'],
+                'nama_kk'        => $pend['kepala_kk'],
+                'tgl_peristiwa'  => $tgl_peristiwa,
+                'tgl_lapor'      => $tgl_lapor,
+                'kode_peristiwa' => 3,
+                'ref_pindah'     => $ref_pindah ?: 1,
+                'alamat_tujuan'  => $alamat_tujuan,
+                'catatan'        => $catatan,
+            ];
+            $this->penduduk_model->tulis_log_penduduk_data($log_pend);
+        }
+
+        // 2. Evaluasi Sisa Anggota Keluarga
+        $sisa_anggota_aktif = array_values(array_filter($semua_anggota, static function ($m) use ($id_pend_pindah) {
+            $status_dasar = $m['status_dasar'] ?? $m['status_dasar_id'] ?? 1;
+            return ! in_array($m['id'], $id_pend_pindah) && $status_dasar == 1;
+        }));
+
+        if (empty($sisa_anggota_aktif)) {
+            // SELURUH KK PINDAH -> Log keluarga pindah
+            $this->keluarga_model->log_keluarga($id_kk, \App\Models\LogKeluarga::KEPALA_KELUARGA_PINDAH);
+        } else {
+            // PINDAH SEBAGIAN -> Cek apakah Kepala KK lama ikut pindah
+            $kepala_kk_lama_pindah = in_array($kk_lama['nik_kepala'], $id_pend_pindah);
+
+            if ($kepala_kk_lama_pindah) {
+                // ATURAN DUKCAPIL: Kepala KK Lama Pindah -> Sisa Anggota Dibuatkan KK Baru (No. KK Sementara)
+                usort($sisa_anggota_aktif, static function ($a, $b) {
+                    return strtotime($a['tanggallahir']) <=> strtotime($b['tanggallahir']);
+                });
+
+                // Pilih kepala KK baru (pilihan operator atau otomatis tertua)
+                $kepala_kk_baru = null;
+                if (! empty($kepala_kk_baru_id)) {
+                    foreach ($sisa_anggota_aktif as $candidate) {
+                        if ($candidate['id'] == $kepala_kk_baru_id) {
+                            $kepala_kk_baru = $candidate;
+                            break;
+                        }
+                    }
+                }
+                if (! $kepala_kk_baru) {
+                    $kepala_kk_baru = $sisa_anggota_aktif[0];
+                }
+
+                $nokk_sementara = $this->keluarga_model->nokk_sementara();
+
+                // Buat KK Baru untuk sisa anggota
+                $data_kk_baru = [
+                    'config_id'    => identitas('id'),
+                    'no_kk'        => $nokk_sementara,
+                    'nik_kepala'   => $kepala_kk_baru['id'],
+                    'alamat'       => $kk_lama['alamat'],
+                    'id_cluster'   => $kk_lama['id_cluster'],
+                    'tgl_daftar'   => date('Y-m-d H:i:s'),
+                    'updated_at'   => date('Y-m-d H:i:s'),
+                    'updated_by'   => $this->session->user,
+                ];
+                $this->db->insert('tweb_keluarga', $data_kk_baru);
+                $id_kk_baru = $this->db->insert_id();
+
+                // Pindahkan sisa anggota ke KK Baru & atur kk_level
+                foreach ($sisa_anggota_aktif as $anggota) {
+                    $level = ($anggota['id'] == $kepala_kk_baru['id']) ? 1 : $anggota['kk_level'];
+                    $this->db->where('id', $anggota['id'])->update('tweb_penduduk', [
+                        'id_kk'            => $id_kk_baru,
+                        'kk_level'         => $level,
+                        'no_kk_sebelumnya' => $kk_lama['no_kk'],
+                        'updated_at'       => date('Y-m-d H:i:s'),
+                        'updated_by'       => $this->session->user,
+                    ]);
+                }
+
+                // Catat log keluarga baru
+                $this->keluarga_model->log_keluarga($id_kk_baru, \App\Models\LogKeluarga::KELUARGA_BARU);
+            }
+        }
+
+        $this->db->trans_complete();
+        $this->cache->hapus_cache_untuk_semua('_wilayah');
+
+        if ($this->db->trans_status() === false) {
+            session_error('Gagal memproses pemindahan penduduk kolektif.');
+        } else {
+            session_success();
+            set_session('flash_message', 'Berhasil memindahkan ' . count($id_pend_pindah) . ' anggota keluarga. Sisa anggota keluarga telah diproses sesuai ketentuan.');
+        }
+
+        redirect("{$this->controller}/anggota/1/0/{$id_kk}");
+    }
 }
