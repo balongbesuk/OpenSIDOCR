@@ -1200,7 +1200,7 @@
         Prism.languages.insertBefore('csharp', 'string', {
           'interpolation-string': [
             {
-              pattern: re(/(^|[^\\])(?:\$@|@\$)"(?:""|\\[\s\S]|\{\{|<<0>>|[^\\{"])*"/.source, [mInterpolation]),
+              pattern: re(/(^|[^\\])(?:\$@|@\$)"(?:""|\\[\s\S]|\{\{|<<0>>|[^\\{"<])*"/.source, [mInterpolation]),
               lookbehind: true,
               greedy: true,
               inside: createInterpolationInside(mInterpolation, mInterpolationRound)
