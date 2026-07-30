@@ -69,3 +69,6 @@ Dokumen ini mencatat seluruh penambahan fitur dan perbaikan khusus (*custom*) ya
 
 4. **Proteksi Helper Autocomplete (`opensid_helper.php`)**
    - Menambahkan *guard check* `if (empty($data) || !is_array($data) ...)` pada fungsi `autocomplete_data_ke_str()` untuk mencegah error `array_keys()` null argument pada PHP 8.3+.
+
+5. **Pemberharuan Dokumentasi Utama (`README.md`)**
+   - Memperbarui `README.md` dengan penekanan pada fitur-fitur unggulan kependudukan mutakhir yang tidak dimiliki OpenSID standar (Batch Pindah 1 KK/Sebagian, Otomatisasi Permendagri 108/2019, Engine Impor Scan KK via RapidOCR ONNX, serta Perbaikan Pemetaan Pendidikan & Status Perkawinan).
