@@ -819,9 +819,37 @@ class Keluarga extends Admin_Controller
             $ref_kawin_label[$row['id']] = strtoupper(trim($row['nama']));
         }
 
+        if (! empty($parsed['header']['kepala_keluarga'])) {
+            $parsed['header']['kepala_keluarga'] = \App\Libraries\KkScanOcrParser::splitConcatenatedName($parsed['header']['kepala_keluarga']);
+        }
+        if (! empty($parsed['header']['alamat'])) {
+            $parsed['header']['alamat'] = \App\Libraries\KkScanOcrParser::splitConcatenatedName($parsed['header']['alamat']);
+        }
+
         foreach ($parsed['members'] as &$m) {
-            $nik  = $m['nik'];
-            $p    = ! empty($nik) ? $this->db->where('nik', $nik)->get('tweb_penduduk')->row_array() : null;
+            $nik = $m['nik'];
+            $p   = ! empty($nik) ? $this->db->where('nik', $nik)->get('tweb_penduduk')->row_array() : null;
+
+            if ($p) {
+                if (! empty($p['nama']) && $norm_clean($p['nama']) === $norm_clean($m['nama'])) {
+                    $m['nama'] = $p['nama'];
+                }
+                if (! empty($p['nama_ayah']) && (! empty($m['nama_ayah']) && $m['nama_ayah'] !== '-') && $norm_clean($p['nama_ayah']) === $norm_clean($m['nama_ayah'])) {
+                    $m['nama_ayah'] = $p['nama_ayah'];
+                }
+                if (! empty($p['nama_ibu']) && (! empty($m['nama_ibu']) && $m['nama_ibu'] !== '-') && $norm_clean($p['nama_ibu']) === $norm_clean($m['nama_ibu'])) {
+                    $m['nama_ibu'] = $p['nama_ibu'];
+                }
+            } else {
+                $m['nama'] = \App\Libraries\KkScanOcrParser::splitConcatenatedName($m['nama']);
+                if (! empty($m['nama_ayah'])) {
+                    $m['nama_ayah'] = \App\Libraries\KkScanOcrParser::splitConcatenatedName($m['nama_ayah']);
+                }
+                if (! empty($m['nama_ibu'])) {
+                    $m['nama_ibu'] = \App\Libraries\KkScanOcrParser::splitConcatenatedName($m['nama_ibu']);
+                }
+            }
+
             $m['db_exists']              = ! empty($p);
             $m['is_nik_sementara_match'] = false;
             $m['nik_lama']               = null;
@@ -936,6 +964,15 @@ class Keluarga extends Admin_Controller
             if (strpos($clean, 'AKADEMI') !== false || strpos($clean, 'DIPLOMA III') !== false || strpos($clean, 'SARJANA MUDA') !== false || strpos($clean, 'S. MUDA') !== false || strpos($clean, 'S.MUDA') !== false) {
                 return 'akademidiplomaiiismuda';
             }
+            if (preg_match('/STRATA\s*(III|3)\b/i', $clean) || $clean === 'S3') {
+                return 'strataiii';
+            }
+            if (preg_match('/STRATA\s*(II|2)\b/i', $clean) || $clean === 'S2') {
+                return 'strataii';
+            }
+            if (strpos($clean, 'DIPLOMA IV') !== false || preg_match('/STRATA\s*(I|1)\b/i', $clean) || $clean === 'STRATAI' || $clean === 'S1' || $clean === 'D4') {
+                return 'diplomaiv_stratai';
+            }
 
             return strtolower(preg_replace('/[^a-z0-9]/i', '', $clean));
         };
@@ -957,6 +994,13 @@ class Keluarga extends Admin_Controller
 
             return strtolower(preg_replace('/[^a-z0-9]/i', '', $clean));
         };
+
+        if (! empty($parsed['header']['kepala_keluarga'])) {
+            $parsed['header']['kepala_keluarga'] = \App\Libraries\KkScanOcrParser::splitConcatenatedName($parsed['header']['kepala_keluarga']);
+        }
+        if (! empty($parsed['header']['alamat'])) {
+            $parsed['header']['alamat'] = \App\Libraries\KkScanOcrParser::splitConcatenatedName($parsed['header']['alamat']);
+        }
 
         foreach ($parsed['members'] as &$m) {
             $nik                    = $m['nik'];
@@ -984,6 +1028,26 @@ class Keluarga extends Admin_Controller
 
                         break;
                     }
+                }
+            }
+
+            if ($p) {
+                if (! empty($p['nama']) && $norm_clean($p['nama']) === $norm_clean($m['nama'])) {
+                    $m['nama'] = $p['nama'];
+                }
+                if (! empty($p['nama_ayah']) && (! empty($m['nama_ayah']) && $m['nama_ayah'] !== '-') && $norm_clean($p['nama_ayah']) === $norm_clean($m['nama_ayah'])) {
+                    $m['nama_ayah'] = $p['nama_ayah'];
+                }
+                if (! empty($p['nama_ibu']) && (! empty($m['nama_ibu']) && $m['nama_ibu'] !== '-') && $norm_clean($p['nama_ibu']) === $norm_clean($m['nama_ibu'])) {
+                    $m['nama_ibu'] = $p['nama_ibu'];
+                }
+            } else {
+                $m['nama'] = \App\Libraries\KkScanOcrParser::splitConcatenatedName($m['nama']);
+                if (! empty($m['nama_ayah'])) {
+                    $m['nama_ayah'] = \App\Libraries\KkScanOcrParser::splitConcatenatedName($m['nama_ayah']);
+                }
+                if (! empty($m['nama_ibu'])) {
+                    $m['nama_ibu'] = \App\Libraries\KkScanOcrParser::splitConcatenatedName($m['nama_ibu']);
                 }
             }
 
@@ -1118,12 +1182,19 @@ class Keluarga extends Admin_Controller
             if ($clean === 'DIPLOMA I/II' || $clean === 'DIPLOMA I / II' || $clean === 'DIPLOMA I/ II' || $clean === 'DIPLOMA I /II' || preg_match('/^DIPLOMA\s*(I\s*[\/\-]\s*II|1\s*[\/\-]\s*2)/i', $clean)) {
                 return 'DIPLOMAI_II';
             }
-            if ($clean === 'DIPLOMA III' || $clean === 'DIPLOMA 3' || strpos($clean, 'AKADEMI') !== false || strpos($clean, 'SARJANA MUDA') !== false || strpos($clean, 'S. MUDA') !== false) {
+            if ($clean === 'DIPLOMA III' || $clean === 'DIPLOMA 3' || preg_match('/DIPLOMA\s*(III|3)\b/i', $clean) || strpos($clean, 'AKADEMI') !== false || strpos($clean, 'SARJANA MUDA') !== false || strpos($clean, 'S. MUDA') !== false) {
                 return 'DIPLOMAIII';
             }
-            if ($clean === 'DIPLOMA IV/ STRATA I' || $clean === 'DIPLOMA IV / STRATA I' || $clean === 'DIPLOMA IV' || $clean === 'STRATA I' || $clean === 'STRATA 1' || $clean === 'S1' || $clean === 'D4') {
+            if (preg_match('/STRATA\s*(III|3)\b/i', $clean) || $clean === 'S3') {
+                return 'STRATAIII';
+            }
+            if (preg_match('/STRATA\s*(II|2)\b/i', $clean) || $clean === 'S2') {
+                return 'STRATAII';
+            }
+            if (strpos($clean, 'DIPLOMA IV') !== false || preg_match('/STRATA\s*(I|1)\b/i', $clean) || $clean === 'STRATAI' || $clean === 'S1' || $clean === 'D4' || preg_match('/DIPLOMA\s*(IV|4)\s*[\/\-]?\s*STRATA\s*(I|1)\b/i', $clean)) {
                 return 'DIPLOMAIV_STRATAI';
             }
+
             return $norm_clean($clean);
         };
 
@@ -1131,18 +1202,43 @@ class Keluarga extends Admin_Controller
         $ref_pendidikan  = [];
         foreach ($pendidikan_rows as $row) {
             $ref_pendidikan[$norm_clean_pend($row['nama'])] = $row['id'];
+            $ref_pendidikan[$norm_clean($row['nama'])]      = $row['id'];
+
             if ($row['id'] == 6) {
                 $ref_pendidikan['DIPLOMAI_II'] = 6;
                 $ref_pendidikan[$norm_clean_pend('DIPLOMA I/II')]   = 6;
                 $ref_pendidikan[$norm_clean_pend('DIPLOMA I / II')] = 6;
+                $ref_pendidikan[$norm_clean('DIPLOMA I/II')]        = 6;
             }
             if ($row['id'] == 7) {
+                $ref_pendidikan['DIPLOMAIII'] = 7;
                 $ref_pendidikan[$norm_clean_pend('AKADEMI/DIPLOMA III/SARJANA MUDA')]   = 7;
                 $ref_pendidikan[$norm_clean_pend('AKADEMI/ DIPLOMA III/ SARJANA MUDA')] = 7;
                 $ref_pendidikan[$norm_clean_pend('DIPLOMA III')]                       = 7;
                 $ref_pendidikan[$norm_clean_pend('DIPLOMA III/SARJANA MUDA')]           = 7;
                 $ref_pendidikan[$norm_clean_pend('AKADEMI/ DIPLOMA III/S. MUDA')]       = 7;
                 $ref_pendidikan[$norm_clean_pend('AKADEMI/DIPLOMA III/S.MUDA')]         = 7;
+            }
+            if ($row['id'] == 8) {
+                $ref_pendidikan['DIPLOMAIV_STRATAI'] = 8;
+                $ref_pendidikan[$norm_clean_pend('DIPLOMA IV/STRATA I')]   = 8;
+                $ref_pendidikan[$norm_clean_pend('DIPLOMA IV/ STRATA I')]  = 8;
+                $ref_pendidikan[$norm_clean_pend('DIPLOMA IV / STRATA I')] = 8;
+                $ref_pendidikan[$norm_clean('DIPLOMA IV/STRATA I')]        = 8;
+                $ref_pendidikan[$norm_clean('DIPLOMA IV/ STRATA I')]       = 8;
+                $ref_pendidikan[$norm_clean('DIPLOMA IV / STRATA I')]      = 8;
+            }
+            if ($row['id'] == 9) {
+                $ref_pendidikan['STRATAII'] = 9;
+                $ref_pendidikan[$norm_clean('STRATA II')] = 9;
+                $ref_pendidikan[$norm_clean('STRATA 2')]  = 9;
+                $ref_pendidikan[$norm_clean('S2')]        = 9;
+            }
+            if ($row['id'] == 10) {
+                $ref_pendidikan['STRATAIII'] = 10;
+                $ref_pendidikan[$norm_clean('STRATA III')] = 10;
+                $ref_pendidikan[$norm_clean('STRATA 3')]   = 10;
+                $ref_pendidikan[$norm_clean('S3')]         = 10;
             }
         }
 

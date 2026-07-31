@@ -8,6 +8,15 @@ class KkPdfParser
     {
         $rawText = self::extractRawText($filePath);
         if (empty($rawText)) {
+            $ocrResult = KkScanOcrParser::parseImage($filePath, basename($filePath));
+            if (! empty($ocrResult['header']['no_kk']) || ! empty($ocrResult['members'])) {
+                return [
+                    'status'  => true,
+                    'header'  => $ocrResult['header'],
+                    'members' => $ocrResult['members'],
+                ];
+            }
+
             return ['status' => false, 'message' => 'Gagal membaca isi file PDF'];
         }
 
@@ -213,6 +222,17 @@ class KkPdfParser
                     $mem['nama_ayah']         = $nama_ayah;
                     $mem['nama_ibu']          = $nama_ibu;
                 }
+            }
+        }
+
+        if (empty($header['no_kk']) || empty($members)) {
+            $ocrResult = KkScanOcrParser::parseImage($filePath, basename($filePath));
+            if (! empty($ocrResult['header']['no_kk']) || ! empty($ocrResult['members'])) {
+                return [
+                    'status'  => true,
+                    'header'  => $ocrResult['header'],
+                    'members' => $ocrResult['members'],
+                ];
             }
         }
 

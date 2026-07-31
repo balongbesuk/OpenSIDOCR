@@ -77,18 +77,53 @@ class KkScanOcrParser
      */
     public static function extractImageFromPdf(string $pdfPath): ?string
     {
+        $tmpJpg = sys_get_temp_dir() . '/ocr_pdf_' . md5($pdfPath . @filemtime($pdfPath)) . '.jpg';
+
+        // 1. Coba PyMuPDF via python/python3 jika tersedia (kualitas rendering 300 DPI sangat tinggi)
+        $cleanPdf = str_replace('\\', '/', $pdfPath);
+        $cleanJpg = str_replace('\\', '/', $tmpJpg);
+        $pyCode   = "import fitz; doc = fitz.open('{$cleanPdf}'); page = doc[0]; pix = page.get_pixmap(dpi=300); pix.save('{$cleanJpg}')";
+        
+        $cmdPy3 = "python3 -c " . escapeshellarg($pyCode) . " 2>&1";
+        @exec($cmdPy3, $outPy3, $codePy3);
+        if ($codePy3 === 0 && file_exists($tmpJpg) && filesize($tmpJpg) > 10000) {
+            return $tmpJpg;
+        }
+
+        if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') {
+            $cmdWin = "python -c " . escapeshellarg($pyCode) . " 2>&1";
+            @exec($cmdWin, $outWin, $codeWin);
+            if ($codeWin === 0 && file_exists($tmpJpg) && filesize($tmpJpg) > 10000) {
+                return $tmpJpg;
+            }
+        }
+
+        // 2. Fallback ekstraksi stream JPEG terbesar di dalam file PDF
         $content = @file_get_contents($pdfPath);
         if (! $content) {
             return null;
         }
 
-        $start = strpos($content, "\xFF\xD8\xFF");
-        if ($start !== false) {
+        $offset = 0;
+        $images = [];
+        while (($start = strpos($content, "\xFF\xD8\xFF", $offset)) !== false) {
             $end = strpos($content, "\xFF\xD9", $start);
             if ($end !== false) {
-                $jpgData = substr($content, $start, ($end + 2) - $start);
-                $tmpJpg  = sys_get_temp_dir() . '/ocr_extract_' . md5($pdfPath . time()) . '.jpg';
-                file_put_contents($tmpJpg, $jpgData);
+                $len = ($end + 2) - $start;
+                $images[] = substr($content, $start, $len);
+                $offset = $end + 2;
+            } else {
+                break;
+            }
+        }
+
+        if (! empty($images)) {
+            usort($images, static function ($a, $b) {
+                return strlen($b) <=> strlen($a);
+            });
+            $largest = $images[0];
+            if (strlen($largest) > 5000) {
+                file_put_contents($tmpJpg, $largest);
 
                 return $tmpJpg;
             }
@@ -331,7 +366,7 @@ class KkScanOcrParser
             }
             if (preg_match('/Alamat\s*[:=：＝\s]*(.+)/u', $line, $m)) {
                 $rawAlamat        = preg_replace('/(Kabupaten|Kecamatan|Desa|Kode\s+Pos|RT|RW).*/iu', '', $m[1]);
-                $header['alamat'] = strtoupper(trim(preg_replace('/[^a-zA-Z0-9\s\.\,\/]/u', '', $rawAlamat)));
+                $header['alamat'] = self::splitConcatenatedName(strtoupper(trim(preg_replace('/[^a-zA-Z0-9\s\.\,\/]/u', '', $rawAlamat))));
             }
             if (preg_match('/RT\s*[\/\.\-]?\s*RW\s*[:=：＝\s]*(\d+)\s*[\/\.\-]\s*(\d+)/u', $line, $m)) {
                 $header['rt'] = sprintf('%03d', (int) $m[1]);
@@ -383,7 +418,8 @@ class KkScanOcrParser
                 continue;
             }
 
-            if (strpos($upperLine, 'DOKUMEN IMIGRASI') !== false || strpos($upperLine, 'NAMA ORANG TUA') !== false || strpos($upperLine, 'STATUS PERKAWINAN') !== false) {
+            $upperLineNoSpace = preg_replace('/\s+/', '', $upperLine);
+            if (strpos($upperLineNoSpace, 'DOKUMENIMIGRASI') !== false || strpos($upperLineNoSpace, 'NAMAORANGTUA') !== false || strpos($upperLineNoSpace, 'STATUSPERKAWINAN') !== false || strpos($upperLineNoSpace, 'STATUSHUBUNGAN') !== false) {
                 $inTable1Section = false;
                 $inTable2Section = true;
                 continue;
@@ -446,7 +482,9 @@ class KkScanOcrParser
                 }
 
                 $pekerjaan = 'BELUM/TIDAK BEKERJA';
-                if (strpos($upperLine, 'KARYAWAN') !== false || strpos($upperLine, 'SWASTA') !== false) {
+                if (strpos($upperLine, 'WIRASWASTA') !== false || strpos($upperLine, 'WIRA SWASTA') !== false) {
+                    $pekerjaan = 'WIRASWASTA';
+                } elseif (strpos($upperLine, 'KARYAWAN') !== false || (strpos($upperLine, 'SWASTA') !== false && strpos($upperLine, 'WIRA') === false)) {
                     $pekerjaan = 'KARYAWAN SWASTA';
                 } elseif (strpos($upperLine, 'GURU') !== false) {
                     $pekerjaan = 'GURU';
@@ -607,47 +645,71 @@ class KkScanOcrParser
     public static function splitConcatenatedName(string $name): string
     {
         $name = trim($name);
-        if (strpos($name, ' ') !== false || strlen($name) <= 3) {
+        if ($name === '' || $name === '-') {
             return $name;
         }
 
+        // Sisipkan spasi setelah titik jika belum ada spasi (misal: MOH.AJIR -> MOH. AJIR, ST.MAIMUNAH -> ST. MAIMUNAH)
+        $name = preg_replace('/([A-Z0-9]{2,})\.([A-Z0-9])/i', '$1. $2', $name);
+
         $tokens = [
-            'MUCHAMMAD', 'MOCHAMAD', 'MUHAMMAD', 'ALIYUL', 'ANDIM', 'ANISYAH',
-            'NAFFISA', 'IZZAH', 'INAYAH', 'HAIDAR', 'INTAN', 'RAHMAWATI',
-            'FADILAH', 'SYAFA', 'PRATIWI', 'MUJIONO', 'SULAMI', 'BASORI',
-            'SOLIKAN', 'RIFAH', 'KASMINAH', 'MARIJAN', 'MUKTI', 'NGALI',
-            'RAHMA', 'WATI', 'PUTRI', 'PUTRA', 'NURUL', 'KHUSNAH', 'KHASANAH',
-            'AULIA', 'SITI', 'AGUS', 'SRI', 'DWI', 'TRI', 'CATUR', 'EKO',
-            'BAYU', 'RIZKY', 'FEBRI', 'RAMADHAN', 'KURNIAWAN', 'SETIAWAN',
-            'HERMAWAN', 'LESTARI', 'PURWANTI', 'SUSANTI', 'MAHARANI', 'WULANDARI',
-            'FEBRIANI', 'SEPTIANI', 'APRILLIA', 'KUSUMA', 'FIRMANSYAH', 'HIDAYAT',
-            'PRATAMA', 'SULISTYO', 'SAPUTRA', 'SAPUTRI', 'FATIMAH', 'ZAHRA'
+            'MUCHAMMAD', 'MOCHAMAD', 'MUHAMMAD', 'MOHAMMAD', 'FITRIONO', 'ARDIANSAH', 'ARDIANSYAH',
+            'ARDIAN', 'AFIFAH', 'PURNOMO', 'PURNAMA', 'SULIANAH', 'SUNARTI', 'MUJIONO', 'SOLIKAN',
+            'RIFAH', 'KASMINAH', 'MARIJAN', 'MUKTI', 'NGALI', 'ALIYUL', 'ANDIM', 'ANISYAH',
+            'NAFFISA', 'IZZAH', 'INAYAH', 'HAIDAR', 'INTAN', 'RAHMAWATI', 'FADILAH', 'SYAFA',
+            'PRATIWI', 'SULAMI', 'BASORI', 'RAHMA', 'WATI', 'PUTRI', 'PUTRA', 'NURUL', 'KHUSNAH',
+            'KHASANAH', 'AULIA', 'SITI', 'AGUS', 'SRI', 'DWI', 'TRI', 'CATUR', 'EKO', 'BAYU',
+            'RIZKY', 'FEBRI', 'RAMADHAN', 'KURNIAWAN', 'SETIAWAN', 'HERMAWAN', 'LESTARI', 'PURWANTI',
+            'SUSANTI', 'MAHARANI', 'WULANDARI', 'FEBRIANI', 'SEPTIANI', 'APRILLIA', 'KUSUMA',
+            'FIRMANSYAH', 'HIDAYAT', 'PRATAMA', 'SULISTYO', 'SAPUTRA', 'SAPUTRI', 'FATIMAH',
+            'ZAHRA', 'BAMBANG', 'HARIYANTO', 'SUDARMAN', 'HERU', 'SUPRIYANTO', 'SURYADI',
+            'WIBOWO', 'WIJAYA', 'FACHRUDIN', 'SUSILO', 'CHANDRA', 'BUDI', 'SANTOSO', 'HADI',
+            'MULYONO', 'IRWAN', 'INDRA', 'REZA', 'ALAMSIAH', 'FIRDAUS', 'ROHMAN', 'RAHMAN',
+            'SOFYAN', 'SEPTIAN', 'ANDI', 'AHMAD', 'ACHMAD', 'AMIR', 'AJIR', 'ANWAR',
+            'HIDAYATULLAH', 'HASAN', 'HUSEIN', 'ISKANDAR', 'ILHAM', 'IWAN', 'JAMAL', 'JOKO',
+            'KARTIKA', 'LUKMAN', 'MAULANA', 'NOVI', 'NUGROHO', 'OKTA', 'PERDANA', 'RATNA',
+            'RIZAL', 'RUDI', 'SAIFUL', 'SLAMET', 'SUGIARTO', 'SUKARNO', 'SUHARTO', 'SYAMSUL',
+            'TAUFIK', 'UTAMI', 'WAHYU', 'WIBISONO', 'YULIA', 'YULI', 'YUNUS', 'YUSUF', 'ZULKARNAIN',
+            'ANI', 'EDI', 'DSN', 'BALONG', 'BESUK', 'BESOK', 'DUSUN', 'KAMPUNG', 'KMP', 'JL', 'JLN'
         ];
 
         usort($tokens, static function ($a, $b) {
             return strlen($b) <=> strlen($a);
         });
 
-        $result    = [];
-        $remaining = strtoupper($name);
+        $words      = preg_split('/\s+/', $name);
+        $finalWords = [];
 
-        while (strlen($remaining) > 0) {
-            $matched = false;
-            foreach ($tokens as $token) {
-                if (strpos($remaining, $token) === 0) {
-                    $result[]  = $token;
-                    $remaining = substr($remaining, strlen($token));
-                    $matched   = true;
+        foreach ($words as $word) {
+            $cleanWord = trim($word);
+            if ($cleanWord === '' || strlen($cleanWord) <= 3) {
+                $finalWords[] = $cleanWord;
+                continue;
+            }
+
+            $remaining = strtoupper($cleanWord);
+            $subWords  = [];
+
+            while (strlen($remaining) > 0) {
+                $matched = false;
+                foreach ($tokens as $token) {
+                    if (strpos($remaining, $token) === 0) {
+                        $subWords[] = $token;
+                        $remaining  = substr($remaining, strlen($token));
+                        $matched    = true;
+                        break;
+                    }
+                }
+                if (! $matched) {
+                    $subWords[] = $remaining;
                     break;
                 }
             }
-            if (! $matched) {
-                $result[] = $remaining;
-                break;
-            }
+
+            $finalWords[] = implode(' ', $subWords);
         }
 
-        return implode(' ', $result);
+        return implode(' ', array_filter($finalWords));
     }
 
     private static function formatDate(string $dateStr): string
