@@ -437,7 +437,7 @@ function cetakBox() {
 function mapBox() {
   $("#mapBox").on("show.bs.modal", function (e) {
     var link = $(e.relatedTarget);
-    $(".modal-header #myModalLabel").html(link.attr("data-title"));
+    $(".modal-header #myModalLabel").text(link.attr("data-title"));
     $(this).find(".fetched-data").load(link.attr("href"));
   });
 }
