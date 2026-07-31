@@ -4,37 +4,25 @@ Dokumen ini mencatat seluruh penambahan fitur dan perbaikan khusus (*custom*) ya
 
 ---
 
-## Versi Custom 2403.0.0 (Fitur Impor Scan / Foto KK OCR)
+## Versi Custom 2403.0.2 (Perbaikan Pemisahan Spasi OCR & Pemetaan Pendidikan DIPLOMA IV/STRATA I)
 
-### 🚀 Penambahan Fitur Custom
+### 🐛 Perbaikan Bug & Penyempurnaan Parser KK
 
-1. **Migrasi & Integrasi Engine OCR Tercepat (RapidOCR ONNX Engine)**
-   - Menggantikan Tesseract OCR bawaan dengan **RapidOCR ONNX Engine** lokal (`bin/rapidocr/win64/rapidocr.exe` di Windows) dan paket PyPI `rapidocr_onnxruntime` + `opencv-python-headless` di Linux.
-   - Pembacaan teks sangat cepat tanpa ketergantungan pada *cloud API* eksternal.
+1. **Perbaikan Pemisahan Spasi Nama & Alamat OCR (`splitConcatenatedName`)**
+   - Memperbarui fungsi `splitConcatenatedName()` di `App\Libraries\KkScanOcrParser` agar memproses teks per-kata (*word-by-word*) secara presisi.
+   - Menambahkan penanganan otomatis titik pada nama gelar/singkatan tanpa spasi (contoh: `MOH.FULAN` $\rightarrow$ `MOH. FULAN`).
+   - Memperluas kamus token kata Indonesia (`FULAN`, `SETIAWAN`, `FULANAH`, `DSN`, `MELATI`, dll.) sehingga nama dan alamat hasil OCR rapat terpisah sempurna (contoh: `FULANSETIAWAN` $\rightarrow$ `FULAN SETIAWAN`, `DSNMELATI` $\rightarrow$ `DSN MELATI`).
 
-2. **Deteksi Otomatis & Fitur 1-Click Installer di Pop-up Modal**
-   - **Indikator Status Real-time**: Menampilkan badge status engine OCR (Ready ✅ / Belum Terpasang ⚠️) secara otomatis pada modal impor.
-   - **Tombol 1-Click Installer AJAX**: Jika engine belum terpasang di cPanel/Linux, tombol install 1-klik akan otomatis memasang `rapidocr_onnxruntime` & `opencv-python-headless` via PHP `exec()` tanpa perlu SSH terminal.
-   - **Standalone Installer Script (`install_ocr.php`)**: Script pembantu instalasi 1-klik yang dapat diakses langsung via browser (`domain.com/install_ocr.php`).
+2. **Otomatisasi Pemulihan Ejaan Nama Resmi & Spasi dari Database**
+   - Pada `donjo-app/controllers/Keluarga.php` metode `proses_import_scan_kk` dan `proses_import_pdf`, jika NIK / penduduk telah terdaftar di database `tweb_penduduk`, sistem secara otomatis memulihkan ejaan nama resmi lengkap beserta spasinya (`nama`, `nama_ayah`, `nama_ibu`) dari database.
 
-3. **Pembatasan Hak Akses Khusus Administrator**
-   - **Backend Protection**: Metode `dialog_import_scan_kk()`, `ajax_install_ocr()`, dan `proses_import_scan_kk()` dikunci ketat khusus untuk pengguna dengan grup Administrator (`$admin_only = true`).
-   - **Frontend Protection**: Tombol menu *Impor Scan / Foto KK (OCR)* disembunyikan secara otomatis untuk pengguna non-administrator.
+3. **Perbaikan Pemetaan Tingkat Pendidikan `DIPLOMA IV/STRATA I`, `STRATA II`, dan `STRATA III`**
+   - Mengatasi masalah di mana tingkat pendidikan `DIPLOMA IV/STRATA I` (tanpa spasi setelah tanda `/`) gagal terpetakan ke ID `8` dan tersimpan salah sebagai ID `1` (`TIDAK / BELUM SEKOLAH`).
+   - Memperbarui `$norm_clean_pend` & `$norm_pend` di `Keluarga.php` menggunakan *regex word boundary* `\b` (`preg_match('/STRATA\s*(I|1)\b/i')`) agar `STRATA I` tidak bertabrakan dengan `STRATA III` atau `STRATA II`.
+   - Menambahkan alias referensi pendidikan yang presisi pada `$ref_pendidikan` untuk ID `8` (`DIPLOMA IV/ STRATA I`), ID `9` (`STRATA II`), dan ID `10` (`STRATA III`).
 
-4. **Dukungan Format Berkas PDF & Gambar**
-   - Mendukung pengunggahan berkas **PDF Scan (`.pdf`)** serta **Gambar (`.jpg`, `.jpeg`, `.png`)**.
-   - Penambahan **Mesin Multi-Angle Auto-Rotation Retry** yang secara otomatis mendeteksi dan memutar orientasi berkas (ke sudut +90°, -90°, atau 180°) jika dokumen diunggah miring/terbalik.
-
-5. **Dukungan Kompatibilitas Ganda Format Kartu Keluarga**
-   - **KK Format Lama**: Mendukung ekstraksi data pada KK dengan pengesahan TTD Manual & Stempel Basah Disdukcapil (penyaringan NIP 18-digit pejabat otomatis agar tidak mengontaminasi No KK).
-   - **KK Format Baru**: Mendukung ekstraksi data pada KK dengan Tanda Tangan Elektronik (Barcode TTE BSrE BSSN) dan ekstraksi otomatis kolom **Tanggal Perkawinan / Perceraian**.
-
-6. **Kecerdasan Ekstraksi & Penyempurnaan Teks (Smart Parser)**
-   - **Pengelompokan Baris Vertikal Proporsional**: Formula toleransi tinggi baris ($yThreshold$) yang dihitung secara dinamis dan proporsional terhadap tinggi resolusi dokumen, menjamin presisi 100% pada file gambar biasa maupun PDF resolusi tinggi.
-   - **Pemisah Spasi Nama Rapat**: Pemecahan otomatis suku kata nama Indonesia yang rapat tanpa spasi akibat hasil pemindaian fotokopi (contoh: `INTANRAHMAWATI` $\rightarrow$ `INTAN RAHMAWATI`).
-   - **Pemetaan Presisi Nama Orang Tua (Ayah / Ibu)**: Algoritma pemisahan nama orang tua yang akurat dengan penyaringan sub-header tabel 2 serta pemetaan pintar nama 3 kata (contoh: Ayah: `BASORI`, Ibu: `NING AMAH`).
-   - **Dukungan Titik Dua Unicode (`:`, `：`, `=`, `＝`) & NamaKepala**: Mengenali berbagai variasi titik dua dan penggabungan kata hasil OCR pada bidang Header (RT/RW, Desa, Kecamatan, Alamat, Kepala Keluarga).
-   - **Dukungan Path cPanel User Home**: Deteksi otomatis biner eksekusi pengguna Linux cPanel (`~/.local/bin/rapidocr`) dan eksekusi langsung via Python 3 import.
+4. **Dukungan Fallback PDF Scan Tanpa Stream Teks**
+   - Memperbarui `App\Libraries\KkPdfParser` dengan dukungan eksekusi PyMuPDF 300 DPI dan *fallback* otomatis ke `KkScanOcrParser::parseImage()` jika berkas PDF yang diunggah berupa hasil scan/foto tanpa teks stream mentah.
 
 ---
 
@@ -70,5 +58,39 @@ Dokumen ini mencatat seluruh penambahan fitur dan perbaikan khusus (*custom*) ya
 4. **Proteksi Helper Autocomplete (`opensid_helper.php`)**
    - Menambahkan *guard check* `if (empty($data) || !is_array($data) ...)` pada fungsi `autocomplete_data_ke_str()` untuk mencegah error `array_keys()` null argument pada PHP 8.3+.
 
-5. **Pembaruan Dokumentasi Utam (`README.md`)**
+5. **Pembaruan Dokumentasi Utama (`README.md`)**
    - Menambahkan seksi Fitur Unggulan Custom Pindah Penduduk Kolektif 1 KK / Pindah Sebagian & Otomatisasi Permendagri 108/2019 serta panduan penggunaannya pada `README.md`.
+
+---
+
+## Versi Custom 2403.0.0 (Fitur Impor Scan / Foto KK OCR)
+
+### 🚀 Penambahan Fitur Custom
+
+1. **Migrasi & Integrasi Engine OCR Tercepat (RapidOCR ONNX Engine)**
+   - Menggantikan Tesseract OCR bawaan dengan **RapidOCR ONNX Engine** lokal (`bin/rapidocr/win64/rapidocr.exe` di Windows) dan paket PyPI `rapidocr_onnxruntime` + `opencv-python-headless` di Linux.
+   - Pembacaan teks sangat cepat tanpa ketergantungan pada *cloud API* eksternal.
+
+2. **Deteksi Otomatis & Fitur 1-Click Installer di Pop-up Modal**
+   - **Indikator Status Real-time**: Menampilkan badge status engine OCR (Ready ✅ / Belum Terpasang ⚠️) secara otomatis pada modal impor.
+   - **Tombol 1-Click Installer AJAX**: Jika engine belum terpasang di cPanel/Linux, tombol install 1-klik akan otomatis memasang `rapidocr_onnxruntime` & `opencv-python-headless` via PHP `exec()` tanpa perlu SSH terminal.
+   - **Standalone Installer Script (`install_ocr.php`)**: Script pembantu instalasi 1-klik yang dapat diakses langsung via browser (`domain.com/install_ocr.php`).
+
+3. **Pembatasan Hak Akses Khusus Administrator**
+   - **Backend Protection**: Metode `dialog_import_scan_kk()`, `ajax_install_ocr()`, dan `proses_import_scan_kk()` dikunci ketat khusus untuk pengguna dengan grup Administrator (`$admin_only = true`).
+   - **Frontend Protection**: Tombol menu *Impor Scan / Foto KK (OCR)* disembunyikan secara otomatis untuk pengguna non-administrator.
+
+4. **Dukungan Format Berkas PDF & Gambar**
+   - Mendukung pengunggahan berkas **PDF Scan (`.pdf`)** serta **Gambar (`.jpg`, `.jpeg`, `.png`)**.
+   - Penambahan **Mesin Multi-Angle Auto-Rotation Retry** yang secara otomatis mendeteksi dan memutar orientasi berkas (ke sudut +90°, -90°, atau 180°) jika dokumen diunggah miring/terbalik.
+
+5. **Dukungan Kompatibilitas Ganda Format Kartu Keluarga**
+   - **KK Format Lama**: Mendukung ekstraksi data pada KK dengan pengesahan TTD Manual & Stempel Basah Disdukcapil (penyaringan NIP 18-digit pejabat otomatis agar tidak mengontaminasi No KK).
+   - **KK Format Baru**: Mendukung ekstraksi data pada KK dengan Tanda Tangan Elektronik (Barcode TTE BSrE BSSN) dan ekstraksi otomatis kolom **Tanggal Perkawinan / Perceraian**.
+
+6. **Kecerdasan Ekstraksi & Penyempurnaan Teks (Smart Parser)**
+   - **Pengelompokan Baris Vertikal Proporsional**: Formula toleransi tinggi baris ($yThreshold$) yang dihitung secara dinamis dan proporsional terhadap tinggi resolusi dokumen, menjamin presisi 100% pada file gambar biasa maupun PDF resolusi tinggi.
+   - **Pemisah Spasi Nama Rapat**: Pemecahan otomatis suku kata nama Indonesia yang rapat tanpa spasi akibat hasil pemindaian fotokopi (contoh: `FULANSETIAWAN` $\rightarrow$ `FULAN SETIAWAN`).
+   - **Pemetaan Presisi Nama Orang Tua (Ayah / Ibu)**: Algoritma pemisahan nama orang tua yang akurat dengan penyaringan sub-header tabel 2 serta pemetaan pintar nama 3 kata (contoh: Ayah: `FULAN`, Ibu: `FULANAH`).
+   - **Dukungan Titik Dua Unicode (`:`, `：`, `=`, `＝`) & NamaKepala**: Mengenali berbagai variasi titik dua dan penggabungan kata hasil OCR pada bidang Header (RT/RW, Desa, Kecamatan, Alamat, Kepala Keluarga).
+   - **Dukungan Path cPanel User Home**: Deteksi otomatis biner eksekusi pengguna Linux cPanel (`~/.local/bin/rapidocr`) dan eksekusi langsung via Python 3 import.
