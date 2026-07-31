@@ -22595,6 +22595,7 @@ $.fn.select2.defaults.set("selectionCssClass", ":all:");
   var _some = Function.call.bind(Array.prototype.some);
 
   var defineProperty = function (object, name, value, force) {
+    if (name === '__proto__' || name === 'constructor' || name === 'prototype') { return; }
     if (!force && name in object) { return; }
     if (supportsDescriptors) {
       Object.defineProperty(object, name, {
@@ -55171,7 +55172,7 @@ var Toolbar = function (_Module) {
           } else if (!Array.isArray(formats[format])) {
             var value = formats[format];
             if (typeof value === 'string') {
-              value = value.replace(/\"/g, '\\"');
+              value = value.replace(/\\/g, '\\\\').replace(/\"/g, '\\"');
             }
             option = input.querySelector('option[value="' + value + '"]');
           }

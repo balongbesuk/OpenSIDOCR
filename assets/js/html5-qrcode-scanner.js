@@ -507,7 +507,7 @@ class Html5QrcodeScanner {
         }
         const messageDiv = document.getElementById(
             this.__getHeaderMessageContainerId());
-        messageDiv.innerHTML = messageText;
+        messageDiv.textContent = messageText;
         messageDiv.style.display = "block";
 
         switch (statusClass) {
