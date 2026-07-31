@@ -843,7 +843,7 @@
             },
             /\b[A-Z]\w*(?=\s*::\s*\w+\s*\()/,
             /\b[A-Z_]\w*(?=\s*::\s*~\w+\s*\()/i,
-            /\b\w+(?=\s*<(?:[^<>]|<(?:[^<>]|<[^<>]*>)*>)*>\s*::\s*\w+\s*\()/
+            /\b\w+(?=\s*<(?:[^<>]|<[^<>]*>)*>\s*::\s*\w+\s*\()/
           ],
           'keyword': keyword,
           'number': {
@@ -931,7 +931,7 @@
         var keywords = RegExp(keywordsToPattern(keywordKinds.type + ' ' + keywordKinds.typeDeclaration + ' ' + keywordKinds.contextual + ' ' + keywordKinds.other));
         var nonTypeKeywords = keywordsToPattern(keywordKinds.typeDeclaration + ' ' + keywordKinds.contextual + ' ' + keywordKinds.other);
         var nonContextualKeywords = keywordsToPattern(keywordKinds.type + ' ' + keywordKinds.typeDeclaration + ' ' + keywordKinds.other);
-        var generic = nested(/<(?:[^<>;=+\-*/%&|^]|<<self>>)*>/.source, 2);
+        var generic = /<(?:[^<>;=+\-*/%&|^]|<[^<>;=+\-*/%&|^]*>)*>/.source;
         var nestedRound = /\((?:[^()]|\((?:[^()]|\([^()]*\))*\))*\)/.source;
         var name = /@?\b[A-Za-z_]\w*\b/.source;
         var genericName = replace(/<<0>>(?:\s*<<1>>)?/.source, [
@@ -952,7 +952,7 @@
           nestedRound,
           array
         ]);
-        var tuple = replace(/\(<<0>>+(?:,<<0>>+)+\)/.source, [tupleElement]);
+        var tuple = replace(/\(<<0>>+(?:,<<0>>+)*\)/.source, [tupleElement]);
         var typeExpression = replace(/(?:<<0>>|<<1>>)(?:\s*(?:\?\s*)?<<2>>)*(?:\s*\?)?/.source, [
           tuple,
           identifier,
@@ -1130,7 +1130,7 @@
         });
         var regularStringOrCharacter = regularString + '|' + character;
         var regularStringCharacterOrComment = replace(/\/(?![*/])|\/\/[^\r\n]*[\r\n]|\/\*(?:[^*]|\*(?!\/))*\*\/|<<0>>/.source, [regularStringOrCharacter]);
-        var roundExpression = nested(replace(/[^"'/()]|<<0>>|\(<<self>>*\)/.source, [regularStringCharacterOrComment]), 2);
+        var roundExpression = replace(/(?:[^"'/()]|<<0>>|\([^()]*\))*/.source, [regularStringCharacterOrComment]);
         var attrTarget = /\b(?:assembly|event|field|method|module|param|property|return|type)\b/.source;
         var attr = replace(/<<0>>(?:\s*\(<<1>>*\))?/.source, [
           identifier,
@@ -1162,12 +1162,12 @@
           }
         });
         var formatString = /:[^}\r\n]+/.source;
-        var mInterpolationRound = nested(replace(/[^"'/()]|<<0>>|\(<<self>>*\)/.source, [regularStringCharacterOrComment]), 2);
+        var mInterpolationRound = replace(/(?:[^"'/()]|<<0>>|\([^()]*\))*/.source, [regularStringCharacterOrComment]);
         var mInterpolation = replace(/\{(?!\{)(?:(?![}:])<<0>>)*<<1>>?\}/.source, [
           mInterpolationRound,
           formatString
         ]);
-        var sInterpolationRound = nested(replace(/[^"'/()]|\/(?!\*)|\/\*(?:[^*]|\*(?!\/))*\*\/|<<0>>|\(<<self>>*\)/.source, [regularStringOrCharacter]), 2);
+        var sInterpolationRound = replace(/(?:[^"'/()]|\/(?!\*)|\/\*(?:[^*]|\*(?!\/))*\*\/|<<0>>|\([^()]*\))*/.source, [regularStringOrCharacter]);
         var sInterpolation = replace(/\{(?!\{)(?:(?![}:])<<0>>)*<<1>>?\}/.source, [
           sInterpolationRound,
           formatString
@@ -1342,7 +1342,7 @@
             alias: 'punctuation'
           },
           'generics': {
-            pattern: /<(?:[\w\s,.?]|&(?!&)|<(?:[\w\s,.?]|&(?!&)|<(?:[\w\s,.?]|&(?!&)|<(?:[\w\s,.?]|&(?!&))*>)*>)*>)*>/,
+            pattern: /<(?:[\w\s,.?]|&(?!&)|<[^<>]*>)*>/,
             inside: {
               'class-name': className,
               'keyword': keywords,
