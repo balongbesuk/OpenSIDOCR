@@ -1052,7 +1052,7 @@
             inside: { 'punctuation': /\./ }
           },
           'type-expression': {
-            pattern: re(/(\b(?:default|sizeof|typeof)\s*\(\s*(?!\s))[^()\r\n]*(?:<<0>>[^()\r\n]*)*(?=\s*\))/.source, [nestedRound]),
+            pattern: /(\b(?:default|sizeof|typeof)\s*\(\s*(?!\s))[^)]*(?=\s*\))/,
             lookbehind: true,
             alias: 'class-name',
             inside: typeInside
