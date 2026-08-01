@@ -17,14 +17,18 @@ if (typeof jQuery === 'undefined') {
   $.safeQuery = function (selector) {
     if (!selector) return $()
     if (typeof selector === 'string') {
-      if (/^\s*</.test(selector)) return $()
+      selector = selector.trim()
+      if (!selector || /^\s*</.test(selector)) return $()
       try {
-        return $(selector)
+        var el = document.querySelector(selector)
+        return el ? $(el) : $()
       } catch (e) {
         return $()
       }
     }
-    return $(selector)
+    if (selector instanceof $) return selector
+    if (selector && selector.nodeType) return $(selector)
+    return $()
   }
 }(jQuery);
 
@@ -1571,11 +1575,43 @@ if (typeof jQuery === 'undefined') {
       .css(isVertical ? 'top' : 'left', '')
   }
 
+  function sanitizeTooltipHtml(unsafeHtml) {
+    if (!unsafeHtml || typeof unsafeHtml !== 'string') return unsafeHtml || ''
+    try {
+      var domParser = new DOMParser()
+      var createdDocument = domParser.parseFromString(unsafeHtml, 'text/html')
+      var elements = Array.prototype.slice.call(createdDocument.body.querySelectorAll('*'))
+      var allowedTags = ['b', 'i', 'strong', 'em', 'a', 'p', 'span', 'br', 'ul', 'ol', 'li', 'small', 'code', 'pre', 'div', 'sub', 'sup']
+      for (var i = 0; i < elements.length; i++) {
+        var el = elements[i]
+        var nodeName = el.nodeName.toLowerCase()
+        if (allowedTags.indexOf(nodeName) === -1) {
+          if (el.parentNode) el.parentNode.removeChild(el)
+          continue
+        }
+        var attrs = Array.prototype.slice.call(el.attributes)
+        for (var j = 0; j < attrs.length; j++) {
+          var attrName = attrs[j].nodeName.toLowerCase()
+          if (attrName !== 'class' && attrName !== 'href' && attrName !== 'title' && attrName !== 'target' && attrName !== 'rel') {
+            el.removeAttribute(attrs[j].nodeName)
+          }
+        }
+      }
+      return createdDocument.body.innerHTML
+    } catch (e) {
+      return ''
+    }
+  }
+
   Tooltip.prototype.setContent = function () {
     var $tip  = this.tip()
     var title = this.getTitle()
 
-    $tip.find('.tooltip-inner')[this.options.html ? 'html' : 'text'](title)
+    if (this.options.html) {
+      $tip.find('.tooltip-inner').html(sanitizeTooltipHtml(title))
+    } else {
+      $tip.find('.tooltip-inner').text(title)
+    }
     $tip.removeClass('fade in top bottom left right')
   }
 
