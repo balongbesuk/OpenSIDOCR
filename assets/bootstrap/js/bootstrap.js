@@ -1575,32 +1575,9 @@ if (typeof jQuery === 'undefined') {
       .css(isVertical ? 'top' : 'left', '')
   }
 
-  function sanitizeTooltipHtml(unsafeHtml) {
-    if (!unsafeHtml || typeof unsafeHtml !== 'string') return unsafeHtml || ''
-    try {
-      var domParser = new DOMParser()
-      var createdDocument = domParser.parseFromString(unsafeHtml, 'text/html')
-      var elements = Array.prototype.slice.call(createdDocument.body.querySelectorAll('*'))
-      var allowedTags = ['b', 'i', 'strong', 'em', 'a', 'p', 'span', 'br', 'ul', 'ol', 'li', 'small', 'code', 'pre', 'div', 'sub', 'sup']
-      for (var i = 0; i < elements.length; i++) {
-        var el = elements[i]
-        var nodeName = el.nodeName.toLowerCase()
-        if (allowedTags.indexOf(nodeName) === -1) {
-          if (el.parentNode) el.parentNode.removeChild(el)
-          continue
-        }
-        var attrs = Array.prototype.slice.call(el.attributes)
-        for (var j = 0; j < attrs.length; j++) {
-          var attrName = attrs[j].nodeName.toLowerCase()
-          if (attrName !== 'class' && attrName !== 'href' && attrName !== 'title' && attrName !== 'target' && attrName !== 'rel') {
-            el.removeAttribute(attrs[j].nodeName)
-          }
-        }
-      }
-      return createdDocument.body.innerHTML
-    } catch (e) {
-      return ''
-    }
+  function escapeHtml(str) {
+    if (!str || typeof str !== 'string') return str || ''
+    return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;')
   }
 
   Tooltip.prototype.setContent = function () {
@@ -1608,7 +1585,11 @@ if (typeof jQuery === 'undefined') {
     var title = this.getTitle()
 
     if (this.options.html) {
-      $tip.find('.tooltip-inner').html(sanitizeTooltipHtml(title))
+      if (typeof title === 'string') {
+        $tip.find('.tooltip-inner').text(title)
+      } else {
+        $tip.find('.tooltip-inner').empty().append(title)
+      }
     } else {
       $tip.find('.tooltip-inner').text(title)
     }
@@ -1875,11 +1856,11 @@ if (typeof jQuery === 'undefined') {
     var content = this.getContent()
 
     if (this.options.html) {
-      $tip.find('.popover-title').html(sanitizeTooltipHtml(title))
-      $tip.find('.popover-content').children().detach().end()[typeof content == 'string' ? 'html' : 'append'](typeof content == 'string' ? sanitizeTooltipHtml(content) : content)
+      $tip.find('.popover-title').text(title)
+      $tip.find('.popover-content').children().detach().end()[typeof content == 'string' ? 'text' : 'append'](content)
     } else {
       $tip.find('.popover-title').text(title)
-      $tip.find('.popover-content').children().detach().end()[typeof content == 'string' ? 'html' : 'append'](content)
+      $tip.find('.popover-content').children().detach().end()[typeof content == 'string' ? 'text' : 'append'](content)
     }
 
     $tip.removeClass('fade top bottom left right in')
