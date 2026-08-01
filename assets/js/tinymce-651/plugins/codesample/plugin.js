@@ -932,7 +932,7 @@
         var nonTypeKeywords = keywordsToPattern(keywordKinds.typeDeclaration + ' ' + keywordKinds.contextual + ' ' + keywordKinds.other);
         var nonContextualKeywords = keywordsToPattern(keywordKinds.type + ' ' + keywordKinds.typeDeclaration + ' ' + keywordKinds.other);
         var generic = /<(?:[^<>;=+\-*/%&|^]|<[^<>;=+\-*/%&|^]*>)*>/.source;
-        var nestedRound = /\((?:[^()]|\((?:[^()]|\([^()]*\))*\))*\)/.source;
+        var nestedRound = /\([^()\r\n]*\)/.source;
         var name = /@?\b[A-Za-z_]\w*\b/.source;
         var genericName = replace(/<<0>>(?:\s*<<1>>)?/.source, [
           name,
