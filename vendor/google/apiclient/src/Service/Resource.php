@@ -48,9 +48,6 @@ class Resource
     /** @var string $rootUrlTemplate */
     private $rootUrlTemplate;
 
-    /** @var string $apiVersion */
-    protected $apiVersion;
-
     /** @var \Google\Client $client */
     private $client;
 
@@ -228,19 +225,12 @@ class Resource
             $expectedClass = null;
         }
 
-        // If the class which is extending from this one contains
-        // an Api Version, add it to the header
-        if ($this->apiVersion) {
-            $request = $request
-                ->withHeader('X-Goog-Api-Version', $this->apiVersion);
-        }
-
         // if the client is marked for deferring, rather than
         // execute the request, return the response
         if ($this->client->shouldDefer()) {
             // @TODO find a better way to do this
             $request = $request
-                ->withHeader('X-Php-Expected-Class', (string) $expectedClass);
+                ->withHeader('X-Php-Expected-Class', $expectedClass);
 
             return $request;
         }

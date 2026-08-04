@@ -4,6 +4,17 @@ Dokumen ini mencatat seluruh penambahan fitur dan perbaikan khusus (*custom*) ya
 
 ---
 
+## Versi Custom 2403.0.3 (Perbaikan Kompatibilitas PHP 7.4)
+
+### 🐛 Perbaikan Bug
+
+1. **Perbaikan Fatal Error 500 pada Lingkungan PHP 7.4**
+   - Melakukan instalasi ulang dependensi pihak ketiga (vendor) agar sepenuhnya kompatibel dengan **PHP 7.4**.
+   - Sebelumnya, pustaka Google API Client (`google/apiclient`) dan komponen Symfony Translation (`symfony/translation-contracts`) terinstall dalam versi PHP 8.0 (mengandung sintaks seperti `match()` dan *non-capturing catch*), yang menyebabkan Error 500 (ParseError) pada server Laragon PHP 7.4.
+   - Memperbarui `composer.lock` hasil *generate* ulang menggunakan PHP 7.4.
+
+---
+
 ## Versi Custom 2403.0.2 (Perbaikan Pemisahan Spasi OCR & Pemetaan Pendidikan DIPLOMA IV/STRATA I)
 
 ### 🐛 Perbaikan Bug & Penyempurnaan Parser KK
