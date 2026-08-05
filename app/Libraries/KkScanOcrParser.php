@@ -80,18 +80,18 @@ class KkScanOcrParser
         $tmpJpg = sys_get_temp_dir() . '/ocr_pdf_' . md5($pdfPath . @filemtime($pdfPath)) . '.jpg';
 
         // 1. Coba PyMuPDF via python/python3 jika tersedia (kualitas rendering 300 DPI sangat tinggi)
-        $cleanPdf = str_replace('\\', '/', $pdfPath);
-        $cleanJpg = str_replace('\\', '/', $tmpJpg);
-        $pyCode   = "import fitz; doc = fitz.open('{$cleanPdf}'); page = doc[0]; pix = page.get_pixmap(dpi=300); pix.save('{$cleanJpg}')";
-        
-        $cmdPy3 = "python3 -c " . escapeshellarg($pyCode) . " 2>&1";
+        $escapedPdf = escapeshellarg($pdfPath);
+        $escapedJpg = escapeshellarg($tmpJpg);
+        $pyCode     = 'import sys, fitz; doc = fitz.open(sys.argv[1]); page = doc[0]; pix = page.get_pixmap(dpi=300); pix.save(sys.argv[2])';
+
+        $cmdPy3 = "python3 -c " . escapeshellarg($pyCode) . " {$escapedPdf} {$escapedJpg} 2>&1";
         @exec($cmdPy3, $outPy3, $codePy3);
         if ($codePy3 === 0 && file_exists($tmpJpg) && filesize($tmpJpg) > 10000) {
             return $tmpJpg;
         }
 
         if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') {
-            $cmdWin = "python -c " . escapeshellarg($pyCode) . " 2>&1";
+            $cmdWin = "python -c " . escapeshellarg($pyCode) . " {$escapedPdf} {$escapedJpg} 2>&1";
             @exec($cmdWin, $outWin, $codeWin);
             if ($codeWin === 0 && file_exists($tmpJpg) && filesize($tmpJpg) > 10000) {
                 return $tmpJpg;
