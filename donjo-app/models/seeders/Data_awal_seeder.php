@@ -63966,7 +63966,7 @@ class Data_awal_seeder extends CI_Model
                 `created_by` int(11) DEFAULT NULL,
                 `updated_at` timestamp NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
                 `updated_by` int(11) DEFAULT NULL,
-                `maksud_tujuan_kedatangan` varchar(50) DEFAULT NULL,
+                `maksud_tujuan_kedatangan` text DEFAULT NULL,
                 PRIMARY KEY (`id`),
                 UNIQUE KEY `id_pend` (`id_pend`,`kode_peristiwa`,`tgl_peristiwa`),
                 KEY `id_ref_pindah` (`ref_pindah`),

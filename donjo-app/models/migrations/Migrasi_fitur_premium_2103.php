@@ -59,9 +59,8 @@ class Migrasi_fitur_premium_2103 extends MY_model
         if (! $this->db->field_exists('maksud_tujuan_kedatangan', 'log_penduduk')) {
             $hasil = $hasil && $this->dbforge->add_column('log_penduduk', [
                 'maksud_tujuan_kedatangan' => [
-                    'type'       => 'VARCHAR',
-                    'constraint' => 50,
-                    'null'       => true,
+                    'type' => 'TEXT',
+                    'null' => true,
                 ],
             ]);
         }

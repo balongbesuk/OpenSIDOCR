@@ -1,11 +1,7 @@
 <?php if ($this->CI->cek_hak_akses('u')): ?>
 <?php $this->load->view('global/validasi_form'); ?>
 <?php
-    if ($log_status_dasar['tgl_peristiwa'] != ''):
-        $sekarang = $log_status_dasar['tgl_peristiwa'];
-    else:
-        $sekarang = date('d-m-Y');
-    endif;
+    $sekarang = date('d-m-Y');
 ?>
 	<form action="<?=$form_action?>" method="post" id="validasi" class="tgl_lapor_peristiwa">
 		<div class='modal-body'>
@@ -32,8 +28,8 @@
 								</div>
 							</div>
 							<div class="form-group">
-								<label for="catatan">Maksud dan Tujuan Kedatangan</label>
-								<textarea id="maksud_tujuan" name="maksud_tujuan" class="form-control input-sm" placeholder="Maksud dan Tujuan Kedatangan" style="height: 50px;"><?= $log_status_dasar['catatan']; ?></textarea>
+								<label for="catatan">Alamat Sebelumnya</label>
+								<textarea id="maksud_tujuan" name="maksud_tujuan" class="form-control input-sm required" placeholder="Alamat Sebelumnya" style="height: 50px;"></textarea>
 							</div>
 						</div>
 					</div>

@@ -82,7 +82,9 @@ class Migrasi_fitur_premium_2309 extends MY_model
         $hasil = $hasil && $this->migrasi_23082151($hasil);
         $hasil = $hasil && $this->migrasi_23082456($hasil);
 
-        return $hasil && $this->migrasi_23093151($hasil);
+        $hasil = $hasil && $this->migrasi_23093151($hasil);
+
+        return $hasil && $this->migrasi_23093152($hasil);
     }
 
     protected function migrasi_23080851($hasil)
@@ -297,6 +299,16 @@ class Migrasi_fitur_premium_2309 extends MY_model
     {
         return $hasil && $this->dbforge->modify_column('log_tte', [
             'message' => [
+                'type' => 'TEXT',
+                'null' => true,
+            ],
+        ]);
+    }
+
+    protected function migrasi_23093152($hasil)
+    {
+        return $hasil && $this->dbforge->modify_column('log_penduduk', [
+            'maksud_tujuan_kedatangan' => [
                 'type' => 'TEXT',
                 'null' => true,
             ],

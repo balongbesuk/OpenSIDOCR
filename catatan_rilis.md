@@ -4,6 +4,20 @@ Dokumen ini mencatat seluruh penambahan fitur dan perbaikan khusus (*custom*) ya
 
 ---
 
+## Versi Custom 2403.0.4 (Perbaikan Fitur Datang Kembali & Kapasitas Alamat Sebelumnya)
+
+### 🐛 Perbaikan Bug & Penyempurnaan Fitur Datang Kembali
+
+1. **Perbaikan Error Database `Data too long for column 'maksud_tujuan_kedatangan'`**
+   - Mengubah tipe kolom `maksud_tujuan_kedatangan` pada tabel `log_penduduk` dari `VARCHAR(50)` menjadi `TEXT` pada migrasi (`Migrasi_fitur_premium_2103`, `Migrasi_fitur_premium_2309`) dan seeder (`Data_awal_seeder`).
+   - Menambahkan mekanisme perbaikan otomatis skema database (*auto-alter column*) di `Penduduk_log_model` dan `Penduduk_model` agar database yang sedang berjalan otomatis ter-update tanpa error `Data too long`.
+
+2. **Penyempurnaan Form Pop-Up Datang Kembali (Kembalikan Penduduk)**
+   - Mengubah penentuan tanggal peristiwa & lapor pada form pop-up agar otomatis terisi **Tanggal Hari Ini (Kekinian)**, sehingga pencatatan log *Penduduk Datang* dan *Buku Mutasi Penduduk* langsung terisi pada bulan & tahun berjalan.
+   - Mengubah label form dari `"Maksud dan Tujuan Kedatangan"` menjadi **`"Alamat Sebelumnya"`** dan mewajibkan pengisiannya (`required`).
+
+---
+
 ## Versi Custom 2403.0.3 (Perbaikan Kompatibilitas PHP 7.4)
 
 ### 🐛 Perbaikan Bug

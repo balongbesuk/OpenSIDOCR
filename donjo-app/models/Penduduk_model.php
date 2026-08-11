@@ -1580,6 +1580,11 @@ class Penduduk_model extends MY_Model
     {
         $this->session->unset_userdata('jenis_peristiwa');
         $log['config_id'] = $this->config_id;
+        try {
+            $this->db->query('ALTER TABLE `log_penduduk` MODIFY `maksud_tujuan_kedatangan` TEXT NULL DEFAULT NULL');
+        } catch (\Throwable $e) {
+            // Abaikan jika alter gagal
+        }
         $sql              = $this->db->insert_string('log_penduduk', $log) . duplicate_key_update_str($log);
         $this->db->query($sql);
 
