@@ -766,6 +766,64 @@ class Keluarga extends Admin_Controller
         }
     }
 
+    private function find_target_kk_for_import($no_kk_pdf, array $members)
+    {
+        $kk = $this->db->where('no_kk', $no_kk_pdf)->get('tweb_keluarga')->row_array();
+        if ($kk) {
+            return [
+                'kk'                => $kk,
+                'is_nokk_sementara' => false,
+                'no_kk_lama'        => null,
+            ];
+        }
+
+        foreach ($members as $m) {
+            $nik = $m['nik'] ?? null;
+            $p   = null;
+
+            if (! empty($nik)) {
+                $p = $this->db->where('nik', $nik)->get('tweb_penduduk')->row_array();
+            }
+
+            if (! $p && ! empty($m['nama'])) {
+                $m_nama_clean = strtolower(trim(preg_replace('/[^a-zA-Z ]/', '', $m['nama'])));
+                $candidates   = $this->db
+                    ->group_start()
+                        ->like('nik', '0', 'after')
+                        ->or_where('nik IS NULL', null, false)
+                    ->group_end()
+                    ->where('tanggallahir', $m['tanggallahir'])
+                    ->get('tweb_penduduk')
+                    ->result_array();
+
+                foreach ($candidates as $cand) {
+                    $cand_nama_clean = strtolower(trim(preg_replace('/[^a-zA-Z ]/', '', $cand['nama'])));
+                    if ($cand_nama_clean === $m_nama_clean) {
+                        $p = $cand;
+                        break;
+                    }
+                }
+            }
+
+            if ($p && ! empty($p['id_kk'])) {
+                $kk_cand = $this->db->where('id', $p['id_kk'])->get('tweb_keluarga')->row_array();
+                if ($kk_cand && (substr($kk_cand['no_kk'], 0, 1) === '0' || $kk_cand['no_kk'] == '0')) {
+                    return [
+                        'kk'                => $kk_cand,
+                        'is_nokk_sementara' => true,
+                        'no_kk_lama'        => $kk_cand['no_kk'],
+                    ];
+                }
+            }
+        }
+
+        return [
+            'kk'                => null,
+            'is_nokk_sementara' => false,
+            'no_kk_lama'        => null,
+        ];
+    }
+
     public function proses_import_scan_kk()
     {
         $this->redirect_hak_akses('u', '', '', true);
@@ -794,9 +852,12 @@ class Keluarga extends Admin_Controller
         @copy($tmpFile, $target_dir . $scan_filename);
         $parsed['pdf_file'] = $scan_filename;
 
-        $kk                = $this->db->where('no_kk', $parsed['header']['no_kk'])->get('tweb_keluarga')->row_array();
-        $data['kk_exists'] = ! empty($kk);
-        $data['id_kk']     = $kk ? $kk['id'] : null;
+        $target_kk                 = $this->find_target_kk_for_import($parsed['header']['no_kk'], $parsed['members']);
+        $kk                        = $target_kk['kk'];
+        $data['kk_exists']         = ! empty($kk);
+        $data['id_kk']             = $kk ? $kk['id'] : null;
+        $data['is_nokk_sementara'] = $target_kk['is_nokk_sementara'];
+        $data['no_kk_lama']        = $target_kk['no_kk_lama'];
 
         $norm       = static fn ($str) => strtolower(preg_replace('/\s+/', '', (string) $str));
         $norm_clean = static fn ($str) => strtoupper(preg_replace('/[^A-Z0-9]/', '', (string) $str));
@@ -827,8 +888,37 @@ class Keluarga extends Admin_Controller
         }
 
         foreach ($parsed['members'] as &$m) {
-            $nik = $m['nik'];
-            $p   = ! empty($nik) ? $this->db->where('nik', $nik)->get('tweb_penduduk')->row_array() : null;
+            $nik                    = $m['nik'];
+            $p                      = null;
+            $is_nik_sementara_match = false;
+            $nik_lama               = null;
+
+            if (! empty($nik)) {
+                $p = $this->db->where('nik', $nik)->get('tweb_penduduk')->row_array();
+            }
+
+            if (! $p && ! empty($m['nama'])) {
+                $m_nama_clean = strtolower(trim(preg_replace('/[^a-zA-Z ]/', '', $m['nama'])));
+                $candidates   = $this->db
+                    ->group_start()
+                        ->like('nik', '0', 'after')
+                        ->or_where('nik IS NULL', null, false)
+                    ->group_end()
+                    ->where('tanggallahir', $m['tanggallahir'])
+                    ->get('tweb_penduduk')
+                    ->result_array();
+
+                foreach ($candidates as $cand) {
+                    $cand_nama_clean = strtolower(trim(preg_replace('/[^a-zA-Z ]/', '', $cand['nama'])));
+                    if ($cand_nama_clean === $m_nama_clean) {
+                        $p                      = $cand;
+                        $is_nik_sementara_match = true;
+                        $nik_lama               = $cand['nik'];
+
+                        break;
+                    }
+                }
+            }
 
             if ($p) {
                 if (! empty($p['nama']) && $norm_clean($p['nama']) === $norm_clean($m['nama'])) {
@@ -851,13 +941,17 @@ class Keluarga extends Admin_Controller
             }
 
             $m['db_exists']              = ! empty($p);
-            $m['is_nik_sementara_match'] = false;
-            $m['nik_lama']               = null;
+            $m['is_nik_sementara_match'] = $is_nik_sementara_match;
+            $m['nik_lama']               = $nik_lama;
             $m['status_dasar']           = $p ? $p['status_dasar'] : 1;
             $m['pindah_kk']              = false;
             $m['no_kk_lama']             = null;
             $m['kepala_kk_lama']         = null;
             $m['diff']                   = [];
+            if ($p) {
+                $m['db_id']             = $p['id'];
+                $m['alamat_sebelumnya'] = $p['alamat_sebelumnya'];
+            }
         }
 
         $data['parsed'] = $parsed;
@@ -893,9 +987,12 @@ class Keluarga extends Admin_Controller
         @copy($_FILES['kk_pdf']['tmp_name'], $target_dir . $pdf_filename);
         $parsed['pdf_file'] = $pdf_filename;
 
-        $kk                = $this->db->where('no_kk', $parsed['header']['no_kk'])->get('tweb_keluarga')->row_array();
-        $data['kk_exists'] = ! empty($kk);
-        $data['id_kk']     = $kk ? $kk['id'] : null;
+        $target_kk                 = $this->find_target_kk_for_import($parsed['header']['no_kk'], $parsed['members']);
+        $kk                        = $target_kk['kk'];
+        $data['kk_exists']         = ! empty($kk);
+        $data['id_kk']             = $kk ? $kk['id'] : null;
+        $data['is_nokk_sementara'] = $target_kk['is_nokk_sementara'];
+        $data['no_kk_lama']        = $target_kk['no_kk_lama'];
 
         if ($kk && ! empty($kk['tgl_cetak_kk']) && ! empty($parsed['header']['tgl_cetak'])) {
             $tgl_pdf = date('Y-m-d', strtotime($parsed['header']['tgl_cetak']));
@@ -1280,9 +1377,17 @@ class Keluarga extends Admin_Controller
 
         // 1. Simpan/Update tweb_keluarga
         $kk = $this->db->where('no_kk', $header['no_kk'])->get('tweb_keluarga')->row_array();
+        if (! $kk) {
+            $target_kk = $this->find_target_kk_for_import($header['no_kk'], $members);
+            if ($target_kk['kk']) {
+                $kk = $target_kk['kk'];
+            }
+        }
+
         if ($kk) {
             $id_kk = $kk['id'];
             $this->db->where('id', $id_kk)->update('tweb_keluarga', [
+                'no_kk'        => $header['no_kk'],
                 'alamat'       => $header['alamat'] ?: $kk['alamat'],
                 'tgl_cetak_kk' => $header['tgl_cetak'] ?: $kk['tgl_cetak_kk'],
                 'id_cluster'   => $id_cluster,
@@ -1409,6 +1514,35 @@ class Keluarga extends Admin_Controller
 
         if ($kepala_penduduk_id) {
             $this->db->where('id', $id_kk)->update('tweb_keluarga', ['nik_kepala' => $kepala_penduduk_id]);
+
+            // Clean up any orphaned temporary KK records for this head of family or members
+            $member_ids = array_filter(array_column($members, 'db_id'));
+            $this->db
+                ->group_start()
+                    ->where('nik_kepala', $kepala_penduduk_id);
+            if (! empty($member_ids)) {
+                $this->db->or_where_in('nik_kepala', $member_ids);
+            }
+            $orphaned_kks = $this->db
+                ->group_end()
+                ->where('id !=', $id_kk)
+                ->group_start()
+                    ->like('no_kk', '0', 'after')
+                    ->or_where('no_kk', '0')
+                ->group_end()
+                ->get('tweb_keluarga')
+                ->result_array();
+
+            foreach ($orphaned_kks as $orph_kk) {
+                $member_count = $this->db
+                    ->where('id_kk', $orph_kk['id'])
+                    ->where('status_dasar', 1)
+                    ->count_all_results('tweb_penduduk');
+
+                if ($member_count === 0) {
+                    $this->db->where('id', $orph_kk['id'])->delete('tweb_keluarga');
+                }
+            }
         }
 
         // Arsipkan rekaman dokumen ke tabel `dokumen` OpenSID

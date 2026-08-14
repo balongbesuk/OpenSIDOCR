@@ -61,7 +61,9 @@
 							<td><?= $parsed['header']['tgl_cetak'] ? tgl_indo($parsed['header']['tgl_cetak']) : '-' ?></td>
 							<th>Status KK di DB</th>
 							<td>
-								<?php if ($kk_exists): ?>
+								<?php if (!empty($is_nokk_sementara)): ?>
+									<span class="label label-info" title="No. KK Sementara <?= html_escape($no_kk_lama) ?> akan diperbarui ke No. KK Resmi Dukcapil <?= html_escape($parsed['header']['no_kk']) ?>"><i class="fa fa-refresh"></i> Update No. KK Sementara</span>
+								<?php elseif ($kk_exists): ?>
 									<span class="label label-warning"><i class="fa fa-refresh"></i> Update Data KK</span>
 								<?php else: ?>
 									<span class="label label-success"><i class="fa fa-plus"></i> KK Baru</span>

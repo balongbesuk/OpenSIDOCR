@@ -4,6 +4,19 @@ Dokumen ini mencatat seluruh penambahan fitur dan perbaikan khusus (*custom*) ya
 
 ---
 
+## Versi Custom 2403.0.5 (Perbaikan Pembaruan No. KK Sementara Saat Impor PDF/Scan KK)
+
+### 🐛 Perbaikan Bug
+
+1. **Pembaruan No. KK Sementara ke No. KK Resmi Dukcapil Saat Impor PDF / Scan KK**
+   - Mengatasi masalah kemunculan data ganda (duplikat) di daftar Data Keluarga (`keluarga`) ketika penduduk / kepala keluarga yang sebelumnya memiliki **No. KK Sementara** (diawali angka `0`) melakukan impor PDF / Scan Kartu Keluarga Dukcapil.
+   - Menambahkan deteksi otomatis pencocokan No. KK sementara di `find_target_kk_for_import()` pada `Keluarga.php`.
+   - Mengubah proses simpan dari yang sebelumnya membuat rekaman `tweb_keluarga` baru menjadi **memperbarui No. KK sementara secara langsung (*in-place update*)** ke No. KK Resmi Dukcapil.
+   - Menambahkan pembersihan otomatis (*auto-cleanup*) untuk rekaman `tweb_keluarga` sementara yang telah kosong (0 anggota aktif) untuk mencegah adanya rekaman KK sementara yatim (*ghost record*) di database.
+   - Menambahkan indikator status visual `[ Update No. KK Sementara ]` pada halaman pratinjau impor KK.
+
+---
+
 ## Versi Custom 2403.0.4 (Perbaikan Fitur Datang Kembali & Kapasitas Alamat Sebelumnya)
 
 ### 🐛 Perbaikan Bug & Penyempurnaan Fitur Datang Kembali
