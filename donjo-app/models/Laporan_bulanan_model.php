@@ -172,9 +172,9 @@ class Laporan_bulanan_model extends MY_Model
             ->get_compiled_select();
 
         $keluarga_mutasi = $this->db
-            ->select('sum(case when id_peristiwa in (1, 12) then 1 else 0 end) AS KK_PLUS')
-            ->select('sum(case when sex = 1 and id_peristiwa in (1, 12) then 1 else 0 end) AS KK_L_PLUS')
-            ->select('sum(case when sex = 2 and id_peristiwa in (1, 12) then 1 else 0 end) AS KK_P_PLUS')
+            ->select('sum(case when id_peristiwa in (1, 5, 12) then 1 else 0 end) AS KK_PLUS')
+            ->select('sum(case when sex = 1 and id_peristiwa in (1, 5, 12) then 1 else 0 end) AS KK_L_PLUS')
+            ->select('sum(case when sex = 2 and id_peristiwa in (1, 5, 12) then 1 else 0 end) AS KK_P_PLUS')
             ->select('sum(case when id_peristiwa in (2, 3, 4) then 1 else 0 end) AS KK_MINUS')
             ->select('sum(case when sex = 1 and id_peristiwa in (2, 3, 4) then 1 else 0 end) AS KK_L_MINUS')
             ->select('sum(case when sex = 2 and id_peristiwa in (2, 3, 4) then 1 else 0 end) AS KK_P_MINUS')
@@ -246,7 +246,7 @@ class Laporan_bulanan_model extends MY_Model
                 break;
 
             case in_array($tipe, $keluarga):
-                $this->db->where('id_peristiwa in (1)');
+                $this->db->where('id_peristiwa in (1, 5, 12)');
                 break;
         }
         $penduduk_awal_bulan_plus_sql = $this->db->get_compiled_select();
@@ -350,7 +350,7 @@ class Laporan_bulanan_model extends MY_Model
                 break;
 
             case in_array($tipe, $keluarga):
-                $this->db->where('id_peristiwa in (1)');
+                $this->db->where('id_peristiwa in (1, 5, 12)');
                 break;
         }
         $mutasi_plus = $this->db->get_compiled_select();
@@ -744,9 +744,25 @@ class Laporan_bulanan_model extends MY_Model
 
         // 1. Sinkronkan log keluarga yang hilang log awal
         $sql = "insert into log_keluarga (config_id, id_kk, id_peristiwa, tgl_peristiwa, updated_by)
-                select {$configId} as config_id, id as id_kk, 1 as id_peristiwa, tgl_daftar as tgl_peristiwa, 1 as updated_by
-                from tweb_keluarga where id not in ( select id_kk from log_keluarga where id_peristiwa = 1 ) ";
+                select {$configId} as config_id, id as id_kk, 1 as id_peristiwa, coalesce(tgl_daftar, now()) as tgl_peristiwa, 1 as updated_by
+                from tweb_keluarga where id not in ( select id_kk from log_keluarga where id_kk is not null and id_peristiwa in (1, 5, 12) ) ";
         $this->db->query($sql);
+
+        // 1b. Pastikan kepala keluarga aktif memiliki catatan di log_penduduk
+        $sql_pend = "insert into log_penduduk (config_id, id_pend, kode_peristiwa, tgl_peristiwa, tgl_lapor, updated_by)
+                     select {$configId} as config_id, p.id as id_pend, 5 as kode_peristiwa, coalesce(p.created_at, now()) as tgl_peristiwa, coalesce(p.created_at, now()) as tgl_lapor, 1 as updated_by
+                     from tweb_penduduk p
+                     join tweb_keluarga k on k.nik_kepala = p.id
+                     where p.status_dasar = 1 and p.id not in ( select id_pend from log_penduduk where id_pend is not null ) ";
+        $this->db->query($sql_pend);
+
+        // 1c. Perbaiki tgl_peristiwa pada log_keluarga jika berisi NULL
+        $this->db->query("
+            UPDATE log_keluarga l
+            JOIN tweb_keluarga k ON l.id_kk = k.id
+            SET l.tgl_peristiwa = COALESCE(k.tgl_daftar, NOW())
+            WHERE l.tgl_peristiwa IS NULL
+        ");
 
         // 2. Bersihkan log datang/lahir palsu yang terbuat setelah log mati/pindah/hilang pada penduduk yang berstatus dasar mati/pindah/hilang
         $this->db->query("
