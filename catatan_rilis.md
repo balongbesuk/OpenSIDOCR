@@ -1,134 +1,118 @@
-# Catatan Rilis Fitur Custom OpenSID
+## Pembaruan Kependudukan, Impor KK & Penanganan Log Dukcapil (2026)
 
-Dokumen ini mencatat seluruh penambahan fitur dan perbaikan khusus (*custom*) yang dikembangkan untuk sistem OpenSID.
+#### Penambahan Fitur & Standar Dukcapil
 
----
+1. **Penerapan SOP Dukcapil untuk Kepala Keluarga Meninggal / Pindah:**
+   - Otomatis membuatkan Kartu Keluarga Sementara (No. KK Sementara) bagi sisa anggota keluarga yang masih hidup.
+   - Otomatis menunjuk anggota keluarga tertua / pasangan sebagai Kepala Keluarga Baru (`kk_level = 1`).
+   - Otomatis mencatat nomor KK lama ke dalam kolom `no_kk_sebelumnya` pada seluruh anggota keluarga yang dipindahkan.
+   - Otomatis memperbarui status perkawinan pasangan yang ditinggalkan menjadi **Cerai Mati** (`status_kawin = 4`) dan menimpa tanggal peristiwa kematian ke dalam kolom `tanggalperkawinan`.
+   - Menggunakan dialog konfirmasi interaktif **SweetAlert2** bawaan OpenSID dengan proteksi token CSRF otomatis.
 
-## Versi Custom 2403.0.5 (Perbaikan Pembaruan No. KK Sementara Saat Impor PDF/Scan KK)
+2. **Validasi Ketat & Deteksi Cerdas pada Impor KK (PDF & Scan OCR):**
+   - Validasi ketat NIK 16 digit dengan kolom input langsung pada pratinjau impor KK untuk mengoreksi NIK yang belum valid.
+   - Sanitasi otomatis karakter OCR untuk menghindari salah baca angka serupa huruf (O->0, I/l->1, B->8, S->5, dll).
+   - Deteksi otomatis bayi baru lahir (usia <= 1 tahun) pada impor KK untuk dicatat sebagai peristiwa **Kelahiran** (`kode_peristiwa = 1`).
+   - Deteksi dan pembaruan otomatis nomor KK Sementara & NIK Sementara menjadi Nomor Resmi Dukcapil saat mengimpor KK resmi tanpa duplikasi data.
 
-### 🐛 Perbaikan Bug
+#### Perbaikan BUG
 
-1. **Pembaruan No. KK Sementara ke No. KK Resmi Dukcapil Saat Impor PDF / Scan KK**
-   - Mengatasi masalah kemunculan data ganda (duplikat) di daftar Data Keluarga (`keluarga`) ketika penduduk / kepala keluarga yang sebelumnya memiliki **No. KK Sementara** (diawali angka `0`) melakukan impor PDF / Scan Kartu Keluarga Dukcapil.
-   - Menambahkan deteksi otomatis pencocokan No. KK sementara di `find_target_kk_for_import()` pada `Keluarga.php`.
-   - Mengubah proses simpan dari yang sebelumnya membuat rekaman `tweb_keluarga` baru menjadi **memperbarui No. KK sementara secara langsung (*in-place update*)** ke No. KK Resmi Dukcapil.
-   - Menambahkan pembersihan otomatis (*auto-cleanup*) untuk rekaman `tweb_keluarga` sementara yang telah kosong (0 anggota aktif) untuk mencegah adanya rekaman KK sementara yatim (*ghost record*) di database.
-   - Menambahkan indikator status visual `[ Update No. KK Sementara ]` pada halaman pratinjau impor KK.
-
----
-
-## Versi Custom 2403.0.4 (Perbaikan Fitur Datang Kembali & Kapasitas Alamat Sebelumnya)
-
-### 🐛 Perbaikan Bug & Penyempurnaan Fitur Datang Kembali
-
-1. **Perbaikan Error Database `Data too long for column 'maksud_tujuan_kedatangan'`**
-   - Mengubah tipe kolom `maksud_tujuan_kedatangan` pada tabel `log_penduduk` dari `VARCHAR(50)` menjadi `TEXT` pada migrasi (`Migrasi_fitur_premium_2103`, `Migrasi_fitur_premium_2309`) dan seeder (`Data_awal_seeder`).
-   - Menambahkan mekanisme perbaikan otomatis skema database (*auto-alter column*) di `Penduduk_log_model` dan `Penduduk_model` agar database yang sedang berjalan otomatis ter-update tanpa error `Data too long`.
-
-2. **Penyempurnaan Form Pop-Up Datang Kembali (Kembalikan Penduduk)**
-   - Mengubah penentuan tanggal peristiwa & lapor pada form pop-up agar otomatis terisi **Tanggal Hari Ini (Kekinian)**, sehingga pencatatan log *Penduduk Datang* dan *Buku Mutasi Penduduk* langsung terisi pada bulan & tahun berjalan.
-   - Mengubah label form dari `"Maksud dan Tujuan Kedatangan"` menjadi **`"Alamat Sebelumnya"`** dan mewajibkan pengisiannya (`required`).
+1. **Perbaikan Selisih Log Kependudukan & Data Keluarga:**
+   - Perbaikan kueri sinkronisasi pada tombol "Perbaiki" di Laporan Bulanan untuk membersihkan KK lama kosong yang masih mengaitkan Kepala Keluarga hidup.
+   - Penambahan perbaikan otomatis atribut `PRIMARY KEY` dan `AUTO_INCREMENT` pada seluruh tabel kependudukan (`tweb_keluarga`, `tweb_penduduk`, `log_keluarga`, `log_penduduk`) serta penanganan *auto-fallback* ID pada PHP untuk mencegah error *Field 'id' doesn't have a default value*.
 
 ---
 
-## Versi Custom 2403.0.3 (Perbaikan Kompatibilitas PHP 7.4)
+Di rilis ini, versi 2403.0.0 berisi penambahan konversi surat rtf ke surat TinyMCE dan perbaikan lain yang diminta Komunitas SID.
 
-### 🐛 Perbaikan Bug
+Terima kasih pada @ruririzal dan @syahransaputra yang terus berkontribusi.
 
-1. **Perbaikan Fatal Error 500 pada Lingkungan PHP 7.4**
-   - Melakukan instalasi ulang dependensi pihak ketiga (vendor) agar sepenuhnya kompatibel dengan **PHP 7.4**.
-   - Sebelumnya, pustaka Google API Client (`google/apiclient`) dan komponen Symfony Translation (`symfony/translation-contracts`) terinstall dalam versi PHP 8.0 (mengandung sintaks seperti `match()` dan *non-capturing catch*), yang menyebabkan Error 500 (ParseError) pada server Laragon PHP 7.4.
-   - Memperbarui `composer.lock` hasil *generate* ulang menggunakan PHP 7.4.
+#### Penambahan Fitur
 
----
+1. [#6783](https://github.com/OpenSID/OpenSID/issues/6783) Penambahan pengaturan dan tampilkan data orang tua.
+2. [#5903](https://github.com/OpenSID/OpenSID/issues/5903) Penambahan surat TinyMCE keterangan beda identitas KIS.
+3. [#6782](https://github.com/OpenSID/OpenSID/issues/6782) Penambahan kode isian perisitiwa kematian.
+4. [#5771](https://github.com/OpenSID/OpenSID/issues/5771) Penambahan surat TinyMCE keterangan kematian.
+5. [#6221](https://github.com/OpenSID/OpenSID/issues/6221) Penambahan surat TinyMCE keterangan untuk nikah warga non muslim.
+6. [#6218](https://github.com/OpenSID/OpenSID/issues/6218) Penambahan surat TinyMCE keterangan penghasilan ibu.
+7. [#6213](https://github.com/OpenSID/OpenSID/issues/6213) Penambahan surat TinyMCE keterangan izin orang tua/suami/istri.
+8. [#5922](https://github.com/OpenSID/OpenSID/issues/5922) Penambahan surat TinyMCE keterangan domisili untuk non-warga.
+9. [#6222](https://github.com/OpenSID/OpenSID/issues/6222) Penambahan surat TinyMCE kuasa.
+10. [#5753](https://github.com/OpenSID/OpenSID/issues/5753) Penambahan surat TinyMCE pernyataan penguasaan fisik bidang tanah (SPORADIK).
+11. [#6825](https://github.com/OpenSID/OpenSID/issues/6825) Penambahan detail data penduduk pada surat TinyMCE untuk kasus data dinamis.
+12. [#6824](https://github.com/OpenSID/OpenSID/issues/6824) Penambahan kode isian surat TinyMCE untuk status penduduk hilang.
+13. [#6823](https://github.com/OpenSID/OpenSID/issues/6823) Penambahan kode isian surat TinyMCE untuk status penduduk pindah.
+14. [#6860](https://github.com/OpenSID/OpenSID/issues/6860) Penambahan pengaturan data pasangan TinyMCE.
+15. [#6819](https://github.com/OpenSID/OpenSID/issues/6819) Penambahan lampiran f-1.03 surat TinyMCE.
+16. [#6820](https://github.com/OpenSID/OpenSID/issues/6820) Penambahan lampiran f-1.08 surat TinyMCE.
+17. [#6821](https://github.com/OpenSID/OpenSID/issues/6821) Penambahan lampiran f-1.25 surat TinyMCE.
+18. [#6822](https://github.com/OpenSID/OpenSID/issues/6822) Penambahan lampiran f-1.27 surat TinyMCE.
+19. [#6896](https://github.com/OpenSID/OpenSID/issues/6896) Penambahan daftar centang keluarga pindah untuk surat pindah.
+20. [#5756](https://github.com/OpenSID/OpenSID/issues/5756) Penambahan surat TinyMCE keterangan pindah penduduk.
+21. [#6845](https://github.com/OpenSID/OpenSID/issues/6845) Penambahan kode isian golongan darah.
+22. [#6867](https://github.com/OpenSID/OpenSID/issues/6867) Penambahan kode isian surat TinyMCE untuk status penduduk lahir.
+23. [#6879](https://github.com/OpenSID/OpenSID/issues/6879) Penambahan pilihan format lampiran dari input pengguna surat TinyMCE keterangan pindah penduduk.
+24. [#5767](https://github.com/OpenSID/OpenSID/issues/5767) Penambahan surat TinyMCE Keterangan Kelahiran.
+25. [#6902](https://github.com/OpenSID/OpenSID/issues/6902) Penambahan lampiran f-2.01 surat TinyMCE.
+26. [#6857](https://github.com/OpenSID/OpenSID/issues/6857) Penambahan lampiran F-2.12 surat TinyMCE.
+27. [#6220](https://github.com/OpenSID/OpenSID/issues/6220) Penambahan surat TinyMCE Keterangan Untuk Nikah.
 
-## Versi Custom 2403.0.2 (Perbaikan Pemisahan Spasi OCR & Pemetaan Pendidikan DIPLOMA IV/STRATA I)
+#### Perbaikan BUG
 
-### 🐛 Perbaikan Bug & Penyempurnaan Parser KK
+1. [#6567](https://github.com/OpenSID/OpenSID/issues/6567) Perbaikan font bookman old style tidak bisa rata kiri-kanan.
+2. [#6813](https://github.com/OpenSID/OpenSID/issues/6813) Perbaikan daftar pamong yang ditampilkan unik untuk pengaturan pengguna.
+3. [#6817](https://github.com/OpenSID/OpenSID/issues/6817) Perbaikan menampilkan data anak pada saat input KIA.
+4. [#6807](https://github.com/OpenSID/OpenSID/issues/6807) Perbaikan informasi kehadiran perangkat.
+5. [#6850](https://github.com/OpenSID/OpenSID/issues/6850) Perbaikan cetak lampiran yang menggunakan gambar.
+6. [#6827](https://github.com/OpenSID/OpenSID/issues/6827) Perbaikan saat menambahkan kode/klasifikasi surat jika tidak tersedia pada daftar.
+7. [#6838](https://github.com/OpenSID/OpenSID/issues/6838) Perbaikan ridirect setelah login dengan akses group home.
+8. [#6849](https://github.com/OpenSID/OpenSID/issues/6849) Perbaikan template surat tinymce keterangan penghasilan ayah.
+9. [#6815](https://github.com/OpenSID/OpenSID/issues/6815) Perbaikan sebutan pemerintah desa agar konsiten.
+10. [#6840](https://github.com/OpenSID/OpenSID/issues/6840) Perbaikan pengaturan program DTKS.
+11. [#6834](https://github.com/OpenSID/OpenSID/issues/6834) Perbaikan sebutan desa agar konsiten.
+12. [#6835](https://github.com/OpenSID/OpenSID/issues/6835) Perbaikan sebutan dusun agar konsiten.
+13. [#6833](https://github.com/OpenSID/OpenSID/issues/6833) Perbaikan sebutan kepala desa agar konsiten.
+14. [#6862](https://github.com/OpenSID/OpenSID/issues/6862) Perbaikan pengaturan rentang waktu kehadiran keluar.
+15. [#6873](https://github.com/OpenSID/OpenSID/issues/6873) Perbaikan pengecekan nama desa dengan karakter `/`, `(` dan `)`.
+16. [#6842](https://github.com/OpenSID/OpenSID/issues/6842) Perbaikan ambil data surat dari aplikasi OpenDK jika token belum ada.
+17. [#6863](https://github.com/OpenSID/OpenSID/issues/6863) Perbaikan validasi data keterangan pada data penduduk.
+18. [#6839](https://github.com/OpenSID/OpenSID/issues/6839) Perbaikan hak akses grup pada modul.
+19. [#6856](https://github.com/OpenSID/OpenSID/issues/6856) Perbaikan tidak bisa cetak surat TinyMCE yang menggunakan lampiran F-2.01.
+20. [#6851](https://github.com/OpenSID/OpenSID/issues/6851) Perbaikan duplikasi url_id setiap kali cetak surat yang sama.
+21. [#6870](https://github.com/OpenSID/OpenSID/issues/6870) Perbaikan input pada surat permohonan kk tidak muncul di lampiran F-1.15.
+22. [#6871](https://github.com/OpenSID/OpenSID/issues/6871) Perbaikan input pada surat permohonan perubahan kk tidak muncul di lampiran F-1.16.
+23. [#6876](https://github.com/OpenSID/OpenSID/issues/6876) Perbaikan data umur pada log penduduk.
+24. [#6878](https://github.com/OpenSID/OpenSID/issues/6878) Perbaikan validasi ubah data modul.
+25. [#6877](https://github.com/OpenSID/OpenSID/issues/6877) Perbaikan validasi proses simpan yang menggunakan tombol enter.
+26. [#6889](https://github.com/OpenSID/OpenSID/issues/6889) Perbaikan tampilan datatables untuk jumlah kolom yang kurang.
+27. [#6881](https://github.com/OpenSID/OpenSID/issues/6881) Perbaikan login dengan username terlalu panjang.
+28. [#6888](https://github.com/OpenSID/OpenSID/issues/6888) Perbaikan detail data anggota keluarga yang tidak sesuai.
+29. [#6886](https://github.com/OpenSID/OpenSID/issues/6886) Perbaikan tidak melakukan pembaruan urutan pengurus ketika ubah data.
+30. [#6883](https://github.com/OpenSID/OpenSID/issues/6883) Perbaikan response gagal dari proses kirim ke OpenDK.
+31. [#6890](https://github.com/OpenSID/OpenSID/issues/6890) Perbaikan notifikasi tabel jika data tidak ada.
+32. [#6904](https://github.com/OpenSID/OpenSID/issues/6904) Perbaikan pencarian saat tambah/ubah data anggota peserta bantuan.
+33. [#6885](https://github.com/OpenSID/OpenSID/issues/6885) Perbaikan hapus data penduduk ketika data sudah dinyatakan lengkap.
+34. [#6900](https://github.com/OpenSID/OpenSID/issues/6900) Perbaikan penandatangan lampiran F-1.15.
+35. [#6887](https://github.com/OpenSID/OpenSID/issues/6887) Perbaikan notifikasi untuk NIK dan No KK yang kurang dari 16 digit.
+36. [#6910](https://github.com/OpenSID/OpenSID/issues/6910) Perbaikan ambil rilis terbaru dari github jika terdapat batasan harian.
+37. [#6912](https://github.com/OpenSID/OpenSID/issues/6912) Perbaikan menampilkan foto penduduk pada halaman pemetaan.
 
-1. **Perbaikan Pemisahan Spasi Nama & Alamat OCR (`splitConcatenatedName`)**
-   - Memperbarui fungsi `splitConcatenatedName()` di `App\Libraries\KkScanOcrParser` agar memproses teks per-kata (*word-by-word*) secara presisi.
-   - Menambahkan penanganan otomatis titik pada nama gelar/singkatan tanpa spasi (contoh: `MOH.FULAN` $\rightarrow$ `MOH. FULAN`).
-   - Memperluas kamus token kata Indonesia (`FULAN`, `SETIAWAN`, `FULANAH`, `DSN`, `MELATI`, dll.) sehingga nama dan alamat hasil OCR rapat terpisah sempurna (contoh: `FULANSETIAWAN` $\rightarrow$ `FULAN SETIAWAN`, `DSNMELATI` $\rightarrow$ `DSN MELATI`).
+#### Perubahan Teknis
 
-2. **Otomatisasi Pemulihan Ejaan Nama Resmi & Spasi dari Database**
-   - Pada `donjo-app/controllers/Keluarga.php` metode `proses_import_scan_kk` dan `proses_import_pdf`, jika NIK / penduduk telah terdaftar di database `tweb_penduduk`, sistem secara otomatis memulihkan ejaan nama resmi lengkap beserta spasinya (`nama`, `nama_ayah`, `nama_ibu`) dari database.
-
-3. **Perbaikan Pemetaan Tingkat Pendidikan `DIPLOMA IV/STRATA I`, `STRATA II`, dan `STRATA III`**
-   - Mengatasi masalah di mana tingkat pendidikan `DIPLOMA IV/STRATA I` (tanpa spasi setelah tanda `/`) gagal terpetakan ke ID `8` dan tersimpan salah sebagai ID `1` (`TIDAK / BELUM SEKOLAH`).
-   - Memperbarui `$norm_clean_pend` & `$norm_pend` di `Keluarga.php` menggunakan *regex word boundary* `\b` (`preg_match('/STRATA\s*(I|1)\b/i')`) agar `STRATA I` tidak bertabrakan dengan `STRATA III` atau `STRATA II`.
-   - Menambahkan alias referensi pendidikan yang presisi pada `$ref_pendidikan` untuk ID `8` (`DIPLOMA IV/ STRATA I`), ID `9` (`STRATA II`), dan ID `10` (`STRATA III`).
-
-4. **Dukungan Fallback PDF Scan Tanpa Stream Teks**
-   - Memperbarui `App\Libraries\KkPdfParser` dengan dukungan eksekusi PyMuPDF 300 DPI dan *fallback* otomatis ke `KkScanOcrParser::parseImage()` jika berkas PDF yang diunggah berupa hasil scan/foto tanpa teks stream mentah.
-
----
-
-## Versi Custom 2403.0.1 (Perbaikan Impor PDF/Scan KK)
-
-### 🐛 Perbaikan Bug & Penyempurnaan Parser KK
-
-1. **Perbaikan Pembacaan & Pemetaan Status Perkawinan `CERAI BELUM TERCATAT`**
-   - Menambahkan `'CERAI BELUM TERCATAT'` ke dalam daftar referensi status perkawinan pada `App\Libraries\KkPdfParser` dan `App\Libraries\KkScanOcrParser`.
-   - Memastikan status perkawinan "CERAI BELUM TERCATAT" dari kolom (10) Kartu Keluarga elektronik maupun scan terbaca dengan presisi dan tidak menjadi kosong di pratinjau maupun database.
-
-2. **Perbaikan Pemetaan & Penyimpanan Tingkat Pendidikan `DIPLOMA I/II`**
-   - Mengatasi masalah tabrakan kunci normalisasi string (*string collision*) pada `Keluarga.php` di mana kunci normalisasi `"DIPLOMA I / II"` sebelumnya menghasilkan string `"DIPLOMAIII"`, yang menyebabkan tertimpa oleh ID `7` (`AKADEMI/ DIPLOMA III/S. MUDA`) dan gagal tersimpan sebagai ID `6` (`DIPLOMA I / II`).
-   - Menambahkan fungsi normalisasi khusus `$norm_clean_pend` yang memisahkan kunci `DIPLOMA I/II` (`DIPLOMAI_II`) dan `DIPLOMA III` (`DIPLOMAIII`) sehingga data pendidikan `DIPLOMA I/II` tersimpan secara presisi ke database `tweb_penduduk` (`pendidikan_kk_id = 6`).
-   - Menyempurnakan deteksi tingkat pendidikan pada `KkScanOcrParser.php`.
-
-### 🚀 Fitur Baru: Pindah Penduduk Kolektif (Satu KK / Pindah Sebagian)
-
-1. **Fitur Ubah Status Dasar Pindah Kolektif (Batch Family Relocation)**
-   - Menambahkan fitur pengubahan status dasar `PINDAH` sekaligus untuk seluruh anggota keluarga (1 KK) atau sebagian anggota keluarga yang dicentang (*checkbox*) dalam 1 formulir terpadu (*Single Batch Form*).
-   - Menyediakan tombol aksi `[ 🚚 Pindah KK / Sebagian ]` pada Halaman Anggota Keluarga (`keluarga/anggota`) dan Tabel Data Keluarga (`keluarga`).
-
-2. **Otomatisasi Pecah KK & Pembuatan No. KK Sementara Sesuai Permendagri No. 108/2019**
-   - Apabila Kepala Keluarga lama ikut pindah dan terdapat sisa anggota keluarga yang ditinggalkan (tidak pindah), sistem secara otomatis membuatkan **Kartu Keluarga Baru (No. KK Sementara)** untuk sisa anggota tersebut.
-   - Sistem menyarankan secara otomatis Kepala KK Baru dari **anggota tersisa yang tertua**, serta memberikan *dropdown select* bagi operator jika ingin menentukan Kepala KK Baru lain berdasarkan kesepakatan keluarga.
-   - Seluruh transaksi mutasi dilakukan secara aman dalam *Database Transaction* (`$this->db->trans_start()`) dan memperbarui `log_penduduk` serta `log_keluarga`.
-   - Mengatasi masalah evaluasi kunci status dasar anggota tersisa sehingga alur pemecahan KK Baru berjalan 100% presisi.
-
-3. **Penyempurnaan UI Modal & Penyelarasan Datepicker**
-   - Perombakan tampilan modal dialog `ajax_pindah_kk_form.php` agar 100% seragam dengan desain form bawaan OpenSID AdminLTE (`box box-danger`, header tabel `bg-gray disabled color-palette`, dan tombol `btn-social btn-flat`).
-   - Penyelarasan format tanggal peristiwa dan tanggal lapor menggunakan format Indonesia `DD-MM-YYYY`.
-
-4. **Proteksi Helper Autocomplete (`opensid_helper.php`)**
-   - Menambahkan *guard check* `if (empty($data) || !is_array($data) ...)` pada fungsi `autocomplete_data_ke_str()` untuk mencegah error `array_keys()` null argument pada PHP 8.3+.
-
-5. **Pembaruan Dokumentasi Utama (`README.md`)**
-   - Menambahkan seksi Fitur Unggulan Custom Pindah Penduduk Kolektif 1 KK / Pindah Sebagian & Otomatisasi Permendagri 108/2019 serta panduan penggunaannya pada `README.md`.
-
----
-
-## Versi Custom 2403.0.0 (Fitur Impor Scan / Foto KK OCR)
-
-### 🚀 Penambahan Fitur Custom
-
-1. **Migrasi & Integrasi Engine OCR Tercepat (RapidOCR ONNX Engine)**
-   - Menggantikan Tesseract OCR bawaan dengan **RapidOCR ONNX Engine** lokal (`bin/rapidocr/win64/rapidocr.exe` di Windows) dan paket PyPI `rapidocr_onnxruntime` + `opencv-python-headless` di Linux.
-   - Pembacaan teks sangat cepat tanpa ketergantungan pada *cloud API* eksternal.
-
-2. **Deteksi Otomatis & Fitur 1-Click Installer di Pop-up Modal**
-   - **Indikator Status Real-time**: Menampilkan badge status engine OCR (Ready ✅ / Belum Terpasang ⚠️) secara otomatis pada modal impor.
-   - **Tombol 1-Click Installer AJAX**: Jika engine belum terpasang di cPanel/Linux, tombol install 1-klik akan otomatis memasang `rapidocr_onnxruntime` & `opencv-python-headless` via PHP `exec()` tanpa perlu SSH terminal.
-   - **Standalone Installer Script (`install_ocr.php`)**: Script pembantu instalasi 1-klik yang dapat diakses langsung via browser (`domain.com/install_ocr.php`).
-
-3. **Pembatasan Hak Akses Khusus Administrator**
-   - **Backend Protection**: Metode `dialog_import_scan_kk()`, `ajax_install_ocr()`, dan `proses_import_scan_kk()` dikunci ketat khusus untuk pengguna dengan grup Administrator (`$admin_only = true`).
-   - **Frontend Protection**: Tombol menu *Impor Scan / Foto KK (OCR)* disembunyikan secara otomatis untuk pengguna non-administrator.
-
-4. **Dukungan Format Berkas PDF & Gambar**
-   - Mendukung pengunggahan berkas **PDF Scan (`.pdf`)** serta **Gambar (`.jpg`, `.jpeg`, `.png`)**.
-   - Penambahan **Mesin Multi-Angle Auto-Rotation Retry** yang secara otomatis mendeteksi dan memutar orientasi berkas (ke sudut +90°, -90°, atau 180°) jika dokumen diunggah miring/terbalik.
-
-5. **Dukungan Kompatibilitas Ganda Format Kartu Keluarga**
-   - **KK Format Lama**: Mendukung ekstraksi data pada KK dengan pengesahan TTD Manual & Stempel Basah Disdukcapil (penyaringan NIP 18-digit pejabat otomatis agar tidak mengontaminasi No KK).
-   - **KK Format Baru**: Mendukung ekstraksi data pada KK dengan Tanda Tangan Elektronik (Barcode TTE BSrE BSSN) dan ekstraksi otomatis kolom **Tanggal Perkawinan / Perceraian**.
-
-6. **Kecerdasan Ekstraksi & Penyempurnaan Teks (Smart Parser)**
-   - **Pengelompokan Baris Vertikal Proporsional**: Formula toleransi tinggi baris ($yThreshold$) yang dihitung secara dinamis dan proporsional terhadap tinggi resolusi dokumen, menjamin presisi 100% pada file gambar biasa maupun PDF resolusi tinggi.
-   - **Pemisah Spasi Nama Rapat**: Pemecahan otomatis suku kata nama Indonesia yang rapat tanpa spasi akibat hasil pemindaian fotokopi (contoh: `FULANSETIAWAN` $\rightarrow$ `FULAN SETIAWAN`).
-   - **Pemetaan Presisi Nama Orang Tua (Ayah / Ibu)**: Algoritma pemisahan nama orang tua yang akurat dengan penyaringan sub-header tabel 2 serta pemetaan pintar nama 3 kata (contoh: Ayah: `FULAN`, Ibu: `FULANAH`).
-   - **Dukungan Titik Dua Unicode (`:`, `：`, `=`, `＝`) & NamaKepala**: Mengenali berbagai variasi titik dua dan penggabungan kata hasil OCR pada bidang Header (RT/RW, Desa, Kecamatan, Alamat, Kepala Keluarga).
-   - **Dukungan Path cPanel User Home**: Deteksi otomatis biner eksekusi pengguna Linux cPanel (`~/.local/bin/rapidocr`) dan eksekusi langsung via Python 3 import.
+1. [#6744](https://github.com/OpenSID/OpenSID/issues/6744) Penambahan informasi query yang dihasilkan oleh eloquent pada develbar.
+2. [#1918](https://github.com/OpenSID/premium/issues/1918) Refaktor query pada Analisis_kategori_model.php
+3. [#1919](https://github.com/OpenSID/premium/issues/1919) Refaktor query pada Analisis_klasifikasi_model.php
+4. [#1916](https://github.com/OpenSID/premium/issues/1916) Refaktor query pada Analisis_periode_model.php
+5. [#6846](https://github.com/OpenSID/OpenSID/issues/6846) Penyesuian halaman periksa untuk OpenSID database gabungan.
+6. [#2572](https://github.com/OpenSID/premium/issues/2572) Penyesuian sebutan kepala desa pada halaman maintenace.
+7. [#6848](https://github.com/OpenSID/OpenSID/issues/6848) Penyesuian pasang baru melalui kode_desa melalui config.
+8. [#6880](https://github.com/OpenSID/OpenSID/issues/6880) Penyesuaian form inputan email pada ganti email.
+9. [#2600](https://github.com/OpenSID/premium/issues/2600) Penyesuaian migrasi perbaikan collation agar jalan terus diakhir migrasi.
+10. [#6901](https://github.com/OpenSID/OpenSID/issues/6901) Penyesuaian struktur kolom tgl_agenda pada tabel agenda.
+11. [#2639](https://github.com/OpenSID/premium/issues/2639) Penyesuaian struktur kolom yang menggunakan default urrent_timestamp() ON UPDATE current_timestamp() namun tidak sesuai kegunaannya.
+12. [#6894](https://github.com/OpenSID/OpenSID/issues/6894) Penyesuaian pengiriman data ke pantau.
+13. [#2573](https://github.com/OpenSID/premium/issues/2573) Penyesuaian tombol migrasi agar bisa melakukan migrasi ulang dari halaman admin.
+14. [#6704](https://github.com/OpenSID/OpenSID/issues/6704) Penyesuaian grup akses modul bantuan, bagi menjadi 2 bagian yaitu program dan peserta.
+15. [#6925](https://github.com/OpenSID/OpenSID/issues/6925) Penyesuaian kolom updated_by pada tabel tweb_keluarga bisa bernilai null.
+16. [#2624](https://github.com/OpenSID/premium/issues/2624) Pembatasan akses file metode LFI (Local File Inclusion).
+17. [#2625](https://github.com/OpenSID/premium/issues/2625) Pembatasan akses unggah file berbahaya melalui RFM.
