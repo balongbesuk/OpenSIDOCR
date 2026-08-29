@@ -1284,6 +1284,7 @@ class Penduduk_model extends MY_Model
                 $pasangan_id = $pasangan['id'];
                 $this->db->where('id', $pasangan_id)->update('tweb_penduduk', [
                     'status_kawin'      => 4, // Cerai Mati
+                    'tanggalperkawinan' => $tgl_mati,
                     'tanggalperceraian' => null,
                     'akta_perceraian'   => null,
                     'updated_at'        => date('Y-m-d H:i:s'),
@@ -1345,6 +1346,7 @@ class Penduduk_model extends MY_Model
                         ];
                         if ($pasangan_id && $anggota['id'] == $pasangan_id) {
                             $update_anggota['status_kawin']      = 4;
+                            $update_anggota['tanggalperkawinan'] = $tgl_mati;
                             $update_anggota['tanggalperceraian'] = null;
                             $update_anggota['akta_perceraian']   = null;
                         }
