@@ -1412,8 +1412,8 @@ class Keluarga extends Admin_Controller
                 'updated_at'   => date('Y-m-d H:i:s'),
             ]);
         } else {
-            $is_new_kk = true;
-            $this->db->insert('tweb_keluarga', [
+            $is_new_kk    = true;
+            $data_kk_baru = [
                 'config_id'    => $config_id,
                 'no_kk'        => $header['no_kk'],
                 'alamat'       => $header['alamat'],
@@ -1421,8 +1421,14 @@ class Keluarga extends Admin_Controller
                 'tgl_daftar'   => date('Y-m-d H:i:s'),
                 'id_cluster'   => $id_cluster,
                 'updated_at'   => date('Y-m-d H:i:s'),
-            ]);
-            $id_kk = $this->db->insert_id();
+            ];
+            $has_pk = $this->db->query("SHOW KEYS FROM tweb_keluarga WHERE Key_name = 'PRIMARY'")->num_rows();
+            if (! $has_pk) {
+                $max_id             = $this->db->select_max('id')->get('tweb_keluarga')->row()->id ?? 0;
+                $data_kk_baru['id'] = $max_id + 1;
+            }
+            $this->db->insert('tweb_keluarga', $data_kk_baru);
+            $id_kk = $this->db->insert_id() ?: ($data_kk_baru['id'] ?? null);
         }
 
         $kepala_penduduk_id = null;
@@ -1739,8 +1745,13 @@ class Keluarga extends Admin_Controller
                     'updated_at'   => date('Y-m-d H:i:s'),
                     'updated_by'   => $this->session->user,
                 ];
+                $has_pk = $this->db->query("SHOW KEYS FROM tweb_keluarga WHERE Key_name = 'PRIMARY'")->num_rows();
+                if (! $has_pk) {
+                    $max_id             = $this->db->select_max('id')->get('tweb_keluarga')->row()->id ?? 0;
+                    $data_kk_baru['id'] = $max_id + 1;
+                }
                 $this->db->insert('tweb_keluarga', $data_kk_baru);
-                $id_kk_baru = $this->db->insert_id();
+                $id_kk_baru = $this->db->insert_id() ?: ($data_kk_baru['id'] ?? null);
 
                 // Pindahkan sisa anggota ke KK Baru & atur kk_level
                 foreach ($sisa_anggota_aktif as $anggota) {

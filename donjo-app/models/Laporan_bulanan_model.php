@@ -740,6 +740,22 @@ class Laporan_bulanan_model extends MY_Model
             $this->db->query("ALTER TABLE log_keluarga ADD INDEX idx_id_peristiwa (id_peristiwa)");
         }
 
+        $has_pk_tweb_kel = $this->db->query("SHOW KEYS FROM tweb_keluarga WHERE Key_name = 'PRIMARY'")->num_rows();
+        if (!$has_pk_tweb_kel) {
+            @$this->db->query("UPDATE tweb_keluarga SET tgl_cetak_kk = NULL WHERE tgl_cetak_kk = '0000-00-00 00:00:00'");
+            @$this->db->query("ALTER TABLE tweb_keluarga MODIFY id INT NOT NULL AUTO_INCREMENT, ADD PRIMARY KEY (id)");
+        }
+
+        $has_pk_tweb_pend = $this->db->query("SHOW KEYS FROM tweb_penduduk WHERE Key_name = 'PRIMARY'")->num_rows();
+        if (!$has_pk_tweb_pend) {
+            @$this->db->query("UPDATE tweb_penduduk SET tanggal_akhir_paspor = NULL WHERE tanggal_akhir_paspor = '0000-00-00'");
+            @$this->db->query("UPDATE tweb_penduduk SET tanggallahir = '1900-01-01' WHERE tanggallahir = '0000-00-00'");
+            @$this->db->query("UPDATE tweb_penduduk SET tanggalperkawinan = NULL WHERE tanggalperkawinan = '0000-00-00'");
+            @$this->db->query("UPDATE tweb_penduduk SET tanggalperceraian = NULL WHERE tanggalperceraian = '0000-00-00'");
+            @$this->db->query("UPDATE tweb_penduduk SET tanggal_cetak_ktp = NULL WHERE tanggal_cetak_ktp = '0000-00-00'");
+            @$this->db->query("ALTER TABLE tweb_penduduk MODIFY id INT NOT NULL AUTO_INCREMENT, ADD PRIMARY KEY (id)");
+        }
+
         // B. Kueri-kueri perbaikan data log penduduk dan keluarga:
 
         // 1. Sinkronkan log keluarga yang hilang log awal

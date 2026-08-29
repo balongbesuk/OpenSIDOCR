@@ -1282,8 +1282,13 @@ class Penduduk_model extends MY_Model
                         'updated_at'   => date('Y-m-d H:i:s'),
                         'updated_by'   => $this->session->user,
                     ];
+                    $has_pk = $this->db->query("SHOW KEYS FROM tweb_keluarga WHERE Key_name = 'PRIMARY'")->num_rows();
+                    if (! $has_pk) {
+                        $max_id             = $this->db->select_max('id')->get('tweb_keluarga')->row()->id ?? 0;
+                        $data_kk_baru['id'] = $max_id + 1;
+                    }
                     $this->db->insert('tweb_keluarga', $data_kk_baru);
-                    $id_kk_baru = $this->db->insert_id();
+                    $id_kk_baru = $this->db->insert_id() ?: ($data_kk_baru['id'] ?? null);
 
                     // 2. Pindahkan seluruh sisa anggota aktif ke KK Baru & atur Kepala Keluarga baru (kk_level = 1)
                     foreach ($sisa_anggota_aktif as $anggota) {
