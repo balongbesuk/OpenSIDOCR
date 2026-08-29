@@ -448,7 +448,7 @@ class Laporan_bulanan_model extends MY_Model
         $id_peristiwa = $kode_peristiwa;
 
         $this->config_id('l')
-            ->select('p.*, k.id as id_kk, k.no_kk, k.alamat as alamat_kk, l.id_peristiwa, l.tgl_peristiwa')
+            ->select('p.*, k.id as kk_id, k.no_kk, k.alamat as alamat_kk, l.id_peristiwa, l.tgl_peristiwa')
             ->from('log_keluarga l')
             ->join('tweb_keluarga k', 'k.id = l.id_kk')
             ->join('tweb_penduduk p', 'p.id = k.nik_kepala')
@@ -512,7 +512,8 @@ class Laporan_bulanan_model extends MY_Model
 
             // Jika Keluarga
             if ($is_keluarga) {
-                $id_kk = $row['id_kk'] ?? $row['id'] ?? 0;
+                $id_kk          = $row['kk_id'] ?? $row['id_kk'] ?? $row['id'] ?? 0;
+                $row['id_kk']   = $id_kk;
                 $row['jml_anggota'] = $this->db
                     ->where('id_kk', $id_kk)
                     ->where('status_dasar', 1)
