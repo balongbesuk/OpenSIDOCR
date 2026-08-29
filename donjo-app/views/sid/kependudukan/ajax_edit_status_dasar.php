@@ -175,15 +175,53 @@
 				var sisaAnggota = <?= (int) ($jumlah_sisa_anggota ?? 0) ?>;
 
 				if (isKepala && (status == '2' || status == '3') && sisaAnggota > 0) {
-					var statusText = (status == '2') ? 'Meninggal' : 'Pindah';
-					var msg = "PERHATIAN SOP DUKCAPIL:\n\n" +
-						"Warga ini tercatat sebagai Kepala Keluarga dan memiliki " + sisaAnggota + " anggota keluarga yang masih hidup.\n\n" +
-						"- Sisa " + sisaAnggota + " anggota keluarga akan OTOMATIS dibuatkan No. KK Sementara.\n" +
-						"- Kolom 'No. KK Sebelumnya' pada sisa anggota akan otomatis diisi dengan No. KK lama.\n" +
-						(status == '2' ? "- Status perkawinan pasangan akan otomatis diperbarui menjadi 'Cerai Mati'.\n\n" : "\n") +
-						"Lanjutkan penyimpanan?";
-					if (!confirm(msg)) {
+					if (!$(this).data('confirmed')) {
 						e.preventDefault();
+						var form = this;
+						var statusText = (status == '2') ? 'Meninggal Dunia' : 'Pindah Keluar';
+						var htmlContent = '<div style="text-align: left; font-size: 13px; line-height: 1.6; color: #333;">' +
+							'<p>Warga ini tercatat sebagai <strong>Kepala Keluarga</strong> dan memiliki <strong>' + sisaAnggota + ' anggota keluarga</strong> yang masih hidup.</p>' +
+							'<div class="callout callout-warning" style="margin-bottom: 10px; padding: 10px; text-align: left; background-color: #fcf8e3 !important; border-color: #8a6d3b !important; color: #8a6d3b !important;">' +
+							'<strong>Tindakan Otomatis Sistem:</strong>' +
+							'<ul style="padding-left: 18px; margin-bottom: 0;">' +
+							'<li>Sisa <strong>' + sisaAnggota + ' anggota</strong> akan otomatis dibuatkan <strong>No. KK Sementara</strong>.</li>' +
+							'<li>Kolom <strong>No. KK Sebelumnya</strong> akan otomatis terisi dengan No. KK lama.</li>' +
+							(status == '2' ? '<li>Status perkawinan pasangan akan otomatis diubah menjadi <strong>Cerai Mati</strong>.</li>' : '') +
+							'</ul>' +
+							'</div>' +
+							'<p style="margin-bottom: 0;">Apakah Anda yakin ingin memproses perubahan status <strong>' + statusText + '</strong> ini?</p>' +
+							'</div>';
+
+						if (typeof Swal !== 'undefined') {
+							Swal.fire({
+								title: '<span style="font-size: 18px; font-weight: bold; color: #d9534f;"><i class="fa fa-warning"></i> Konfirmasi Perubahan Status</span>',
+								html: htmlContent,
+								icon: 'warning',
+								showCancelButton: true,
+								confirmButtonColor: '#3085d6',
+								cancelButtonColor: '#d33',
+								confirmButtonText: '<i class="fa fa-check"></i> Ya, Proses',
+								cancelButtonText: '<i class="fa fa-times"></i> Batal',
+								reverseButtons: true,
+								focusConfirm: false
+							}).then(function(result) {
+								if (result.isConfirmed || result.value) {
+									$(form).data('confirmed', true);
+									form.submit();
+								}
+							});
+						} else {
+							var plainMsg = "PERHATIAN SOP DUKCAPIL:\n\n" +
+								"Warga ini tercatat sebagai Kepala Keluarga dan memiliki " + sisaAnggota + " anggota keluarga yang masih hidup.\n\n" +
+								"- Sisa " + sisaAnggota + " anggota keluarga akan OTOMATIS dibuatkan No. KK Sementara.\n" +
+								"- Kolom 'No. KK Sebelumnya' pada sisa anggota akan otomatis diisi dengan No. KK lama.\n" +
+								(status == '2' ? "- Status perkawinan pasangan akan otomatis diperbarui menjadi 'Cerai Mati'.\n\n" : "\n") +
+								"Lanjutkan penyimpanan?";
+							if (confirm(plainMsg)) {
+								$(form).data('confirmed', true);
+								form.submit();
+							}
+						}
 						return false;
 					}
 				}
