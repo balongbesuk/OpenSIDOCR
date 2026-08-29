@@ -103,14 +103,24 @@
 											<span class="label label-info" title="Penduduk Tercatat Pindah Keluar di DB"><i class="fa fa-arrow-right"></i> Pindah</span>
 										<?php elseif (!empty($m['pindah_kk'])): ?>
 											<span class="label label-warning" title="Pindah dari KK Lama No: <?= $m['no_kk_lama'] ?> (Kepala: <?= $m['kepala_kk_lama'] ?>)"><i class="fa fa-exchange"></i> Pindah KK</span>
+										<?php elseif (!empty($m['is_bayi_lahir'])): ?>
+											<span class="label label-primary" title="Bayi Baru Lahir (akan dicatat sebagai Kelahiran di Laporan Bulanan)"><i class="fa fa-child"></i> Bayi Lahir</span>
 										<?php elseif (!empty($m['db_exists'])): ?>
 											<span class="label label-warning" title="NIK Sudah ada, akan diperbarui">Update</span>
 										<?php else: ?>
-											<span class="label label-success" title="NIK Baru, akan ditambahkan">Baru</span>
+											<span class="label label-success" title="Penduduk Pendatang Baru">Pendatang</span>
 										<?php endif; ?>
 									</td>
 									<td <?= isset($m['diff']['nik']) ? 'style="background-color: #fff3cd;"' : '' ?>>
-										<strong><?= $m['nik'] ?></strong>
+										<?php if (!empty($m['nik_invalid'])): ?>
+											<div class="input-group input-group-sm has-error">
+												<input type="text" name="edited_nik[<?= $idx ?>]" value="<?= html_escape($m['nik']) ?>" class="form-control input-sm text-bold" maxlength="16" style="border: 2px solid #dd4b39; background-color: #f2dede; min-width: 140px;" title="NIK tidak valid (harus 16 digit angka)">
+											</div>
+											<span class="text-danger" style="font-size: 11px;"><i class="fa fa-warning"></i> NIK tidak 16 digit</span>
+										<?php else: ?>
+											<strong><?= $m['nik'] ?></strong>
+											<input type="hidden" name="edited_nik[<?= $idx ?>]" value="<?= html_escape($m['nik']) ?>">
+										<?php endif; ?>
 										<?php if (!empty($m['is_nik_sementara_match'])): ?>
 											<br><small class="text-muted"><i class="fa fa-info-circle"></i> NIK Lama: <?= $m['nik_lama'] ?></small>
 										<?php endif; ?>

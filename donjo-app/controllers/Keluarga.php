@@ -1155,7 +1155,22 @@ class Keluarga extends Admin_Controller
             $m['pindah_kk']              = false;
             $m['no_kk_lama']             = null;
             $m['kepala_kk_lama']         = null;
-            $m['diff']                   = [];
+            $clean_nik                   = preg_replace('/[^0-9]/', '', (string) $m['nik']);
+            $m['nik_invalid']            = (strlen($clean_nik) !== 16);
+            $m['is_bayi_lahir']          = false;
+
+            if (! $p && ! empty($m['tanggallahir'])) {
+                $shdk_name = strtoupper(trim((string) $m['hubungan']));
+                if (in_array($shdk_name, ['ANAK', 'CUCU'])) {
+                    $tgl_lahir_ts = strtotime($m['tanggallahir']);
+                    $umur_hari     = (time() - $tgl_lahir_ts) / 86400;
+                    if ($umur_hari >= 0 && $umur_hari <= 365) {
+                        $m['is_bayi_lahir'] = true;
+                    }
+                }
+            }
+
+            $m['diff'] = [];
 
             if ($p) {
                 $m['db_id']             = $p['id'];
@@ -1411,10 +1426,11 @@ class Keluarga extends Admin_Controller
         }
 
         $kepala_penduduk_id = null;
+        $edited_niks        = $this->input->post('edited_nik') ?: [];
 
         // 2. Simpan/Update tweb_penduduk
-        foreach ($members as $m) {
-            $nik = $m['nik'];
+        foreach ($members as $idx => $m) {
+            $nik = ! empty($edited_niks[$idx]) ? preg_replace('/[^0-9]/', '', (string) $edited_niks[$idx]) : preg_replace('/[^0-9]/', '', (string) $m['nik']);
             if (empty($nik)) {
                 continue;
             }
@@ -1500,16 +1516,44 @@ class Keluarga extends Admin_Controller
                 $this->db->insert('tweb_penduduk', $data_pend);
                 $pend_id = $this->db->insert_id();
 
-                // Catat log_penduduk untuk Penduduk Masuk (kode_peristiwa = 5)
+                // Cek apakah anggota baru ini adalah Bayi Lahir (kode_peristiwa = 1) atau Pendatang (kode_peristiwa = 5)
+                $is_bayi_lahir = false;
+                if (! empty($m['tanggallahir']) && in_array($shdk_id, [4, 6])) {
+                    $tgl_lahir_ts = strtotime($m['tanggallahir']);
+                    $umur_hari     = (time() - $tgl_lahir_ts) / 86400;
+                    if ($umur_hari >= 0 && $umur_hari <= 365) {
+                        // Bayi lahir jika ada anggota lain di KK ini yang merupakan warga desa lama
+                        $has_warga_desa = false;
+                        foreach ($members as $other_m) {
+                            if (! empty($other_m['db_id']) && $other_m['nik'] !== $nik) {
+                                $has_warga_desa = true;
+                                break;
+                            }
+                        }
+                        if ($has_warga_desa || (! empty($kk) && ! $is_new_kk)) {
+                            $is_bayi_lahir = true;
+                        }
+                    }
+                }
+
+                $kode_peristiwa_log = $is_bayi_lahir ? 1 : 5;
+                $catatan_log        = $is_bayi_lahir ? 'Kelahiran baru melalui Impor KK' : 'Penduduk masuk melalui Impor KK';
+
+                // Catat log_penduduk
                 $tgl_peristiwa_log = ! empty($header['tgl_cetak']) ? date('Y-m-d H:i:s', strtotime($header['tgl_cetak'])) : date('Y-m-d H:i:s');
+                if ($is_bayi_lahir && ! empty($m['tanggallahir'])) {
+                    $tgl_peristiwa_log = date('Y-m-d 00:00:00', strtotime($m['tanggallahir']));
+                }
+
                 $this->db->insert('log_penduduk', [
                     'config_id'      => $config_id,
                     'id_pend'        => $pend_id,
-                    'kode_peristiwa' => 5,
+                    'kode_peristiwa' => $kode_peristiwa_log,
                     'tgl_lapor'      => date('Y-m-d H:i:s'),
                     'tgl_peristiwa'  => $tgl_peristiwa_log,
                     'no_kk'          => $header['no_kk'],
                     'nama_kk'        => $header['kepala_keluarga'],
+                    'catatan'        => $catatan_log,
                     'created_at'     => date('Y-m-d H:i:s'),
                     'created_by'     => $this->session->user ?? 1,
                 ]);

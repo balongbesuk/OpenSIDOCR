@@ -436,7 +436,11 @@ class KkScanOcrParser
             }
 
             // Deteksi baris Tabel 1 (Memiliki 16-digit NIK, hanya jika berada di area Tabel 1)
-            if ($inTable1Section && preg_match('/(\d{16})/', $line, $m)) {
+            $cleanedLineForNik = preg_replace_callback('/[0-9OoIDli|ZzSsBbgq\s\.\-]{14,22}/', static function ($match) {
+                return self::cleanOcrDigitString($match[0]);
+            }, $line);
+
+            if ($inTable1Section && preg_match('/(\d{16})/', $cleanedLineForNik, $m)) {
                 $nik = $m[1];
                 if (! empty($headerNoKk) && $nik === $headerNoKk) {
                     continue;
@@ -444,7 +448,9 @@ class KkScanOcrParser
 
                 // Ekstrak Nama (sebelum NIK)
                 $nama = '';
-                if (preg_match('/^(?:\d+[\s\|\.\/]+)?([a-zA-Z\s\,\.\']+?)\s+\d{16}/i', $line, $nameMatch)) {
+                if (preg_match('/^(?:\d+[\s\|\.\/]+)?([a-zA-Z\s\,\.\']+?)\s+\d{16}/i', $cleanedLineForNik, $nameMatch)) {
+                    $nama = self::splitConcatenatedName(strtoupper(trim($nameMatch[1])));
+                } elseif (preg_match('/^(?:\d+[\s\|\.\/]+)?([a-zA-Z\s\,\.\']+)/i', $line, $nameMatch)) {
                     $nama = self::splitConcatenatedName(strtoupper(trim($nameMatch[1])));
                 }
 
@@ -720,5 +726,20 @@ class KkScanOcrParser
         }
 
         return date('Y-m-d');
+    }
+
+    public static function cleanOcrDigitString(string $str): string
+    {
+        $map = [
+            'O' => '0', 'o' => '0', 'D' => '0',
+            'I' => '1', 'l' => '1', 'i' => '1', '|' => '1',
+            'Z' => '2', 'z' => '2',
+            'S' => '5', 's' => '5',
+            'B' => '8', 'b' => '8',
+            'g' => '9', 'q' => '9',
+        ];
+        $converted = strtr($str, $map);
+
+        return preg_replace('/[^0-9]/', '', $converted);
     }
 }
