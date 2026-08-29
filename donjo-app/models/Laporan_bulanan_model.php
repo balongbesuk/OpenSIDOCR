@@ -820,14 +820,20 @@ class Laporan_bulanan_model extends MY_Model
             WHERE tmp.min_id IS NULL
         ");
 
-        // 6. Bersihkan log Keluarga Baru (event 1) untuk keluarga pendatang (yang juga punya log Pindah Masuk event 5 di bulan yang sama)
+        // 6. Bersihkan log Keluarga Baru (event 1) untuk keluarga yang memiliki log Keluarga Datang (event 5)
         $this->db->query("
             DELETE l1 FROM log_keluarga l1
-            JOIN log_keluarga l2 ON l1.id_kk = l2.id_kk 
-              AND l2.id_peristiwa = 5 
-              AND YEAR(l1.tgl_peristiwa) = YEAR(l2.tgl_peristiwa) 
-              AND MONTH(l1.tgl_peristiwa) = MONTH(l2.tgl_peristiwa)
+            JOIN log_keluarga l2 ON l1.id_kk = l2.id_kk AND l2.id_peristiwa = 5
             WHERE l1.id_peristiwa = 1
+        ");
+
+        // 7. Bersihkan duplikat log peristiwa masuk/lahir (1, 5) ganda untuk penduduk yang sama
+        $this->db->query("
+            DELETE l1 FROM log_penduduk l1
+            JOIN log_penduduk l2 ON l1.id_pend = l2.id_pend 
+              AND l1.id < l2.id 
+              AND l1.kode_peristiwa IN (1, 5) 
+              AND l2.kode_peristiwa IN (1, 5)
         ");
     }
 }
