@@ -1376,6 +1376,9 @@ class Keluarga extends Admin_Controller
         }
 
         // 1. Simpan/Update tweb_keluarga
+        $is_new_kk           = false;
+        $kepala_is_pendatang = false;
+
         $kk = $this->db->where('no_kk', $header['no_kk'])->get('tweb_keluarga')->row_array();
         if (! $kk) {
             $target_kk = $this->find_target_kk_for_import($header['no_kk'], $members);
@@ -1394,6 +1397,7 @@ class Keluarga extends Admin_Controller
                 'updated_at'   => date('Y-m-d H:i:s'),
             ]);
         } else {
+            $is_new_kk = true;
             $this->db->insert('tweb_keluarga', [
                 'config_id'    => $config_id,
                 'no_kk'        => $header['no_kk'],
@@ -1468,6 +1472,10 @@ class Keluarga extends Admin_Controller
                 if ($is_datang_kembali) {
                     $data_pend['alamat_sebelumnya'] = $alamat_asal;
                 }
+                // Jika penduduk lama pindah dari KK lain ke KK baru ini, catat log pecah keluarga di KK lama
+                if (! empty($p['id_kk']) && $p['id_kk'] != $id_kk) {
+                    $this->keluarga_model->log_keluarga($p['id_kk'], \App\Models\LogKeluarga::ANGGOTA_KELUARGA_PECAH, $pend_id);
+                }
                 $this->db->where('id', $pend_id)->update('tweb_penduduk', $data_pend);
 
                 if ($is_datang_kembali) {
@@ -1508,12 +1516,19 @@ class Keluarga extends Admin_Controller
             }
 
             if ($shdk_id == 1) {
-                $kepala_penduduk_id = $pend_id;
+                $kepala_penduduk_id  = $pend_id;
+                $kepala_is_pendatang = (! $p || $is_datang_kembali);
             }
         }
 
         if ($kepala_penduduk_id) {
             $this->db->where('id', $id_kk)->update('tweb_keluarga', ['nik_kepala' => $kepala_penduduk_id]);
+
+            // Catat log_keluarga otomatis jika KK baru dibentuk
+            if ($is_new_kk && $id_kk) {
+                $id_peristiwa_kk = $kepala_is_pendatang ? \App\Models\LogKeluarga::KELUARGA_BARU_DATANG : \App\Models\LogKeluarga::KELUARGA_BARU;
+                $this->keluarga_model->log_keluarga($id_kk, $id_peristiwa_kk, $kepala_penduduk_id);
+            }
 
             // Clean up any orphaned temporary KK records for this head of family or members
             $member_ids = array_filter(array_column($members, 'db_id'));
