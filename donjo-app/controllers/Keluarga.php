@@ -1541,10 +1541,6 @@ class Keluarga extends Admin_Controller
             $orphaned_kks = $this->db
                 ->group_end()
                 ->where('id !=', $id_kk)
-                ->group_start()
-                    ->like('no_kk', '0', 'after')
-                    ->or_where('no_kk', '0')
-                ->group_end()
                 ->get('tweb_keluarga')
                 ->result_array();
 
@@ -1555,7 +1551,12 @@ class Keluarga extends Admin_Controller
                     ->count_all_results('tweb_penduduk');
 
                 if ($member_count === 0) {
-                    $this->db->where('id', $orph_kk['id'])->delete('tweb_keluarga');
+                    $non_live_member = $this->db->where('id_kk', $orph_kk['id'])->get('tweb_penduduk')->row_array();
+                    if ($non_live_member) {
+                        $this->db->where('id', $orph_kk['id'])->update('tweb_keluarga', ['nik_kepala' => $non_live_member['id']]);
+                    } else {
+                        $this->db->where('id', $orph_kk['id'])->delete('tweb_keluarga');
+                    }
                 }
             }
         }

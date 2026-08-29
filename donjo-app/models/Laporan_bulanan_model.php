@@ -835,5 +835,28 @@ class Laporan_bulanan_model extends MY_Model
               AND l1.kode_peristiwa IN (1, 5) 
               AND l2.kode_peristiwa IN (1, 5)
         ");
+
+        // 8. Bersihkan KK yang tidak memiliki satupun anggota (KK kosong total)
+        $this->db->query("
+            DELETE FROM tweb_keluarga 
+            WHERE NOT EXISTS (
+                SELECT 1 FROM tweb_penduduk WHERE id_kk = tweb_keluarga.id
+            )
+        ");
+
+        // 9. Perbaiki nik_kepala pada KK yang seluruh anggotanya sudah non-aktif (mati/pindah) agar tidak mengaitkan penduduk hidup di KK lain
+        $this->db->query("
+            UPDATE tweb_keluarga k
+            JOIN (
+                SELECT k2.id as id_kk, MIN(p2.id) as nonaktif_pend_id
+                FROM tweb_keluarga k2
+                JOIN tweb_penduduk p2 ON p2.id_kk = k2.id
+                WHERE NOT EXISTS (
+                    SELECT 1 FROM tweb_penduduk p_live WHERE p_live.id_kk = k2.id AND p_live.status_dasar = 1
+                )
+                GROUP BY k2.id
+            ) tmp ON k.id = tmp.id_kk
+            SET k.nik_kepala = tmp.nonaktif_pend_id
+        ");
     }
 }
