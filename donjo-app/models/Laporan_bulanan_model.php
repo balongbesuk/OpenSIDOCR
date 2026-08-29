@@ -413,7 +413,7 @@ class Laporan_bulanan_model extends MY_Model
         $thn = $this->session->tahunku;
 
         $this->config_id('l')
-            ->select('p.*, l.ref_pindah, l.kode_peristiwa')
+            ->select('p.*, l.ref_pindah, l.kode_peristiwa, l.tgl_peristiwa, l.tgl_lapor, l.meninggal_di, l.sebab, l.jam_mati, l.akta_mati, l.alamat_tujuan, l.catatan as catatan_log')
             ->from('log_penduduk l')
             ->join('tweb_penduduk p', 'l.id_pend = p.id')
             ->where('year(l.tgl_lapor)', $thn)
@@ -448,7 +448,7 @@ class Laporan_bulanan_model extends MY_Model
         $id_peristiwa = $kode_peristiwa;
 
         $this->config_id('l')
-            ->select('p.*, l.id_peristiwa')
+            ->select('p.*, k.id as id_kk, k.no_kk, k.alamat as alamat_kk, l.id_peristiwa, l.tgl_peristiwa')
             ->from('log_keluarga l')
             ->join('tweb_keluarga k', 'k.id = l.id_kk')
             ->join('tweb_penduduk p', 'p.id = k.nik_kepala')
@@ -464,6 +464,81 @@ class Laporan_bulanan_model extends MY_Model
             ->where('l.id_peristiwa', $id_peristiwa);
 
         return $this->db->get_compiled_select();
+    }
+
+    public function enrich_detail_data(array $list, bool $is_keluarga = false, string $rincian = ''): array
+    {
+        if (empty($list)) {
+            return [];
+        }
+
+        $cluster_map = [];
+        $clusters    = $this->db->get('tweb_wil_clusterdesa')->result_array();
+        foreach ($clusters as $c) {
+            $cluster_map[$c['id']] = $c;
+        }
+
+        $sebab_list     = $this->referensi_model->list_ref(SEBAB) ?: [];
+        $ref_pindah     = $this->referensi_model->list_data('ref_pindah') ?: [];
+        $ref_pindah_map = [];
+        foreach ($ref_pindah as $rp) {
+            $ref_pindah_map[$rp['id']] = $rp['nama'];
+        }
+
+        foreach ($list as &$row) {
+            // Jenis Kelamin text
+            $row['jenis_kelamin'] = ($row['sex'] == 1) ? 'LAKI-LAKI' : (($row['sex'] == 2) ? 'PEREMPUAN' : '-');
+
+            // Cluster Wilayah
+            $cluster_id = $row['id_cluster'] ?? 0;
+            if (isset($cluster_map[$cluster_id])) {
+                $row['dusun'] = $cluster_map[$cluster_id]['dusun'] ?? '-';
+                $row['rw']    = $cluster_map[$cluster_id]['rw'] ?? '-';
+                $row['rt']    = $cluster_map[$cluster_id]['rt'] ?? '-';
+            } else {
+                $row['dusun'] = '-';
+                $row['rw']    = '-';
+                $row['rt']    = '-';
+            }
+
+            // Umur
+            if (! empty($row['tanggallahir']) && $row['tanggallahir'] != '0000-00-00') {
+                $birthDate    = new DateTime($row['tanggallahir']);
+                $refDate      = ! empty($row['tgl_peristiwa']) ? new DateTime($row['tgl_peristiwa']) : new DateTime();
+                $row['umur']  = $birthDate->diff($refDate)->y;
+            } else {
+                $row['umur'] = '-';
+            }
+
+            // Jika Keluarga
+            if ($is_keluarga) {
+                $id_kk = $row['id_kk'] ?? $row['id'] ?? 0;
+                $row['jml_anggota'] = $this->db
+                    ->where('id_kk', $id_kk)
+                    ->where('status_dasar', 1)
+                    ->count_all_results('tweb_penduduk');
+
+                if (empty($row['no_kk'])) {
+                    $kk = $this->db->get_where('tweb_keluarga', ['id' => $id_kk])->row_array();
+                    $row['no_kk'] = $kk['no_kk'] ?? '-';
+                }
+            } else {
+                if (! empty($row['id_kk']) && empty($row['no_kk'])) {
+                    $kk = $this->db->get_where('tweb_keluarga', ['id' => $row['id_kk']])->row_array();
+                    $row['no_kk'] = $kk['no_kk'] ?? '-';
+                }
+
+                if (! empty($row['sebab'])) {
+                    $row['sebab_nama'] = $sebab_list[$row['sebab']] ?? '-';
+                }
+                if (! empty($row['ref_pindah'])) {
+                    $row['alasan_pindah'] = $ref_pindah_map[$row['ref_pindah']] ?? '-';
+                }
+            }
+        }
+        unset($row);
+
+        return $list;
     }
 
     private function rincian_peristiwa(int $peristiwa, $tipe)
