@@ -586,6 +586,15 @@ class Penduduk extends Admin_Controller
         $excluded_status           = $data['nik']['id_status'] == 1 ? '9, 1, 6' : '9, 1';
         $data['list_status_dasar'] = $this->referensi_model->list_data('tweb_status_dasar', $excluded_status);
 
+        $data['jumlah_sisa_anggota'] = 0;
+        if ($data['nik']['kk_level'] == 1 && ! empty($data['nik']['id_kk'])) {
+            $data['jumlah_sisa_anggota'] = $this->db
+                ->where('id_kk', $data['nik']['id_kk'])
+                ->where('id !=', $id)
+                ->where('status_dasar', 1)
+                ->count_all_results('tweb_penduduk');
+        }
+
         $this->load->view('sid/kependudukan/ajax_edit_status_dasar', $data);
     }
 

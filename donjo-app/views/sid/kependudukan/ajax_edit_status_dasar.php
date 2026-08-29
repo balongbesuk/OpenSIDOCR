@@ -11,6 +11,12 @@
 		<div class='modal-body'>
 			<div class="box box-danger">
 				<div class="box-body">
+					<?php if (!empty($nik['kk_level']) && $nik['kk_level'] == 1 && !empty($jumlah_sisa_anggota)): ?>
+						<div class="alert alert-info" style="font-size: 12px; margin-bottom: 15px; padding: 10px;">
+							<i class="fa fa-info-circle"></i> <strong>Pemberitahuan Kepala Keluarga (SOP Dukcapil):</strong><br>
+							Warga ini tercatat sebagai <strong>Kepala Keluarga</strong>. Jika status diubah menjadi <strong>Mati</strong> atau <strong>Pindah</strong>, sisa <strong><?= $jumlah_sisa_anggota ?> anggota keluarga</strong> yang masih hidup akan <strong>otomatis dibuatkan No. KK Sementara</strong> dengan Kepala Keluarga baru.
+						</div>
+					<?php endif; ?>
 					<div class="form-group">
 						<label for="status_dasar">Status Dasar Baru</label>
 						<select id="status_dasar" name="status_dasar" class="form-control select2 input-sm required">

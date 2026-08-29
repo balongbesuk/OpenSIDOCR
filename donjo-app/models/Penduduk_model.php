@@ -1250,9 +1250,56 @@ class Penduduk_model extends MY_Model
         $id_log_penduduk = $this->tulis_log_penduduk_data($log);
 
         // Tulis log_keluarga jika penduduk adalah kepala keluarga
-        if ($penduduk['kk_level'] == 1) {
+        if ($penduduk['kk_level'] == 1 && ! empty($penduduk['id_kk'])) {
             $id_peristiwa = $penduduk['status_dasar_id']; // lihat kode di keluarga_model
             $this->keluarga_model->log_keluarga($penduduk['id_kk'], $id_peristiwa, null, $id_log_penduduk);
+
+            // Sesuai aturan Dukcapil: Jika Kepala KK Meninggal (2) atau Pindah (3)
+            // Cek apakah masih ada sisa anggota keluarga yang HIDUP di KK lama
+            if (in_array((int) $data['status_dasar'], [2, 3])) {
+                $sisa_anggota_aktif = $this->db
+                    ->where('id_kk', $penduduk['id_kk'])
+                    ->where('id !=', $id)
+                    ->where('status_dasar', 1)
+                    ->order_by('kk_level', 'ASC')
+                    ->order_by('tanggallahir', 'ASC')
+                    ->get('tweb_penduduk')
+                    ->result_array();
+
+                if (! empty($sisa_anggota_aktif)) {
+                    $kk_lama        = $this->keluarga_model->get_keluarga($penduduk['id_kk']);
+                    $kepala_kk_baru = $sisa_anggota_aktif[0];
+                    $nokk_sementara = $this->keluarga_model->nokk_sementara();
+
+                    // 1. Buat KK Baru (No KK Sementara) untuk sisa anggota keluarga
+                    $data_kk_baru = [
+                        'config_id'    => identitas('id'),
+                        'no_kk'        => $nokk_sementara,
+                        'nik_kepala'   => $kepala_kk_baru['id'],
+                        'alamat'       => $kk_lama['alamat'] ?? '',
+                        'id_cluster'   => $kk_lama['id_cluster'] ?? $penduduk['id_cluster'],
+                        'tgl_daftar'   => date('Y-m-d H:i:s'),
+                        'updated_at'   => date('Y-m-d H:i:s'),
+                        'updated_by'   => $this->session->user,
+                    ];
+                    $this->db->insert('tweb_keluarga', $data_kk_baru);
+                    $id_kk_baru = $this->db->insert_id();
+
+                    // 2. Pindahkan seluruh sisa anggota aktif ke KK Baru & atur Kepala Keluarga baru (kk_level = 1)
+                    foreach ($sisa_anggota_aktif as $anggota) {
+                        $level = ($anggota['id'] == $kepala_kk_baru['id']) ? 1 : $anggota['kk_level'];
+                        $this->db->where('id', $anggota['id'])->update('tweb_penduduk', [
+                            'id_kk'      => $id_kk_baru,
+                            'kk_level'   => $level,
+                            'updated_at' => date('Y-m-d H:i:s'),
+                            'updated_by' => $this->session->user,
+                        ]);
+                    }
+
+                    // 3. Catat Log Keluarga Baru untuk KK Sementara sisa anggota
+                    $this->keluarga_model->log_keluarga($id_kk_baru, \App\Models\LogKeluarga::KELUARGA_BARU, $kepala_kk_baru['id']);
+                }
+            }
         }
     }
 
