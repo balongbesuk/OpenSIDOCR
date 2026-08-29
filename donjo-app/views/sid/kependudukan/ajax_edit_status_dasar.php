@@ -168,6 +168,26 @@
 					}
 				})
 			}, 500);
+
+			$('#validasi').submit(function(e) {
+				var status = $('#status_dasar').val();
+				var isKepala = <?= (!empty($nik['kk_level']) && $nik['kk_level'] == 1 && !empty($jumlah_sisa_anggota)) ? 'true' : 'false' ?>;
+				var sisaAnggota = <?= (int) ($jumlah_sisa_anggota ?? 0) ?>;
+
+				if (isKepala && (status == '2' || status == '3') && sisaAnggota > 0) {
+					var statusText = (status == '2') ? 'Meninggal' : 'Pindah';
+					var msg = "PERHATIAN SOP DUKCAPIL:\n\n" +
+						"Warga ini tercatat sebagai Kepala Keluarga dan memiliki " + sisaAnggota + " anggota keluarga yang masih hidup.\n\n" +
+						"- Sisa " + sisaAnggota + " anggota keluarga akan OTOMATIS dibuatkan No. KK Sementara.\n" +
+						"- Kolom 'No. KK Sebelumnya' pada sisa anggota akan otomatis diisi dengan No. KK lama.\n" +
+						(status == '2' ? "- Status perkawinan pasangan akan otomatis diperbarui menjadi 'Cerai Mati'.\n\n" : "\n") +
+						"Lanjutkan penyimpanan?";
+					if (!confirm(msg)) {
+						e.preventDefault();
+						return false;
+					}
+				}
+			});
 		});
 	</script>
 <?php endif; ?>
