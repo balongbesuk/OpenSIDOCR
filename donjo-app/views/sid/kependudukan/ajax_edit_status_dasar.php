@@ -8,6 +8,9 @@
     endif;
 ?>
 	<form action="<?= $form_action ?>" method="post" id="validasi" class="tgl_lapor_peristiwa">
+		<?php if ($this->config->config['csrf_protection']): ?>
+			<input type="hidden" name="<?= $this->security->get_csrf_token_name(); ?>" value="<?= $this->security->get_csrf_hash(); ?>" />
+		<?php endif; ?>
 		<div class='modal-body'>
 			<div class="box box-danger">
 				<div class="box-body">
@@ -207,6 +210,9 @@
 							}).then(function(result) {
 								if (result.isConfirmed || result.value) {
 									$(form).data('confirmed', true);
+									if (typeof addCsrfField === 'function') {
+										addCsrfField(form);
+									}
 									form.submit();
 								}
 							});
@@ -219,6 +225,9 @@
 								"Lanjutkan penyimpanan?";
 							if (confirm(plainMsg)) {
 								$(form).data('confirmed', true);
+								if (typeof addCsrfField === 'function') {
+									addCsrfField(form);
+								}
 								form.submit();
 							}
 						}
