@@ -1250,20 +1250,39 @@ class Penduduk_model extends MY_Model
         $id_log_penduduk = $this->tulis_log_penduduk_data($log);
         $tgl_mati        = rev_tgl($this->input->post('tgl_peristiwa')) ?: date('Y-m-d');
 
+        // Ambil data mentah penduduk dari database (untuk numeric sex, status_kawin, id_kk)
+        $raw_penduduk = $this->db->get_where('tweb_penduduk', ['id' => $id])->row_array();
+        $gender_id    = (int) ($raw_penduduk['sex'] ?? 0);
+        $status_kawin = (int) ($raw_penduduk['status_kawin'] ?? 0);
+        $id_kk_lama   = (int) ($raw_penduduk['id_kk'] ?? 0);
+        $pasangan_id  = null;
+
         // 1. Jika penduduk Meninggal (2), perbarui status pasangan yang ditinggalkan menjadi CERAI MATI (4)
-        if ((int) $data['status_dasar'] == 2 && ! empty($penduduk['id_kk']) && $penduduk['status_kawin'] == 2) {
-            $target_sex = ($penduduk['sex'] == 1) ? 2 : 1;
+        if ((int) $data['status_dasar'] == 2 && ! empty($id_kk_lama) && in_array($status_kawin, [2, 3])) {
+            $target_sex = ($gender_id == 1) ? 2 : 1;
             $pasangan   = $this->db
-                ->where('id_kk', $penduduk['id_kk'])
+                ->where('id_kk', $id_kk_lama)
                 ->where('id !=', $id)
-                ->where('sex', $target_sex)
                 ->where('status_dasar', 1)
-                ->where('status_kawin', 2)
+                ->where('sex', $target_sex)
+                ->where_in('status_kawin', [2, 3])
                 ->get('tweb_penduduk')
                 ->row_array();
 
+            if (! $pasangan) {
+                // Fallback berdasarkan hubungan kk_level (3 = Istri jika almarhum suami, atau 1/2 = Suami jika almarhum istri)
+                $pasangan = $this->db
+                    ->where('id_kk', $id_kk_lama)
+                    ->where('id !=', $id)
+                    ->where('status_dasar', 1)
+                    ->where($gender_id == 1 ? 'kk_level = 3' : 'kk_level IN (1,2)')
+                    ->get('tweb_penduduk')
+                    ->row_array();
+            }
+
             if ($pasangan) {
-                $this->db->where('id', $pasangan['id'])->update('tweb_penduduk', [
+                $pasangan_id = $pasangan['id'];
+                $this->db->where('id', $pasangan_id)->update('tweb_penduduk', [
                     'status_kawin'      => 4, // Cerai Mati
                     'tanggalperceraian' => $tgl_mati,
                     'updated_at'        => date('Y-m-d H:i:s'),
@@ -1273,15 +1292,15 @@ class Penduduk_model extends MY_Model
         }
 
         // 2. Tulis log_keluarga jika penduduk adalah kepala keluarga
-        if ($penduduk['kk_level'] == 1 && ! empty($penduduk['id_kk'])) {
+        if ($penduduk['kk_level'] == 1 && ! empty($id_kk_lama)) {
             $id_peristiwa = $penduduk['status_dasar_id']; // lihat kode di keluarga_model
-            $this->keluarga_model->log_keluarga($penduduk['id_kk'], $id_peristiwa, null, $id_log_penduduk);
+            $this->keluarga_model->log_keluarga($id_kk_lama, $id_peristiwa, null, $id_log_penduduk);
 
             // Sesuai aturan Dukcapil: Jika Kepala KK Meninggal (2) atau Pindah (3)
             // Cek apakah masih ada sisa anggota keluarga yang HIDUP di KK lama
             if (in_array((int) $data['status_dasar'], [2, 3])) {
                 $sisa_anggota_aktif = $this->db
-                    ->where('id_kk', $penduduk['id_kk'])
+                    ->where('id_kk', $id_kk_lama)
                     ->where('id !=', $id)
                     ->where('status_dasar', 1)
                     ->order_by('kk_level', 'ASC')
@@ -1290,7 +1309,7 @@ class Penduduk_model extends MY_Model
                     ->result_array();
 
                 if (! empty($sisa_anggota_aktif)) {
-                    $kk_lama        = $this->keluarga_model->get_keluarga($penduduk['id_kk']);
+                    $kk_lama        = $this->keluarga_model->get_keluarga($id_kk_lama);
                     $kepala_kk_baru = $sisa_anggota_aktif[0];
                     $nokk_sementara = $this->keluarga_model->nokk_sementara();
 
@@ -1323,6 +1342,10 @@ class Penduduk_model extends MY_Model
                             'updated_at'       => date('Y-m-d H:i:s'),
                             'updated_by'       => $this->session->user,
                         ];
+                        if ($pasangan_id && $anggota['id'] == $pasangan_id) {
+                            $update_anggota['status_kawin']      = 4;
+                            $update_anggota['tanggalperceraian'] = $tgl_mati;
+                        }
                         $this->db->where('id', $anggota['id'])->update('tweb_penduduk', $update_anggota);
                     }
 
