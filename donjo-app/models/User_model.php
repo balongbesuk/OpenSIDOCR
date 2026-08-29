@@ -149,23 +149,43 @@ class User_model extends MY_Model
         if (($user->id_grup == $this->user_model->id_grup(UserGrup::REDAKSI)) && ($this->setting->offline_mode >= 2)) {
             $this->session->siteman = -2;
         } else {
+            // Cek apakah akun sedang aktif di perangkat lain (inactivity timeout: 15 menit / 900 detik)
+            $idleTimeout  = 900;
+            $lastActivity = $user->last_login ? strtotime($user->last_login) : 0;
+            $isActive     = ! empty($user->session) && ((time() - $lastActivity) < $idleTimeout);
+
+            if ($isActive) {
+                $this->session->siteman = -3;
+                $this->session->set_flashdata('session_active_error', 'Akun sedang aktif di perangkat lain. Silakan tunggu 15 menit tanpa aktivitas atau gunakan tombol Paksa Logout.');
+                $this->session->set_flashdata('active_username', $username);
+
+                return false;
+            }
+
             return $this->setLogin($user);
         }
     }
 
     private function setLogin($user)
     {
+        $sessionToken = bin2hex(random_bytes(16));
+
+        User::where('id', $user->id)->update([
+            'session'    => $sessionToken,
+            'last_login' => Carbon::now(),
+        ]);
+
         $this->session->siteman      = 1;
-        $this->session->sesi         = $user->session;
+        $this->session->sesi         = $sessionToken;
         $this->session->user         = $user->id;
         $this->session->nama         = $user->nama;
         $this->session->grup         = $user->id_grup;
         $this->session->per_page     = 10;
         $this->session->siteman_wait = 0;
         $this->session->siteman_try  = 4;
-        $this->session->fm_key       = $this->set_fm_key($user->id . $user->id_grup . $user->sesi);
+        $this->session->fm_key       = $this->set_fm_key($user->id . $user->id_grup . $sessionToken);
         $this->session->isAdmin      = $user;
-        $this->last_login($user->id);
+        $this->session->last_active  = time();
 
         if (! empty($this->setting->telegram_token) && cek_koneksi_internet()) {
             $this->load->library('Telegram/telegram');
@@ -225,8 +245,34 @@ class User_model extends MY_Model
 
     public function logout()
     {
+        $userId = $this->session->user;
+        if ($userId) {
+            User::where('id', $userId)->update(['session' => '']);
+        }
+
         // Hapus session -- semua session variable akan terhapus
         $this->session->sess_destroy();
+    }
+
+    public function force_logout($username, $password)
+    {
+        $user = User::where('username', $username)->status()->first();
+        if (! $user) {
+            return false;
+        }
+
+        $pwMasihMD5 = (strlen($user->password) == 32) && (stripos($user->password, '$') === false);
+        $authLolos  = $pwMasihMD5
+            ? (md5($password) == $user->password)
+            : password_verify($password, $user->password);
+
+        if ($authLolos) {
+            User::where('id', $user->id)->update(['session' => '']);
+
+            return true;
+        }
+
+        return false;
     }
 
     public function autocomplete()

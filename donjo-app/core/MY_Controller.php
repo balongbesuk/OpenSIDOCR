@@ -39,8 +39,10 @@ use App\Models\Config;
 use App\Models\LogSurat;
 use App\Models\Pamong;
 use App\Models\Pesan;
+use App\Models\User;
 use App\Models\UserGrup;
 use App\Models\Wilayah;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\Schema;
 
 defined('BASEPATH') || exit('No direct script access allowed');
@@ -326,6 +328,31 @@ class Admin_Controller extends MY_Controller
         // Kalau sehabis periksa data, paksa harus login lagi
         if ($this->session->periksa_data == 1) {
             $this->user_model->logout();
+        }
+
+        // Cek sesi aktif & timeout inaktivitas (15 menit / 900 detik)
+        $userId = $this->session->user;
+        if ($userId) {
+            $currentUser = User::find($userId);
+            $idleTimeout = 900; // 15 menit (900 detik)
+
+            // 1. Validasi token sesi di database (mencegah login ganda / mendeteksi force logout)
+            if (! $currentUser || $currentUser->session !== $this->session->sesi) {
+                $this->user_model->logout();
+                $this->session->set_flashdata('session_error', 'Sesi login Anda tidak valid atau telah dikeluarkan.');
+                redirect('siteman');
+            }
+
+            // 2. Cek inaktivitas via session timestamp (Unix timestamp)
+            $lastActive = $this->session->last_active ?? time();
+            if ((time() - $lastActive) > $idleTimeout) {
+                $this->user_model->logout();
+                $this->session->set_flashdata('session_error', 'Sesi Anda telah berakhir karena tidak ada aktivitas.');
+                redirect('siteman');
+            }
+
+            // Perbarui waktu aktivitas terakhir di session
+            $this->session->last_active = time();
         }
 
         $this->grup = $this->user_model->sesi_grup($this->session->sesi);

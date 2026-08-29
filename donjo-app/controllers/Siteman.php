@@ -35,6 +35,9 @@
  *
  */
 
+use App\Models\User;
+use Carbon\Carbon;
+
 defined('BASEPATH') || exit('No direct script access allowed');
 
 class Siteman extends MY_Controller
@@ -123,6 +126,44 @@ class Siteman extends MY_Controller
         $this->user_model->logout();
 
         redirect('siteman');
+    }
+
+    public function force_logout()
+    {
+        $method       = $this->input->method(true);
+        $allow_method = ['POST'];
+        if (! in_array($method, $allow_method)) {
+            redirect('siteman');
+        }
+
+        $username = trim($this->input->post('username'));
+        $password = trim($this->input->post('password'));
+
+        if (! empty($username) && ! empty($password) && $this->user_model->force_logout($username, $password)) {
+            set_session('notif', 'Sesi di perangkat lain berhasil dikeluarkan. Silakan login kembali.');
+        } else {
+            $this->session->set_flashdata('session_active_error', 'Gagal memutuskan sesi: Username atau kata sandi tidak cocok.');
+            $this->session->set_flashdata('active_username', $username);
+        }
+
+        redirect('siteman');
+    }
+
+    public function ping()
+    {
+        if ($this->session->siteman == 1 && $this->session->user) {
+            $this->session->last_active = time();
+            User::where('id', $this->session->user)->update(['last_login' => Carbon::now()]);
+
+            return $this->output
+                ->set_content_type('application/json')
+                ->set_output(json_encode(['status' => 'ok']));
+        }
+
+        return $this->output
+            ->set_status_header(401)
+            ->set_content_type('application/json')
+            ->set_output(json_encode(['status' => 'unauthorized']));
     }
 
     public function lupa_sandi()

@@ -165,6 +165,38 @@
                 </div>
             <?php endif ?>
 
+            <?php if ($session_error = $this->session->flashdata('session_error')) : ?>
+                <div class="mb-8 p-4 bg-amber-50 border border-amber-200 rounded-2xl flex items-start space-x-3 text-amber-800 text-sm font-medium">
+                    <i class="fa-solid fa-triangle-exclamation text-amber-500 mt-1"></i>
+                    <p><?= $session_error ?></p>
+                </div>
+            <?php endif ?>
+
+            <?php if ($session_active_error = $this->session->flashdata('session_active_error')) : ?>
+                <?php $active_username = $this->session->flashdata('active_username'); ?>
+                <div class="mb-8 p-4 bg-amber-50 border border-amber-200 rounded-2xl text-amber-900 text-sm font-medium space-y-3">
+                    <div class="flex items-start space-x-3">
+                        <i class="fa-solid fa-shield-halved text-amber-500 text-base mt-0.5"></i>
+                        <p><?= $session_active_error ?></p>
+                    </div>
+                    <form action="<?= site_url('siteman/force_logout') ?>" method="post" class="pt-2 border-t border-amber-200/60 space-y-2">
+                        <?php if ($this->config->config['csrf_protection']): ?>
+                            <input type="hidden" name="<?= $this->security->get_csrf_token_name() ?>" value="<?= $this->security->get_csrf_hash() ?>" />
+                        <?php endif ?>
+                        <p class="text-xs text-amber-700">Jika perangkat sebelumnya mati atau tidak dapat diakses, masukkan kata sandi untuk memutuskan sesi lama:</p>
+                        <?php if (empty($active_username)): ?>
+                            <input type="text" name="username" placeholder="Nama Pengguna" required class="bg-white border border-amber-300 rounded-xl px-3 py-1.5 text-xs text-slate-800 focus:outline-none focus:ring-2 focus:ring-amber-400 w-full mb-1" />
+                        <?php else: ?>
+                            <input type="hidden" name="username" value="<?= htmlspecialchars($active_username, ENT_QUOTES, 'UTF-8') ?>" />
+                        <?php endif; ?>
+                        <div class="flex space-x-2">
+                            <input type="password" name="password" placeholder="Kata Sandi Akun" required class="bg-white border border-amber-300 rounded-xl px-3 py-1.5 text-xs text-slate-800 focus:outline-none focus:ring-2 focus:ring-amber-400 w-full" />
+                            <button type="submit" class="bg-amber-600 hover:bg-amber-700 text-white font-bold text-xs px-3 py-1.5 rounded-xl whitespace-nowrap transition-colors">Paksa Logout</button>
+                        </div>
+                    </form>
+                </div>
+            <?php endif ?>
+
             <form id="validasi" action="<?= $form_action ?>" method="post" class="space-y-6">
                 <!-- CSRF Token (Manual Fallback) -->
                 <?php if ($this->config->config['csrf_protection']): ?>

@@ -222,6 +222,74 @@
 						}
 					});
 				</script>
+
+				<?php if ($this->session->siteman == 1) : ?>
+				<!-- Auto Logout / Inactivity Timeout Script -->
+				<script type="text/javascript">
+					(function() {
+						var idleTime = 0;
+						var warnTime = 14 * 60; // 14 menit (840 detik)
+						var maxTime = 15 * 60;  // 15 menit (900 detik)
+						var isWarningShown = false;
+						var countdownInterval = null;
+
+						function resetTimer() {
+							if (!isWarningShown) {
+								idleTime = 0;
+							}
+						}
+
+						// Reset timer pada aktivitas pengguna
+						$(document).on('mousemove mousedown keypress scroll touchstart', resetTimer);
+
+						// Interval cek idle per 1 detik
+						setInterval(function() {
+							idleTime++;
+
+							if (idleTime >= warnTime && !isWarningShown) {
+								isWarningShown = true;
+								var remainingSeconds = maxTime - idleTime;
+
+								Swal.fire({
+									title: 'Peringatan Inaktivitas',
+									html: 'Sesi Anda akan berakhir dalam <b id="swal-countdown">' + remainingSeconds + '</b> detik karena tidak ada aktivitas.<br><br>Apakah Anda ingin tetap masuk?',
+									icon: 'warning',
+									showCancelButton: false,
+									confirmButtonText: 'Tetap Login',
+									confirmButtonColor: '#3085d6',
+									allowOutsideClick: false,
+									allowEscapeKey: false,
+									didOpen: function() {
+										countdownInterval = setInterval(function() {
+											remainingSeconds--;
+											var el = document.getElementById('swal-countdown');
+											if (el) {
+												el.textContent = remainingSeconds;
+											}
+											if (remainingSeconds <= 0) {
+												clearInterval(countdownInterval);
+												window.location.href = '<?= site_url("siteman/logout") ?>';
+											}
+										}, 1000);
+									}
+								}).then(function(result) {
+									clearInterval(countdownInterval);
+									if (result.isConfirmed) {
+										// Kirim ping untuk memperbarui sesi di server
+										$.get('<?= site_url("siteman/ping") ?>', function() {
+											idleTime = 0;
+											isWarningShown = false;
+										}).fail(function() {
+											window.location.href = '<?= site_url("siteman") ?>';
+										});
+									}
+								});
+							}
+						}, 1000);
+					})();
+				</script>
+				<?php endif; ?>
+
 				<?php session_error_clear(); ?>
 
 				</body>
