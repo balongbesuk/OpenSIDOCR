@@ -7,11 +7,11 @@
    - Sesi login ditandai dengan token sesi unik di database (`user.session`) dan otomatis divalidasi pada setiap request.
    - Jika akun sedang aktif di perangkat lain, sistem akan menolak login baru dan menampilkan opsi *Paksa Logout* jika perangkat lama hilang atau tertinggal.
 
-2. **Deteksi Inaktivitas & Auto Logout (15 Menit):**
+2. **Deteksi Inaktivitas & Auto Logout (2 Jam):**
    - Penambahan detektor interaksi pengguna di sisi client (mouse, keyboard, scroll, touch).
-   - Dialog peringatan interaktif **SweetAlert2** muncul otomatis pada menit ke-14 dengan hitung mundur langsung 60 detik.
+   - Dialog peringatan interaktif **SweetAlert2** muncul otomatis pada menit ke-119 dengan hitung mundur langsung 60 detik.
    - Tombol *Tetap Login* untuk memperpanjang sesi tanpa me-reload halaman via endpoint keep-alive (`siteman/ping`).
-   - Auto logout otomatis ke halaman login pada menit ke-15 jika tidak ada interaksi pengguna.
+   - Auto logout otomatis ke halaman login pada menit ke-120 (2 jam) jika tidak ada interaksi pengguna.
    - Perlindungan inaktivitas ganda di sisi server berbasis Unix Epoch Timestamp murni (`session.last_active`) yang kebal terhadap perbedaan zona waktu (timezone).
    - 100% kompatibel dengan skema database resmi OpenSID tanpa migrasi atau penambahan kolom baru.
 

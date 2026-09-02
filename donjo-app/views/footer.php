@@ -228,8 +228,8 @@
 				<script type="text/javascript">
 					(function() {
 						var idleTime = 0;
-						var warnTime = 14 * 60; // 14 menit (840 detik)
-						var maxTime = 15 * 60;  // 15 menit (900 detik)
+						var warnTime = 119 * 60; // 119 menit (7140 detik)
+						var maxTime = 2 * 60 * 60; // 2 jam (7200 detik)
 						var isWarningShown = false;
 						var countdownInterval = null;
 
