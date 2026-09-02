@@ -423,9 +423,9 @@ class Periksa_model extends MY_Model
         $tabel       = [];
         $logPenduduk = LogPenduduk::select('id')
             ->when(Schema::hasColumn('log_penduduk', 'updated_at'), static fn ($query) => $query->addSelect('updated_at'))
-            ->when(Schema::hasColumn('log_penduduk', 'created_at'), static fn ($query) => $query->addSelect('created_at')->orWhereDate('created_at', '0000-00-00'))
-            ->when(Schema::hasColumn('log_penduduk', 'tgl_lapor'), static fn ($query) => $query->addSelect('tgl_lapor')->orWhereDate('tgl_lapor', '0000-00-00'))
-            ->when(Schema::hasColumn('log_penduduk', 'tgl_peristiwa'), static fn ($query) => $query->addSelect('tgl_peristiwa')->orWhereDate('tgl_peristiwa', '0000-00-00'))
+            ->when(Schema::hasColumn('log_penduduk', 'created_at'), static fn ($query) => $query->addSelect('created_at')->orWhereRaw("CAST(created_at AS CHAR) LIKE '0000-00-00%'"))
+            ->when(Schema::hasColumn('log_penduduk', 'tgl_lapor'), static fn ($query) => $query->addSelect('tgl_lapor')->orWhereRaw("CAST(tgl_lapor AS CHAR) LIKE '0000-00-00%'"))
+            ->when(Schema::hasColumn('log_penduduk', 'tgl_peristiwa'), static fn ($query) => $query->addSelect('tgl_peristiwa')->orWhereRaw("CAST(tgl_peristiwa AS CHAR) LIKE '0000-00-00%'"))
             ->get();
 
         if ($logPenduduk->count() > 0) {
@@ -434,7 +434,7 @@ class Periksa_model extends MY_Model
 
         // Tabel log_perubahan_penduduk
         $logPerubahanPenduduk = LogPerubahanPenduduk::select(['id', 'id_pend', 'tanggal'])
-            ->whereDate('tanggal', '0000-00-00')
+            ->whereRaw("CAST(tanggal AS CHAR) LIKE '0000-00-00%'")
             ->get();
 
         if ($logPerubahanPenduduk->count() > 0) {
@@ -443,7 +443,7 @@ class Periksa_model extends MY_Model
 
         // Tabel penduduk_mandiri
         $pendudukMandiri = PendudukMandiri::select(['id_pend', 'tanggal_buat'])
-            ->when(Schema::hasColumn('tweb_penduduk_mandiri', 'updated_at'), static fn ($query) => $query->addSelect('updated_at')->orWhereDate('updated_at', '0000-00-00'))
+            ->when(Schema::hasColumn('tweb_penduduk_mandiri', 'updated_at'), static fn ($query) => $query->addSelect('updated_at')->orWhereRaw("CAST(updated_at AS CHAR) LIKE '0000-00-00%'"))
             ->get();
 
         if ($pendudukMandiri->count() > 0) {
@@ -451,7 +451,7 @@ class Periksa_model extends MY_Model
         }
 
         //deteksi di modul inventaris
-        $inventaris_asset = InventarisAsset::select(['id', 'updated_at'])->where('updated_at', '0000-00-00')->get();
+        $inventaris_asset = InventarisAsset::select(['id', 'updated_at'])->whereRaw("CAST(updated_at AS CHAR) LIKE '0000-00-00%'")->get();
         if ($inventaris_asset->count() > 0) {
             $tabel['inventaris_asset'] = $inventaris_asset;
         }
@@ -459,9 +459,9 @@ class Periksa_model extends MY_Model
         // Tabel covid19_vaksin
         $covidVaksin = CovidVaksin::select(['id_penduduk', 'tgl_vaksin_1', 'tgl_vaksin_2', 'tgl_vaksin_3'])->where(
             static function ($q) {
-                return $q->where('tgl_vaksin_1', '0000-00-00')
-                    ->orwhere('tgl_vaksin_2', '0000-00-00')
-                    ->orwhere('tgl_vaksin_3', '0000-00-00');
+                return $q->whereRaw("CAST(tgl_vaksin_1 AS CHAR) LIKE '0000-00-00%'")
+                    ->orWhereRaw("CAST(tgl_vaksin_2 AS CHAR) LIKE '0000-00-00%'")
+                    ->orWhereRaw("CAST(tgl_vaksin_3 AS CHAR) LIKE '0000-00-00%'");
             }
         )->get();
 
@@ -470,7 +470,7 @@ class Periksa_model extends MY_Model
         }
 
         // tabel tweb_penduduk column tanggal_cetak_ktp
-        $tanggal_cetak_ktp = Penduduk::setEagerLoads([])->where('tanggal_cetak_ktp', '0000-00-00')->get();
+        $tanggal_cetak_ktp = Penduduk::setEagerLoads([])->whereRaw("CAST(tanggal_cetak_ktp AS CHAR) LIKE '0000-00-00%'")->get();
 
         if ($tanggal_cetak_ktp->count() > 0) {
             $tabel['tweb_penduduk'] = $tanggal_cetak_ktp;
@@ -1118,11 +1118,23 @@ class Periksa_model extends MY_Model
                     ],
                 ];
 
-                $this->db->simple_query('SET FOREIGN_KEY_CHECKS=0');
-                if ($hasil = $hasil && $this->dbforge->modify_column($name, $fields)) {
-                    log_message('error', "Auto_Increment pada tabel {$name} dengan kolom {$key} telah ditambahkan.");
+                try {
+                    $this->db->simple_query('SET FOREIGN_KEY_CHECKS=0');
+
+                    // Pastikan kolom sudah menjadi PRIMARY KEY sebelum diberi AUTO_INCREMENT
+                    $hasPk = $this->db->query("SHOW KEYS FROM `{$name}` WHERE Key_name = 'PRIMARY'")->num_rows() > 0;
+                    if (! $hasPk) {
+                        @$this->db->query("ALTER TABLE `{$name}` ADD PRIMARY KEY (`{$key}`)");
+                    }
+
+                    if ($this->dbforge->modify_column($name, $fields)) {
+                        log_message('error', "Auto_Increment pada tabel {$name} dengan kolom {$key} telah ditambahkan.");
+                    }
+                } catch (\Throwable $e) {
+                    log_message('error', "Gagal menambah Auto_Increment pada tabel {$name}: " . $e->getMessage());
+                } finally {
+                    $this->db->simple_query('SET FOREIGN_KEY_CHECKS=1');
                 }
-                $this->db->simple_query('SET FOREIGN_KEY_CHECKS=1');
             }
         }
 

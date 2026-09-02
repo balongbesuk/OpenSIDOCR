@@ -224,12 +224,17 @@
 				</script>
 
 				<?php if ($this->session->siteman == 1) : ?>
+				<?php 
+					$timeoutMnt = (int) ($this->setting->timeout_inaktivitas ?? 120);
+					$timeoutSec = ($timeoutMnt > 0 ? $timeoutMnt : 120) * 60;
+					$warnSec    = $timeoutSec - 60; // 1 menit sebelum sesi berakhir
+				?>
 				<!-- Auto Logout / Inactivity Timeout Script -->
 				<script type="text/javascript">
 					(function() {
 						var idleTime = 0;
-						var warnTime = 119 * 60; // 119 menit (7140 detik)
-						var maxTime = 2 * 60 * 60; // 2 jam (7200 detik)
+						var warnTime = <?= $warnSec ?>; // <?= ($timeoutSec - 60) / 60 ?> menit (<?= $warnSec ?> detik)
+						var maxTime = <?= $timeoutSec ?>;  // <?= $timeoutSec / 60 ?> menit (<?= $timeoutSec ?> detik)
 						var isWarningShown = false;
 						var countdownInterval = null;
 

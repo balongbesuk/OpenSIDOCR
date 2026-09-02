@@ -38,6 +38,7 @@
 use App\Libraries\TinyMCE;
 use App\Models\Config;
 use App\Models\SettingAplikasi;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
 defined('BASEPATH') || exit('No direct script access allowed');
@@ -74,6 +75,52 @@ class Setting_model extends MY_Model
 
         if ($this->setting || ! $this->db->table_exists('setting_aplikasi')) {
             return;
+        }
+
+        $configId    = function_exists('identitas') ? (identitas('id') ?: 1) : 1;
+        $hasConfigId = $this->db->field_exists('config_id', 'setting_aplikasi');
+
+        $cek = $this->db->where('key', 'timeout_inaktivitas')->get('setting_aplikasi')->row();
+        if (! $cek) {
+            $maxId = (int) ($this->db->select_max('id')->get('setting_aplikasi')->row()->id ?? 0);
+            $dataInsert = [
+                'id'         => $maxId + 1,
+                'key'        => 'timeout_inaktivitas',
+                'value'      => '120',
+                'judul'      => 'Batas Waktu Inaktivitas Sesi Login',
+                'keterangan' => 'Durasi batas waktu otomatis logout jika tidak ada aktivitas pengguna di halaman admin.',
+                'jenis'      => 'option',
+                'option'     => json_encode([
+                    '15'  => '15 Menit',
+                    '30'  => '30 Menit',
+                    '60'  => '1 Jam (60 Menit)',
+                    '120' => '2 Jam (120 Menit)',
+                    '240' => '4 Jam (240 Menit)',
+                ]),
+                'kategori'   => 'sistem',
+            ];
+            if ($hasConfigId) {
+                $dataInsert['config_id'] = $configId;
+            }
+            $this->db->insert('setting_aplikasi', $dataInsert);
+        } else {
+            $dataUpdate = [
+                'judul'      => 'Batas Waktu Inaktivitas Sesi Login',
+                'keterangan' => 'Durasi batas waktu otomatis logout jika tidak ada aktivitas pengguna di halaman admin.',
+                'jenis'      => 'option',
+                'option'     => json_encode([
+                    '15'  => '15 Menit',
+                    '30'  => '30 Menit',
+                    '60'  => '1 Jam (60 Menit)',
+                    '120' => '2 Jam (120 Menit)',
+                    '240' => '4 Jam (240 Menit)',
+                ]),
+                'kategori'   => 'sistem',
+            ];
+            if ($hasConfigId && empty($cek->config_id)) {
+                $dataUpdate['config_id'] = $configId;
+            }
+            $this->db->where('key', 'timeout_inaktivitas')->update('setting_aplikasi', $dataUpdate);
         }
 
         $CI->list_setting = SettingAplikasi::orderBy('key')->get();

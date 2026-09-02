@@ -165,12 +165,17 @@
         </script>
     @endif
 
+    @php
+        $timeoutMnt = (int) (setting('timeout_inaktivitas') ?: 120);
+        $timeoutSec = ($timeoutMnt > 0 ? $timeoutMnt : 120) * 60;
+        $warnSec    = $timeoutSec - 60; // 1 menit sebelum sesi berakhir
+    @endphp
     <!-- Auto Logout / Inactivity Timeout Script -->
     <script type="text/javascript">
         (function() {
             var idleTime = 0;
-            var warnTime = 119 * 60; // 119 menit (7140 detik)
-            var maxTime = 2 * 60 * 60; // 2 jam (7200 detik)
+            var warnTime = {{ $warnSec }};
+            var maxTime = {{ $timeoutSec }};
             var isWarningShown = false;
             var countdownInterval = null;
 

@@ -330,11 +330,15 @@ class Admin_Controller extends MY_Controller
             $this->user_model->logout();
         }
 
-        // Cek sesi aktif & timeout inaktivitas (2 jam / 7200 detik)
+        // Cek sesi aktif & timeout inaktivitas
         $userId = $this->session->user;
         if ($userId) {
-            $currentUser = User::find($userId);
-            $idleTimeout = 7200; // 2 jam (7200 detik)
+            $currentUser    = User::find($userId);
+            $timeoutMinutes = (int) ($this->setting->timeout_inaktivitas ?? 120);
+            if ($timeoutMinutes <= 0) {
+                $timeoutMinutes = 120;
+            }
+            $idleTimeout = $timeoutMinutes * 60; // Konversi ke detik
 
             // 1. Validasi token sesi di database (mencegah login ganda / mendeteksi force logout)
             if (! $currentUser || $currentUser->session !== $this->session->sesi) {

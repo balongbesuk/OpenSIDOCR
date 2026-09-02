@@ -149,14 +149,19 @@ class User_model extends MY_Model
         if (($user->id_grup == $this->user_model->id_grup(UserGrup::REDAKSI)) && ($this->setting->offline_mode >= 2)) {
             $this->session->siteman = -2;
         } else {
-            // Cek apakah akun sedang aktif di perangkat lain (inactivity timeout: 2 jam / 7200 detik)
-            $idleTimeout  = 7200; // 2 jam
+            // Cek apakah akun sedang aktif di perangkat lain
+            $timeoutMinutes = (int) ($this->setting->timeout_inaktivitas ?? 120);
+            if ($timeoutMinutes <= 0) {
+                $timeoutMinutes = 120;
+            }
+            $idleTimeout  = $timeoutMinutes * 60;
             $lastActivity = $user->last_login ? strtotime($user->last_login) : 0;
             $isActive     = ! empty($user->session) && ((time() - $lastActivity) < $idleTimeout);
 
             if ($isActive) {
+                $durasiTeks = $timeoutMinutes >= 60 ? ($timeoutMinutes / 60) . ' jam' : $timeoutMinutes . ' menit';
                 $this->session->siteman = -3;
-                $this->session->set_flashdata('session_active_error', 'Akun sedang aktif di perangkat lain. Silakan tunggu 2 jam tanpa aktivitas atau gunakan tombol Paksa Logout.');
+                $this->session->set_flashdata('session_active_error', "Akun sedang aktif di perangkat lain. Silakan tunggu {$durasiTeks} tanpa aktivitas atau gunakan tombol Paksa Logout.");
                 $this->session->set_flashdata('active_username', $username);
 
                 return false;
