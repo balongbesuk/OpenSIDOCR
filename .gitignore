@@ -65,3 +65,14 @@ vendor/mikey179/*
 # Struktur Laravel
 storage/framework/
 assets/filemanager/index.html
+
+# File arsip dan backup sementara
+*.zip
+*.tar.gz
+*.tar
+*.rar
+*.7z
+*.bak
+*Backup.txt
+results.json
+htaccess.txt
