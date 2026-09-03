@@ -181,12 +181,15 @@ class MY_Upload extends CI_Upload
         if ($this->_file_name_override !== '') {
             $this->file_name = $this->_prep_filename($this->_file_name_override);
 
-            // If no extension was provided in the file_name config item, use the uploaded one
-            if (strpos($this->_file_name_override, '.') === false) {
-                $this->file_name .= $this->file_ext;
+            $override_ext = $this->get_extension($this->_file_name_override);
+            $ext          = strtolower(ltrim($override_ext, '.'));
+
+            // If an extension was provided in the file_name config item and it matches allowed types, use it
+            if ($override_ext !== '' && in_array($ext, $this->allowed_types, true)) {
+                $this->file_ext = $override_ext;
             } else {
-                // An extension was provided, let's have it!
-                $this->file_ext = $this->get_extension($this->_file_name_override);
+                // If no valid allowed extension was provided in file_name, use the uploaded one
+                $this->file_name .= $this->file_ext;
             }
 
             if (! $this->is_allowed_filetype(true)) {

@@ -310,7 +310,11 @@ class Web_dokumen_model extends MY_Model
         $old_file                = $this->input->post('old_file', true);
         $config['upload_path']   = LOKASI_DOKUMEN;
         $config['allowed_types'] = 'jpg|jpeg|png|pdf';
-        $config['file_name']     = namafile($this->input->post('nama', true));
+        // Bersihkan nama dari ekstensi jika ada di judul (misal: user memasukkan nama file .pdf di judul)
+        $nama                    = preg_replace('/\.(pdf|jpg|jpeg|png)$/i', '', $this->input->post('nama', true));
+        // Bersihkan titik agar tidak terdeteksi sebagai ekstensi ganda atau salah ekstensi oleh CI Upload
+        $nama_bersih             = str_replace('.', '_', $nama);
+        $config['file_name']     = namafile($nama_bersih);
 
         $this->load->library('MY_Upload', null, 'upload');
         $this->upload->initialize($config);
@@ -321,7 +325,7 @@ class Web_dokumen_model extends MY_Model
             return false;
         }
 
-        if (empty($old_file)) {
+        if (! empty($old_file) && file_exists(LOKASI_DOKUMEN . $old_file)) {
             unlink(LOKASI_DOKUMEN . $old_file);
         }
 

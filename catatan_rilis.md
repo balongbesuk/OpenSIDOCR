@@ -1,3 +1,15 @@
+## Pembaruan & Perbaikan Unggah Dokumen Administrasi Umum / Buku Keputusan Kades (2026)
+
+#### Perbaikan BUG
+
+1. **Perbaikan Deteksi Ekstensi & Penamaan Berkas Unggahan Dokumen (`MY_Upload` & `Web_dokumen_model`):**
+   - Memperbaiki kegagalan unggah dokumen PDF (*"Jenis berkas yang anda unggah tidak diperbolehkan"*) ketika judul dokumen mengandung tanda titik (seperti singkatan `No.`, nomor berformat titik `20.2026`, atau menempelkan nama berkas berakhiran `.pdf`).
+   - Penyesuaian pustaka `MY_Upload` agar tidak menganggap karakter titik tanda baca sebagai ekstensi berkas jika bukan merupakan ekstensi valid yang diizinkan (`allowed_types`).
+   - Sanitasi otomatis judul dokumen pada `Web_dokumen_model` dengan membuang ekstensi *trailing* ganda dan mengubah karakter titik menjadi garis bawah (`_`) saat membuat nama berkas simpanan di server.
+   - Memperbaiki pengecekan berkas lama (`unlink`) agar tidak dijalankan pada dokumen baru saat nama berkas lama kosong.
+
+---
+
 ## Pembaruan Keamanan Sesi: Single Active Session & Auto Logout Inactivity (2026)
 
 #### Penambahan Fitur Keamanan
