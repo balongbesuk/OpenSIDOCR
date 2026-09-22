@@ -1,60 +1,3 @@
-## Pembaruan & Perbaikan Unggah Dokumen Administrasi Umum / Buku Keputusan Kades (2026)
-
-#### Perbaikan BUG
-
-1. **Perbaikan Deteksi Ekstensi & Penamaan Berkas Unggahan Dokumen (`MY_Upload` & `Web_dokumen_model`):**
-   - Memperbaiki kegagalan unggah dokumen PDF (*"Jenis berkas yang anda unggah tidak diperbolehkan"*) ketika judul dokumen mengandung tanda titik (seperti singkatan `No.`, nomor berformat titik `20.2026`, atau menempelkan nama berkas berakhiran `.pdf`).
-   - Penyesuaian pustaka `MY_Upload` agar tidak menganggap karakter titik tanda baca sebagai ekstensi berkas jika bukan merupakan ekstensi valid yang diizinkan (`allowed_types`).
-   - Sanitasi otomatis judul dokumen pada `Web_dokumen_model` dengan membuang ekstensi *trailing* ganda dan mengubah karakter titik menjadi garis bawah (`_`) saat membuat nama berkas simpanan di server.
-   - Memperbaiki pengecekan berkas lama (`unlink`) agar tidak dijalankan pada dokumen baru saat nama berkas lama kosong.
-
----
-
-## Pembaruan Keamanan Sesi: Single Active Session & Auto Logout Inactivity (2026)
-
-#### Penambahan Fitur Keamanan
-
-1. **Pencegahan Login Bersamaan di Perangkat Berbeda (Prevent Concurrent Login):**
-   - Mencegah penggunaan akun yang sama secara bersamaan di banyak perangkat untuk menghindari penyalahgunaan akun login.
-   - Sesi login ditandai dengan token sesi unik di database (`user.session`) dan otomatis divalidasi pada setiap request.
-   - Jika akun sedang aktif di perangkat lain, sistem akan menolak login baru dan menampilkan opsi *Paksa Logout* jika perangkat lama hilang atau tertinggal.
-
-2. **Deteksi Inaktivitas, Auto Logout & Pengaturan Durasi Sesi Dinamis:**
-   - Durasi batas waktu inaktivitas kini dapat diatur secara dinamis melalui menu **Pengaturan > Aplikasi** (pilihan: 15 menit, 30 menit, 1 jam, 2 jam, 4 jam; bawaan: 2 jam).
-   - Penambahan detektor interaksi pengguna di sisi client (mouse, keyboard, scroll, touch).
-   - Dialog peringatan interaktif **SweetAlert2** muncul otomatis 1 menit (60 detik) sebelum sesi habis dengan hitung mundur langsung.
-   - Tombol *Tetap Login* untuk memperpanjang sesi tanpa me-reload halaman via endpoint keep-alive (`siteman/ping`).
-   - Auto logout otomatis ke halaman login jika tidak ada interaksi pengguna sesuai durasi yang diatur.
-   - Perlindungan inaktivitas ganda di sisi server berbasis Unix Epoch Timestamp murni (`session.last_active`) yang kebal terhadap perbedaan zona waktu (timezone).
-   - 100% kompatibel dengan skema database resmi OpenSID tanpa migrasi atau penambahan kolom baru.
-
----
-
-## Pembaruan Kependudukan, Impor KK & Penanganan Log Dukcapil (2026)
-
-#### Penambahan Fitur & Standar Dukcapil
-
-1. **Penerapan SOP Dukcapil untuk Kepala Keluarga Meninggal / Pindah:**
-   - Otomatis membuatkan Kartu Keluarga Sementara (No. KK Sementara) bagi sisa anggota keluarga yang masih hidup.
-   - Otomatis menunjuk anggota keluarga tertua / pasangan sebagai Kepala Keluarga Baru (`kk_level = 1`).
-   - Otomatis mencatat nomor KK lama ke dalam kolom `no_kk_sebelumnya` pada seluruh anggota keluarga yang dipindahkan.
-   - Otomatis memperbarui status perkawinan pasangan yang ditinggalkan menjadi **Cerai Mati** (`status_kawin = 4`) dan menimpa tanggal peristiwa kematian ke dalam kolom `tanggalperkawinan`.
-   - Menggunakan dialog konfirmasi interaktif **SweetAlert2** bawaan OpenSID dengan proteksi token CSRF otomatis.
-
-2. **Validasi Ketat & Deteksi Cerdas pada Impor KK (PDF & Scan OCR):**
-   - Validasi ketat NIK 16 digit dengan kolom input langsung pada pratinjau impor KK untuk mengoreksi NIK yang belum valid.
-   - Sanitasi otomatis karakter OCR untuk menghindari salah baca angka serupa huruf (O->0, I/l->1, B->8, S->5, dll).
-   - Deteksi otomatis bayi baru lahir (usia <= 1 tahun) pada impor KK untuk dicatat sebagai peristiwa **Kelahiran** (`kode_peristiwa = 1`).
-   - Deteksi dan pembaruan otomatis nomor KK Sementara & NIK Sementara menjadi Nomor Resmi Dukcapil saat mengimpor KK resmi tanpa duplikasi data.
-
-#### Perbaikan BUG
-
-1. **Perbaikan Selisih Log Kependudukan & Data Keluarga:**
-   - Perbaikan kueri sinkronisasi pada tombol "Perbaiki" di Laporan Bulanan untuk membersihkan KK lama kosong yang masih mengaitkan Kepala Keluarga hidup.
-   - Penambahan perbaikan otomatis atribut `PRIMARY KEY` dan `AUTO_INCREMENT` pada seluruh tabel kependudukan (`tweb_keluarga`, `tweb_penduduk`, `log_keluarga`, `log_penduduk`) serta penanganan *auto-fallback* ID pada PHP untuk mencegah error *Field 'id' doesn't have a default value*.
-
----
-
 Di rilis ini, versi 2403.0.0 berisi penambahan konversi surat rtf ke surat TinyMCE dan perbaikan lain yang diminta Komunitas SID.
 
 Terima kasih pada @ruririzal dan @syahransaputra yang terus berkontribusi.
@@ -88,6 +31,8 @@ Terima kasih pada @ruririzal dan @syahransaputra yang terus berkontribusi.
 25. [#6902](https://github.com/OpenSID/OpenSID/issues/6902) Penambahan lampiran f-2.01 surat TinyMCE.
 26. [#6857](https://github.com/OpenSID/OpenSID/issues/6857) Penambahan lampiran F-2.12 surat TinyMCE.
 27. [#6220](https://github.com/OpenSID/OpenSID/issues/6220) Penambahan surat TinyMCE Keterangan Untuk Nikah.
+28. Penambahan pemetaan otomatis pekerjaan Dukcapil "APARATUR SIPIL NEGARA (ASN)" ke PEGAWAI NEGERI SIPIL (PNS) pada impor KK PDF.
+29. Penambahan pembersihan otomatis data isian jalan/alamat pada impor KK PDF jika sama atau hampir sama dengan nama dusun agar tidak mengulang nama dusun.
 
 #### Perbaikan BUG
 
@@ -128,6 +73,8 @@ Terima kasih pada @ruririzal dan @syahransaputra yang terus berkontribusi.
 35. [#6887](https://github.com/OpenSID/OpenSID/issues/6887) Perbaikan notifikasi untuk NIK dan No KK yang kurang dari 16 digit.
 36. [#6910](https://github.com/OpenSID/OpenSID/issues/6910) Perbaikan ambil rilis terbaru dari github jika terdapat batasan harian.
 37. [#6912](https://github.com/OpenSID/OpenSID/issues/6912) Perbaikan menampilkan foto penduduk pada halaman pemetaan.
+38. Perbaikan query error duplicate entry `id_pend_config` pada tabel `log_penduduk` saat ubah data penduduk yang memiliki riwayat peristiwa kedatangan kembali.
+39. Perbaikan penyimpanan anggota keluarga baru pada impor KK PDF dengan fallback ID jika tabel `tweb_penduduk` tidak memiliki autoincrement.
 
 #### Perubahan Teknis
 

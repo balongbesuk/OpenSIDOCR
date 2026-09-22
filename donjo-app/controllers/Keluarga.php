@@ -766,6 +766,71 @@ class Keluarga extends Admin_Controller
         }
     }
 
+    private function bersihkan_alamat_dusun($alamat, $dusunCluster = '')
+    {
+        $raw = trim((string) $alamat);
+        if ($raw === '' || $raw === '-' || $raw === '.' || $raw === '_') {
+            return '';
+        }
+
+        $clean = strtoupper($raw);
+
+        // Hapus pola RT / RW jika ada di dalam teks alamat
+        $clean = preg_replace('/\bRT\s*[\.\/]?\s*\d+/i', '', $clean);
+        $clean = preg_replace('/\bRW\s*[\.\/]?\s*\d+/i', '', $clean);
+        $clean = preg_replace('/\bRT\s*\d+\s*[\/]\s*RW\s*\d+/i', '', $clean);
+
+        // Hapus prefix umum penamaan wilayah dusun / desa
+        $clean = preg_replace('/^(DUSUN|DSN[\.]?|DUKUH|LINGKUNGAN|KAMPUNG|KP[\.]?|DESA|KELURAHAN)\s+/i', '', trim($clean));
+
+        // Bersihkan karakter non-alfanumerik untuk perbandingan
+        $normStr = strtoupper(preg_replace('/[^A-Z0-9]/', '', $clean));
+
+        if ($normStr === '') {
+            return '';
+        }
+
+        // Ambil daftar seluruh dusun di desa untuk pembanding
+        $allDusuns = $this->db
+            ->distinct()
+            ->select('dusun')
+            ->where('dusun IS NOT NULL', null, false)
+            ->where('dusun !=', '')
+            ->get('tweb_wil_clusterdesa')
+            ->result_array();
+        $dusunNames = array_column($allDusuns, 'dusun');
+
+        if (! empty($dusunCluster)) {
+            $dusunNames[] = $dusunCluster;
+        }
+
+        // Tambahkan juga nama desa saat ini sebagai pembanding
+        $namaDesa = identitas('nama_desa');
+        if (! empty($namaDesa)) {
+            $dusunNames[] = $namaDesa;
+        }
+
+        foreach ($dusunNames as $d) {
+            $normDusun = strtoupper(preg_replace('/[^A-Z0-9]/', '', (string) $d));
+            if ($normDusun === '') {
+                continue;
+            }
+
+            // Sama persis setelah pembersihan prefix
+            if ($normStr === $normDusun) {
+                return '';
+            }
+
+            // Kemiripan >= 85% (toleransi typo kecil atau perbedaan spasi)
+            similar_text($normStr, $normDusun, $percent);
+            if ($percent >= 85.0) {
+                return '';
+            }
+        }
+
+        return $raw;
+    }
+
     private function find_target_kk_for_import($no_kk_pdf, array $members)
     {
         $kk = $this->db->where('no_kk', $no_kk_pdf)->get('tweb_keluarga')->row_array();
@@ -885,6 +950,8 @@ class Keluarga extends Admin_Controller
         }
         if (! empty($parsed['header']['alamat'])) {
             $parsed['header']['alamat'] = \App\Libraries\KkScanOcrParser::splitConcatenatedName($parsed['header']['alamat']);
+            $cluster_cek = $this->db->where('rt', $parsed['header']['rt'])->where('rw', $parsed['header']['rw'])->get('tweb_wil_clusterdesa')->row_array();
+            $parsed['header']['alamat'] = $this->bersihkan_alamat_dusun($parsed['header']['alamat'], $cluster_cek['dusun'] ?? '');
         }
 
         foreach ($parsed['members'] as &$m) {
@@ -1079,7 +1146,7 @@ class Keluarga extends Admin_Controller
             if ($clean === 'PEKERJAAN LAINNYA' || $clean === 'LAINNYA') {
                 return 'lainnya';
             }
-            if ($clean === 'PEGAWAI NEGERI SIPIL' || $clean === 'PNS' || $clean === 'PEGAWAI NEGERI SIPIL (PNS)') {
+            if ($clean === 'PEGAWAI NEGERI SIPIL' || $clean === 'PNS' || $clean === 'PEGAWAI NEGERI SIPIL (PNS)' || strpos($clean, 'APARATUR SIPIL NEGARA') !== false || $clean === 'ASN' || strpos($clean, 'ASN') !== false) {
                 return 'pegawainegerisipilpns';
             }
             if ($clean === 'TENTARA NASIONAL INDONESIA' || $clean === 'TNI' || $clean === 'TENTARA NASIONAL INDONESIA (TNI)') {
@@ -1097,6 +1164,8 @@ class Keluarga extends Admin_Controller
         }
         if (! empty($parsed['header']['alamat'])) {
             $parsed['header']['alamat'] = \App\Libraries\KkScanOcrParser::splitConcatenatedName($parsed['header']['alamat']);
+            $cluster_cek = $this->db->where('rt', $parsed['header']['rt'])->where('rw', $parsed['header']['rw'])->get('tweb_wil_clusterdesa')->row_array();
+            $parsed['header']['alamat'] = $this->bersihkan_alamat_dusun($parsed['header']['alamat'], $cluster_cek['dusun'] ?? '');
         }
 
         foreach ($parsed['members'] as &$m) {
@@ -1260,6 +1329,7 @@ class Keluarga extends Admin_Controller
 
         $cluster    = $this->db->where('rt', $header['rt'])->where('rw', $header['rw'])->get('tweb_wil_clusterdesa')->row_array();
         $id_cluster = $cluster ? $cluster['id'] : 1;
+        $alamat_kk  = $this->bersihkan_alamat_dusun($header['alamat'], $cluster['dusun'] ?? '');
 
         $norm_clean = static fn ($str) => strtoupper(preg_replace('/[^A-Z0-9]/', '', (string) $str));
 
@@ -1363,18 +1433,27 @@ class Keluarga extends Admin_Controller
             if ($row['nama'] === 'LAINNYA') {
                 $ref_pekerjaan[$norm_clean('PEKERJAAN LAINNYA')] = $row['id'];
             }
-            if (strpos($row['nama'], ' (PNS)') !== false) {
+            if (strpos($row['nama'], ' (PNS)') !== false || $row['nama'] === 'PEGAWAI NEGERI SIPIL') {
                 $ref_pekerjaan[$norm_clean(str_replace(' (PNS)', '', $row['nama']))] = $row['id'];
                 $ref_pekerjaan[$norm_clean('PNS')]                                  = $row['id'];
+                $ref_pekerjaan[$norm_clean('APARATUR SIPIL NEGARA (ASN)')]          = $row['id'];
+                $ref_pekerjaan[$norm_clean('APARATUR SIPIL NEGARA')]                = $row['id'];
+                $ref_pekerjaan[$norm_clean('ASN')]                                  = $row['id'];
             }
-            if (strpos($row['nama'], ' (TNI)') !== false) {
+            if (strpos($row['nama'], ' (TNI)') !== false || $row['nama'] === 'TENTARA NASIONAL INDONESIA') {
                 $ref_pekerjaan[$norm_clean(str_replace(' (TNI)', '', $row['nama']))] = $row['id'];
                 $ref_pekerjaan[$norm_clean('TNI')]                                  = $row['id'];
             }
-            if (strpos($row['nama'], ' (POLRI)') !== false) {
+            if (strpos($row['nama'], ' (POLRI)') !== false || $row['nama'] === 'KEPOLISIAN RI') {
                 $ref_pekerjaan[$norm_clean(str_replace(' (POLRI)', '', $row['nama']))] = $row['id'];
                 $ref_pekerjaan[$norm_clean('POLRI')]                                    = $row['id'];
             }
+        }
+
+        if (empty($ref_pekerjaan[$norm_clean('APARATUR SIPIL NEGARA (ASN)')])) {
+            $ref_pekerjaan[$norm_clean('APARATUR SIPIL NEGARA (ASN)')] = 5;
+            $ref_pekerjaan[$norm_clean('APARATUR SIPIL NEGARA')]       = 5;
+            $ref_pekerjaan[$norm_clean('ASN')]                         = 5;
         }
 
         $goldarah_rows = $this->db->get('tweb_golongan_darah')->result_array();
@@ -1406,7 +1485,7 @@ class Keluarga extends Admin_Controller
             $id_kk = $kk['id'];
             $this->db->where('id', $id_kk)->update('tweb_keluarga', [
                 'no_kk'        => $header['no_kk'],
-                'alamat'       => $header['alamat'] ?: $kk['alamat'],
+                'alamat'       => ! empty($alamat_kk) ? $alamat_kk : ($kk['alamat'] ?? ''),
                 'tgl_cetak_kk' => $header['tgl_cetak'] ?: $kk['tgl_cetak_kk'],
                 'id_cluster'   => $id_cluster,
                 'updated_at'   => date('Y-m-d H:i:s'),
@@ -1416,7 +1495,7 @@ class Keluarga extends Admin_Controller
             $data_kk_baru = [
                 'config_id'    => $config_id,
                 'no_kk'        => $header['no_kk'],
-                'alamat'       => $header['alamat'],
+                'alamat'       => $alamat_kk,
                 'tgl_cetak_kk' => $header['tgl_cetak'],
                 'tgl_daftar'   => date('Y-m-d H:i:s'),
                 'id_cluster'   => $id_cluster,
@@ -1451,7 +1530,7 @@ class Keluarga extends Admin_Controller
             $clean_goldarah  = strtoupper(trim(preg_replace('/\s+/', '', (string) $m['golongan_darah'])));
             $goldarah_id     = $ref_goldarah[$clean_goldarah] ?? ($ref_goldarah[strtoupper(trim($m['golongan_darah']))] ?? 13);
 
-            $alamat_asal = ! empty($alamat_sebelumnya_post[$nik]) ? trim($alamat_sebelumnya_post[$nik]) : $header['alamat'];
+            $alamat_asal = ! empty($alamat_sebelumnya_post[$nik]) ? trim($alamat_sebelumnya_post[$nik]) : (! empty($alamat_kk) ? $alamat_kk : ($cluster['dusun'] ?? $header['desa']));
 
             $p = null;
             if (! empty($m['db_id'])) {
@@ -1482,7 +1561,7 @@ class Keluarga extends Admin_Controller
                 'nama_ayah'         => $m['nama_ayah'],
                 'nama_ibu'          => $m['nama_ibu'],
                 'golongan_darah_id' => $goldarah_id,
-                'alamat_sekarang'   => $header['alamat'],
+                'alamat_sekarang'   => $alamat_kk,
                 'id_cluster'        => $id_cluster,
                 'status'            => 1,
                 'status_dasar'      => $status_dasar,
@@ -1502,25 +1581,42 @@ class Keluarga extends Admin_Controller
 
                 if ($is_datang_kembali) {
                     $tgl_peristiwa_log = ! empty($header['tgl_cetak']) ? date('Y-m-d H:i:s', strtotime($header['tgl_cetak'])) : date('Y-m-d H:i:s');
-                    $this->db->insert('log_penduduk', [
-                        'config_id'      => $config_id,
-                        'id_pend'        => $pend_id,
-                        'kode_peristiwa' => 5,
-                        'tgl_lapor'      => date('Y-m-d H:i:s'),
-                        'tgl_peristiwa'  => $tgl_peristiwa_log,
-                        'no_kk'          => $header['no_kk'],
-                        'nama_kk'        => $header['kepala_keluarga'],
-                        'catatan'        => 'Datang kembali melalui Impor KK PDF',
-                        'created_at'     => date('Y-m-d H:i:s'),
-                        'created_by'     => $this->session->user ?? 1,
-                    ]);
+                    $exists_log        = $this->db
+                        ->where('config_id', $config_id)
+                        ->where('id_pend', $pend_id)
+                        ->where('kode_peristiwa', 5)
+                        ->where('tgl_peristiwa', $tgl_peristiwa_log)
+                        ->get('log_penduduk')
+                        ->row();
+
+                    if (! $exists_log) {
+                        $this->db->insert('log_penduduk', [
+                            'config_id'      => $config_id,
+                            'id_pend'        => $pend_id,
+                            'kode_peristiwa' => 5,
+                            'tgl_lapor'      => date('Y-m-d H:i:s'),
+                            'tgl_peristiwa'  => $tgl_peristiwa_log,
+                            'no_kk'          => $header['no_kk'],
+                            'nama_kk'        => $header['kepala_keluarga'],
+                            'catatan'        => 'Datang kembali melalui Impor KK PDF',
+                            'created_at'     => date('Y-m-d H:i:s'),
+                            'created_by'     => $this->session->user ?? 1,
+                        ]);
+                    }
                 }
             } else {
                 $data_pend['alamat_sebelumnya'] = $alamat_asal;
                 $data_pend['created_at']        = date('Y-m-d H:i:s');
                 $data_pend['created_by']        = $this->session->user ?? 1;
+
+                $has_pk = $this->db->query("SHOW KEYS FROM tweb_penduduk WHERE Key_name = 'PRIMARY'")->num_rows();
+                if (! $has_pk) {
+                    $max_id          = $this->db->select_max('id')->get('tweb_penduduk')->row()->id ?? 0;
+                    $data_pend['id'] = $max_id + 1;
+                }
+
                 $this->db->insert('tweb_penduduk', $data_pend);
-                $pend_id = $this->db->insert_id();
+                $pend_id = $this->db->insert_id() ?: ($data_pend['id'] ?? null);
 
                 // Cek apakah anggota baru ini adalah Bayi Lahir (kode_peristiwa = 1) atau Pendatang (kode_peristiwa = 5)
                 $is_bayi_lahir = false;
@@ -1551,18 +1647,28 @@ class Keluarga extends Admin_Controller
                     $tgl_peristiwa_log = date('Y-m-d 00:00:00', strtotime($m['tanggallahir']));
                 }
 
-                $this->db->insert('log_penduduk', [
-                    'config_id'      => $config_id,
-                    'id_pend'        => $pend_id,
-                    'kode_peristiwa' => $kode_peristiwa_log,
-                    'tgl_lapor'      => date('Y-m-d H:i:s'),
-                    'tgl_peristiwa'  => $tgl_peristiwa_log,
-                    'no_kk'          => $header['no_kk'],
-                    'nama_kk'        => $header['kepala_keluarga'],
-                    'catatan'        => $catatan_log,
-                    'created_at'     => date('Y-m-d H:i:s'),
-                    'created_by'     => $this->session->user ?? 1,
-                ]);
+                $exists_log = $this->db
+                    ->where('config_id', $config_id)
+                    ->where('id_pend', $pend_id)
+                    ->where('kode_peristiwa', $kode_peristiwa_log)
+                    ->where('tgl_peristiwa', $tgl_peristiwa_log)
+                    ->get('log_penduduk')
+                    ->row();
+
+                if (! $exists_log) {
+                    $this->db->insert('log_penduduk', [
+                        'config_id'      => $config_id,
+                        'id_pend'        => $pend_id,
+                        'kode_peristiwa' => $kode_peristiwa_log,
+                        'tgl_lapor'      => date('Y-m-d H:i:s'),
+                        'tgl_peristiwa'  => $tgl_peristiwa_log,
+                        'no_kk'          => $header['no_kk'],
+                        'nama_kk'        => $header['kepala_keluarga'],
+                        'catatan'        => $catatan_log,
+                        'created_at'     => date('Y-m-d H:i:s'),
+                        'created_by'     => $this->session->user ?? 1,
+                    ]);
+                }
             }
 
             if ($shdk_id == 1) {

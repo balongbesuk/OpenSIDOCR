@@ -1116,39 +1116,93 @@ class Penduduk_model extends MY_Model
 
         unset($data['no_kk'], $data['dusun'], $data['rw'], $data['file_foto'], $data['old_foto']);
 
-        $tgl_lapor = rev_tgl($_POST['tgl_lapor']);
-        if ($_POST['tgl_peristiwa']) {
-            $tgl_peristiwa = rev_tgl($_POST['tgl_peristiwa']);
-        } else {
-            $tgl_peristiwa = rev_tgl($_POST['tanggallahir']);
-        }
+        $tgl_lapor              = ! empty($_POST['tgl_lapor']) ? rev_tgl($_POST['tgl_lapor']) : null;
+        $has_post_tgl_peristiwa = ! empty($_POST['tgl_peristiwa']);
+        $tgl_peristiwa_input    = $has_post_tgl_peristiwa ? rev_tgl($_POST['tgl_peristiwa']) : null;
         unset($data['tgl_lapor'], $data['tgl_peristiwa']);
 
         // Reset data terkait penduduk TIDAK TETAP saat status berubah menjadi TETAP
-        $maksud_tujuan = $_POST['maksud_tujuan_kedatangan'];
+        $maksud_tujuan = $_POST['maksud_tujuan_kedatangan'] ?? null;
         if ($data['status'] == 1) {
             $data['maksud_tujuan_kedatangan'] = null;
         }
         unset($data['maksud_tujuan_kedatangan']);
 
-        // Perbarui data log, mengecek status dasar dari penduduk, jika status dasar adalah hidup
-        // maka akan menupdate data dengan kode_peristiwa 1/5
+        // Perbarui data log penduduk
         $get_pendudukId = $this->config_id()->where('id', $id)->get('tweb_penduduk')->row();
-        $log            = [
-            'tgl_peristiwa'            => $tgl_peristiwa,
-            'updated_at'               => date('Y-m-d H:i:s'),
-            'updated_by'               => $this->session->user,
-            'maksud_tujuan_kedatangan' => $maksud_tujuan,
-        ];
 
-        if ($_POST['tgl_lapor']) {
-            $log['tgl_lapor'] = $tgl_lapor;
-        }
+        if ($get_pendudukId && $get_pendudukId->status_dasar == 1) {
+            // 1. Jika tanggal lahir diubah, sinkronkan tgl_peristiwa pada log kelahiran (kode_peristiwa = 1) saja
+            if (! empty($_POST['tanggallahir'])) {
+                $this->config_id()
+                    ->where('id_pend', $id)
+                    ->where('kode_peristiwa', 1)
+                    ->update('log_penduduk', [
+                        'tgl_peristiwa' => rev_tgl($_POST['tanggallahir']),
+                        'updated_at'    => date('Y-m-d H:i:s'),
+                        'updated_by'    => $this->session->user,
+                    ]);
+            }
 
-        if ($get_pendudukId->status_dasar == 1) {
-            $this->config_id()->where('id_pend', $id)->where_in('kode_peristiwa', [1, 5])->update('log_penduduk', $log);
-        } else {
-            $this->config_id()->where('id_pend', $id)->where('kode_peristiwa', $get_pendudukId->status_dasar)->update('log_penduduk', $log);
+            // 2. Untuk log peristiwa aktif terakhir (kode_peristiwa 1 atau 5), perbarui atribut pendukungnya berdasarkan ID log spesifik
+            $latest_log = $this->config_id()
+                ->where('id_pend', $id)
+                ->where_in('kode_peristiwa', [1, 5])
+                ->order_by('id', 'DESC')
+                ->limit(1)
+                ->get('log_penduduk')
+                ->row();
+
+            if ($latest_log) {
+                $log_update = [
+                    'updated_at'               => date('Y-m-d H:i:s'),
+                    'updated_by'               => $this->session->user,
+                    'maksud_tujuan_kedatangan' => $maksud_tujuan,
+                ];
+
+                if ($tgl_lapor) {
+                    $log_update['tgl_lapor'] = $tgl_lapor;
+                }
+
+                // Hanya ubah tgl_peristiwa jika memang diinput secara eksplisit di form,
+                // ATAU jika log terakhir adalah peristiwa lahir (kode_peristiwa = 1)
+                if ($has_post_tgl_peristiwa) {
+                    $log_update['tgl_peristiwa'] = $tgl_peristiwa_input;
+                } elseif ($latest_log->kode_peristiwa == 1 && ! empty($_POST['tanggallahir'])) {
+                    $log_update['tgl_peristiwa'] = rev_tgl($_POST['tanggallahir']);
+                }
+
+                $this->config_id()
+                    ->where('id', $latest_log->id)
+                    ->update('log_penduduk', $log_update);
+            }
+        } elseif ($get_pendudukId) {
+            // Untuk penduduk non-aktif, update hanya pada log terakhir yang sesuai
+            $latest_log = $this->config_id()
+                ->where('id_pend', $id)
+                ->where('kode_peristiwa', $get_pendudukId->status_dasar)
+                ->order_by('id', 'DESC')
+                ->limit(1)
+                ->get('log_penduduk')
+                ->row();
+
+            if ($latest_log) {
+                $log_update = [
+                    'updated_at'               => date('Y-m-d H:i:s'),
+                    'updated_by'               => $this->session->user,
+                    'maksud_tujuan_kedatangan' => $maksud_tujuan,
+                ];
+                if ($has_post_tgl_peristiwa) {
+                    $log_update['tgl_peristiwa'] = $tgl_peristiwa_input;
+                }
+                if ($tgl_lapor) {
+                    $log_update['tgl_lapor'] = $tgl_lapor;
+                }
+
+                $this->config_id()
+                    ->where('id', $latest_log->id)
+                    ->update('log_penduduk', $log_update);
+            }
         }
 
         // Reset data terkait kewarganegaarn dari WNA / Dua Kewarganegaraan menjadi WNI

@@ -46,7 +46,7 @@
 						</tr>
 						<tr>
 							<th>Alamat</th>
-							<td><?= $parsed['header']['alamat'] ?></td>
+							<td><?= ! empty($parsed['header']['alamat']) ? html_escape($parsed['header']['alamat']) : '<span class="text-muted"><em>(Dikosongkan - mengikuti nama Dusun)</em></span>' ?></td>
 							<th>RT / RW</th>
 							<td>RT <?= $parsed['header']['rt'] ?> / RW <?= $parsed['header']['rw'] ?></td>
 						</tr>
