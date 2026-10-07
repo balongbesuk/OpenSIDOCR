@@ -46,17 +46,28 @@ class Surat_master_model extends MY_Model
         $data = $_POST;
         $this->validasi_surat($data);
 
-        $pemohon_surat = $data['pemohon_surat'];
-        unset($data['pemohon_surat']);
+        $pemohon_surat = $data['pemohon_surat'] ?? 'warga';
+        unset($data['pemohon_surat'], $data['id_cb'], $data['tabeldata_length'], $data['surat']);
+
+        $data['jenis']     = FormatSurat::RTF_DESA;
+        $data['config_id'] = identitas('id');
+        $data['kunci']     = $data['kunci'] ?? 0;
+        $data['favorit']   = $data['favorit'] ?? 0;
+
         $data['url_surat'] = str_replace([' ', '-'], '_', $data['nama']);
         $data['url_surat'] = 'surat_' . strtolower($data['url_surat']);
         /** pastikan belum ada url suratnya */
         if (FormatSurat::isExist($data['url_surat'])) {
             $_SESSION['success'] = -2;
 
-            return;
+            return false;
         }
-        $outp     = $this->db->insert('tweb_surat_format', $data);
+
+        // Filter data agar hanya berisi kolom yang ada pada tabel tweb_surat_format
+        $table_fields = $this->db->list_fields('tweb_surat_format');
+        $insert_data  = array_intersect_key($data, array_flip($table_fields));
+
+        $outp     = $this->db->insert('tweb_surat_format', $insert_data);
         $id       = $this->db->insert_id();
         $raw_path = 'template-surat/raw/';
 
@@ -75,38 +86,48 @@ class Surat_master_model extends MY_Model
         }
 
         // index.html untuk menutup akses ke folder melalui browser
-        copy($raw_path . 'index.html', $folder_surat . 'index.html');
-
-        //doc
-        copy($raw_path . $template, $folder_surat . $data['url_surat'] . '.rtf');
-
-        //form
-        $file   = $raw_path . $form;
-        $handle = fopen($file, 'rb');
-        $buffer = stream_get_contents($handle);
-        $berkas = $folder_surat . $data['url_surat'] . '.php';
-        $handle = fopen($berkas, 'w+b');
-        $buffer = str_replace('[nama_surat]', "Surat {$data['nama']}", $buffer);
-        fwrite($handle, $buffer);
-        fclose($handle);
-
-        if ($pemohon_surat == 'warga') {
-            // cetak
-            $file       = $raw_path . 'print.raw';
-            $handle     = fopen($file, 'rb');
-            $buffer     = stream_get_contents($handle);
-            $berkas     = $folder_surat . 'print_' . $data['url_surat'] . '.php';
-            $handle     = fopen($berkas, 'w+b');
-            $nama_surat = strtoupper($data['nama']);
-            $buffer     = str_replace('[nama_surat]', "SURAT {$nama_surat}", $buffer);
-            fwrite($handle, $buffer);
-            fclose($handle);
-        } else {
-            // data untuk form
-            copy($raw_path . 'data_form_non_warga.raw', $folder_surat . 'data_form_' . $data['url_surat'] . '.php');
+        if (file_exists($raw_path . 'index.html')) {
+            copy($raw_path . 'index.html', $folder_surat . 'index.html');
         }
 
-        status_sukses($outp); //Tampilkan Pesan
+        // doc
+        if (file_exists($raw_path . $template)) {
+            copy($raw_path . $template, $folder_surat . $data['url_surat'] . '.rtf');
+        }
+
+        // form
+        $file = $raw_path . $form;
+        if (file_exists($file)) {
+            $handle = fopen($file, 'rb');
+            $buffer = stream_get_contents($handle);
+            $berkas = $folder_surat . $data['url_surat'] . '.php';
+            $handle = fopen($berkas, 'w+b');
+            $buffer = str_replace('[nama_surat]', "Surat {$data['nama']}", $buffer);
+            fwrite($handle, $buffer);
+            fclose($handle);
+        }
+
+        if ($pemohon_surat == 'warga') {
+            // cetak jika template print.raw ada
+            $file = $raw_path . 'print.raw';
+            if (file_exists($file)) {
+                $handle     = fopen($file, 'rb');
+                $buffer     = stream_get_contents($handle);
+                $berkas     = $folder_surat . 'print_' . $data['url_surat'] . '.php';
+                $handle     = fopen($berkas, 'w+b');
+                $nama_surat = strtoupper($data['nama']);
+                $buffer     = str_replace('[nama_surat]', "SURAT {$nama_surat}", $buffer);
+                fwrite($handle, $buffer);
+                fclose($handle);
+            }
+        } else {
+            // data untuk form non warga
+            if (file_exists($raw_path . 'data_form_non_warga.raw')) {
+                copy($raw_path . 'data_form_non_warga.raw', $folder_surat . 'data_form_' . $data['url_surat'] . '.php');
+            }
+        }
+
+        status_sukses($outp); // Tampilkan Pesan
 
         return $id;
     }

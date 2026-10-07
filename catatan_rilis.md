@@ -33,6 +33,7 @@ Terima kasih pada @ruririzal dan @syahransaputra yang terus berkontribusi.
 27. [#6220](https://github.com/OpenSID/OpenSID/issues/6220) Penambahan surat TinyMCE Keterangan Untuk Nikah.
 28. Penambahan pemetaan otomatis pekerjaan Dukcapil "APARATUR SIPIL NEGARA (ASN)" ke PEGAWAI NEGERI SIPIL (PNS) pada impor KK PDF.
 29. Penambahan pembersihan otomatis data isian jalan/alamat pada impor KK PDF jika sama atau hampir sama dengan nama dusun agar tidak mengulang nama dusun.
+30. Reaktivasi penambahan format surat RTF pada Pengaturan Surat (tombol Tambah Surat RTF, form pembuatan surat RTF, inisialisasi otomatis folder dan berkas template).
 
 #### Perbaikan BUG
 
@@ -75,6 +76,7 @@ Terima kasih pada @ruririzal dan @syahransaputra yang terus berkontribusi.
 37. [#6912](https://github.com/OpenSID/OpenSID/issues/6912) Perbaikan menampilkan foto penduduk pada halaman pemetaan.
 38. Perbaikan query error duplicate entry `id_pend_config` pada tabel `log_penduduk` saat ubah data penduduk yang memiliki riwayat peristiwa kedatangan kembali.
 39. Perbaikan penyimpanan anggota keluarga baru pada impor KK PDF dengan fallback ID jika tabel `tweb_penduduk` tidak memiliki autoincrement.
+40. Perbaikan pembuatan dan penyimpanan surat RTF desa baru (penyesuaian tipe RTF Desa, filter kolom tabel, dan pengecekan ketersediaan berkas raw).
 
 #### Perubahan Teknis
 

@@ -271,6 +271,66 @@ class Surat_master extends Admin_Controller
         return show_404();
     }
 
+    public function form_rtf()
+    {
+        $this->redirect_hak_akses('u');
+        $this->set_hak_akses_rfm();
+
+        $data['action']           = 'Tambah';
+        $data['formAction']       = site_url('surat_master/insert_rtf');
+        $data['suratMaster']      = (object) [
+            'id'                  => null,
+            'nama'                => '',
+            'kode_surat'          => '',
+            'jenis'               => FormatSurat::RTF_DESA,
+            'mandiri'             => 0,
+            'masa_berlaku'        => 1,
+            'satuan_masa_berlaku' => 'M',
+            'qr_code'             => 0,
+            'logo_garuda'         => 0,
+            'kecamatan'           => 0,
+            'template'            => null,
+        ];
+        $data['klasifikasiSurat'] = null;
+        $data['masaBerlaku']      = FormatSurat::MASA_BERLAKU;
+        $data['qrCode']           = false;
+        $data['pengaturanSurat']  = SettingAplikasi::whereKategori('format_surat')->pluck('value', 'key')->toArray();
+
+        return view('admin.pengaturan_surat.form_rtf', $data);
+    }
+
+    public function insert_rtf()
+    {
+        $this->redirect_hak_akses('u');
+
+        $id = $this->surat_master_model->insert();
+
+        if ($id) {
+            // Upload template RTF jika berkas diunggah
+            if (! empty($_FILES['surat']['name'])) {
+                $surat = FormatSurat::find($id);
+                if ($surat) {
+                    $this->surat_master_model->upload($surat->url_surat);
+                }
+            }
+
+            // Simpan syarat surat jika layanan mandiri diaktifkan
+            $syarat  = $this->input->post('id_cb');
+            $mandiri = (int) $this->input->post('mandiri');
+            if ($mandiri === 1 && ! empty($syarat)) {
+                FormatSurat::where('id', $id)->update(['syarat_surat' => json_encode($syarat)]);
+            }
+
+            redirect_with('success', 'Berhasil Menambahkan Format Surat RTF Baru', 'surat_master/form/' . $id);
+        }
+
+        if (isset($_SESSION['success']) && $_SESSION['success'] == -2) {
+            redirect_with('error', 'Gagal Menambahkan Surat: Format Surat / URL tersebut sudah ada!', 'surat_master/form_rtf');
+        }
+
+        redirect_with('error', 'Gagal Tambah Format Surat RTF', 'surat_master/form_rtf');
+    }
+
     public function insert()
     {
         $this->redirect_hak_akses('u');
