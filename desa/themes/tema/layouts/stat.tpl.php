@@ -158,7 +158,7 @@
                 <nav class="flex flex-wrap items-center gap-2 md:gap-3 text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-8 print:hidden">
                     <a href="<?= site_url() ?>" class="hover:text-brand-600 transition-colors">Beranda</a>
                     <i class="fa-solid fa-chevron-right text-[10px] opacity-40"></i>
-                    <span class="text-slate-600 dark:text-slate-400"><?= ($is_dpt) ? 'DPT (Calon Pemilih)' : 'Statistik Desa' ?></span>
+                    <a href="<?= site_url('data-statistik') ?>" class="hover:text-brand-600 transition-colors">Statistik Desa</a>
                     <i class="fa-solid fa-chevron-right text-[10px] opacity-40"></i>
                     <span class="text-brand-600 dark:text-brand-400 font-extrabold"><?= html_escape($stat_nama) ?></span>
                 </nav>

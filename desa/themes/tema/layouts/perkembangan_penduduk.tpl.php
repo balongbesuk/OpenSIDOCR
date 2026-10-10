@@ -70,8 +70,17 @@
                     <!-- Konten Dashboard Kanan -->
                     <div class="flex-1 min-w-0 w-full space-y-12">
         
-        <!-- Header Section -->
-        <div class="flex flex-col md:flex-row md:items-end justify-between gap-8 mb-12">
+                        <!-- [NAVIGATION BREADCRUMB] -->
+                        <nav class="flex items-center gap-3 text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-6">
+                            <a href="<?= site_url() ?>" class="hover:text-brand-600 transition-colors">Beranda</a>
+                            <i class="fa-solid fa-chevron-right text-[10px] opacity-40"></i>
+                            <a href="<?= site_url('data-statistik') ?>" class="hover:text-brand-600 transition-colors">Statistik Desa</a>
+                            <i class="fa-solid fa-chevron-right text-[10px] opacity-40"></i>
+                            <span class="text-brand-600 dark:text-brand-400 font-extrabold">Perkembangan Penduduk</span>
+                        </nav>
+
+                        <!-- Header Section -->
+                        <div class="flex flex-col md:flex-row md:items-end justify-between gap-8 mb-12">
             <div class="max-w-3xl">
                 <div class="flex items-center gap-3 mb-6">
                     <div class="px-4 py-1.5 rounded-full bg-brand-600/10 text-brand-600 dark:text-brand-400 text-[10px] font-black uppercase tracking-[0.2em] border border-brand-600/20">
