@@ -1,6 +1,7 @@
 # Abaikan folder desa
 desa/*
 !desa/themes/
+desa/themes/*
 !desa/themes/tema/
 !desa/themes/tema/**
 

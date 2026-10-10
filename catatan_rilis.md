@@ -38,6 +38,8 @@ Terima kasih pada @ruririzal dan @syahransaputra yang terus berkontribusi.
 32. Penambahan URL SEO-friendly untuk statistik kependudukan (`/data-statistik/{slug}`), pemetaan slug otomatis dari enum statistik, dan penyesuaian rute `/daftar-pemilih-tetap`, `/dpt`, serta `/perkembangan-penduduk`.
 33. Penambahan fitur Filter Wilayah bertingkat (Dusun, RW, RT) dengan pembaruan dinamis (AJAX) pada halaman data statistik publik.
 34. Penambahan format cetak laporan statistik resmi berstandar A4 dengan Kop Surat Pemerintahan Desa, cakupan filter wilayah, dan lembar pengesahan tanda tangan Kepala Desa.
+35. Penambahan halaman portal indeks statistik desa (`/data-statistik`) dengan ringkasan data kependudukan (Quick Stats), kartu indikator statistik yang terintegrasi hak akses menu aktif OpenSID, serta fitur pencarian dan filter kategori indikator secara realtime.
+
 
 #### Perbaikan BUG
 

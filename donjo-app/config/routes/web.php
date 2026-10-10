@@ -60,6 +60,7 @@ $route['buku-tamu/registrasi']            = WEB . '/buku_tamu/registrasi';
 $route['buku-tamu']                       = WEB . '/buku_tamu/index';
 
 // Statistik
+$route['data-statistik']                   = WEB . '/statistik/index';
 $route['data-statistik/ajax-rw']           = WEB . '/statistik/ajax_rw';
 $route['data-statistik/ajax-rt']           = WEB . '/statistik/ajax_rt';
 $route['data-statistik/(:any)/(:num)']    = WEB . '/statistik/index/$1/$2';
