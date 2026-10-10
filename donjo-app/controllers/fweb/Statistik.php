@@ -183,7 +183,7 @@ class Statistik extends Web_Controller
         // Data agregat demografi (Quick Stats) untuk Hero Card
         $config_id      = identitas('id');
         $total_penduduk = (int) $this->db->where('status_dasar', 1)->where('config_id', $config_id)->count_all_results('tweb_penduduk');
-        $total_keluarga = (int) $this->db->where('config_id', $config_id)->count_all_results('tweb_keluarga');
+        $total_keluarga = (int) $this->db->where('status_dasar', 1)->where('kk_level', 1)->where('config_id', $config_id)->count_all_results('tweb_penduduk');
         $total_dusun    = (int) count($this->wilayah_model->list_dusun());
 
         $dpt_aktif = (bool) ($this->web_menu_model->menu_aktif('daftar-pemilih-tetap') || $this->web_menu_model->menu_aktif('dpt') || $this->web_menu_model->menu_aktif('first/dpt'));
