@@ -35,6 +35,9 @@ Terima kasih pada @ruririzal dan @syahransaputra yang terus berkontribusi.
 29. Penambahan pembersihan otomatis data isian jalan/alamat pada impor KK PDF jika sama atau hampir sama dengan nama dusun agar tidak mengulang nama dusun.
 30. Reaktivasi penambahan format surat RTF pada Pengaturan Surat (tombol Tambah Surat RTF, form pembuatan surat RTF, inisialisasi otomatis folder dan berkas template).
 31. Peningkatan fitur Impor Kartu Keluarga dari scan / foto / PDF menggunakan AI RapidOCR (PP-OCRv4 Latin) dengan auto-deskew, pemrosesan kontras cerdas (OpenCV CLAHE), dan deteksi otomatis berkas PDF scan.
+32. Penambahan URL SEO-friendly untuk statistik kependudukan (`/data-statistik/{slug}`), pemetaan slug otomatis dari enum statistik, dan penyesuaian rute `/daftar-pemilih-tetap`, `/dpt`, serta `/perkembangan-penduduk`.
+33. Penambahan fitur Filter Wilayah bertingkat (Dusun, RW, RT) dengan pembaruan dinamis (AJAX) pada halaman data statistik publik.
+34. Penambahan format cetak laporan statistik resmi berstandar A4 dengan Kop Surat Pemerintahan Desa, cakupan filter wilayah, dan lembar pengesahan tanda tangan Kepala Desa.
 
 #### Perbaikan BUG
 
@@ -80,6 +83,8 @@ Terima kasih pada @ruririzal dan @syahransaputra yang terus berkontribusi.
 40. Perbaikan pembuatan dan penyimpanan surat RTF desa baru (penyesuaian tipe RTF Desa, filter kolom tabel, dan pengecekan ketersediaan berkas raw).
 41. Perbaikan kompatibilitas RapidOCR engine dengan paket versi baru (`rapidocr` v1.4+ / `RapidOCROutput` object) untuk mencegah error `RapidOCROutput object is not subscriptable`.
 42. Perbaikan akurasi parser OCR Kartu Keluarga: perbaikan batasan kata pada deteksi pendidikan (mencegah false positive SLTA akibat nama berawalan MA atau kata TAMAT) serta pekerjaan (mencegah MENGURUS RUMAH TANGGA salah terdeteksi sebagai GURU, dan penambahan pengenal BURUH HARIAN LEPAS serta profesi lainnya).
+43. Perbaikan tata letak grup tombol tipe grafik (batang, lingkaran, garis) dan tombol cetak pada tema website desa agar tersusun sejajar rapi tanpa membungkus (wrapping) ke baris baru, serta preservasi parameter filter wilayah saat beralih jenis grafik.
+44. Perbaikan integrasi menu sidebar statistik pada tema website desa (navigasi sticky di desktop, penyorotan menu aktif yang presisi, dan kelengkapan daftar statistik lainnya).
 
 #### Perubahan Teknis
 

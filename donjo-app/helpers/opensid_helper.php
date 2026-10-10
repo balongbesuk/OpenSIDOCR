@@ -36,6 +36,8 @@
  */
 
 use App\Models\RefJabatan;
+use App\Models\Bantuan;
+use App\Enums\Statistik\StatistikEnum;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\ClientException;
 use voku\helper\AntiXSS;
@@ -1423,10 +1425,38 @@ function menu_slug($url)
             $url  = ($data) ? ($cut[0] . '/' . $data['slug']) : ($url);
             break;
 
+        case 'statistik':
+            $cek = isset($cut[1]) ? StatistikEnum::slugFromKey($cut[1]) : null;
+            if ($cek) {
+                $url = "data-statistik/{$cek}";
+            } else {
+                $url = "first/{$url}";
+            }
+
+            break;
+
+        case 'first':
+            if (isset($cut[1]) && $cut[1] === 'dpt') {
+                $url = 'daftar-pemilih-tetap';
+            } elseif (isset($cut[1]) && in_array($cut[1], ['perkembangan_penduduk', 'perkembangan-penduduk'])) {
+                $url = 'perkembangan-penduduk';
+            }
+            break;
+
+        case 'dpt':
+        case 'daftar-pemilih-tetap':
+            $url = 'daftar-pemilih-tetap';
+            break;
+
+        case 'perkembangan-penduduk':
+            $url = 'perkembangan-penduduk';
+            break;
+
             /*
                 * TODO : Jika semua link pada tabel menu sudah tdk menggunakan first/ lagi
                 * Ganti hapus case dibawah ini yg datanya diambil dari tabel menu dan ganti default adalah $url;
                 */
+        case 'data-statistik':
         case 'arsip':
         case 'data_analisis':
         case 'ambil_data_covid':
@@ -1834,5 +1864,71 @@ if (! function_exists('filter_konten_judi')) {
         }
 
         return $str;
+    }
+}
+
+if (! function_exists('daftar_statistik')) {
+    function daftar_statistik()
+    {
+        $data = collect(StatistikEnum::allStatistik())->map(static function ($items, $kategori) {
+            return collect($items)->map(static function ($item) {
+                return [
+                    'key'   => $item['key'],
+                    'slug'  => $item['slug'],
+                    'label' => $item['label'],
+                    'url'   => "data-statistik/{$item['slug']}",
+                ];
+            })->all();
+        })->all();
+
+        $kategori_bantuan = [
+            [
+                'key'   => 'bantuan_penduduk',
+                'slug'  => 'bantuan-penduduk',
+                'label' => 'Penerima Bantuan Penduduk',
+                'url'   => 'first/statistik/bantuan_penduduk',
+            ],
+            [
+                'key'   => 'bantuan_keluarga',
+                'slug'  => 'bantuan-keluarga',
+                'label' => 'Penerima Bantuan Keluarga',
+                'url'   => 'first/statistik/bantuan_keluarga',
+            ],
+        ];
+
+        $setiap_bantuan = class_exists(\App\Models\Bantuan::class)
+            ? \App\Models\Bantuan::all()->map(static function ($item) {
+                return [
+                    'key'   => "50{$item->id}",
+                    'slug'  => "50{$item->id}",
+                    'label' => $item->nama,
+                    'url'   => "first/statistik/50{$item->id}",
+                ];
+            })->toArray()
+            : [];
+
+        $data['bantuan'] = array_merge($kategori_bantuan, $setiap_bantuan);
+        $data['lainnya'] = [
+            [
+                'key'   => 'dpt',
+                'slug'  => 'daftar-pemilih-tetap',
+                'label' => 'Calon Pemilih (DPT)',
+                'url'   => 'daftar-pemilih-tetap',
+            ],
+            [
+                'key'   => 'data-wilayah',
+                'slug'  => 'data-wilayah',
+                'label' => 'Wilayah Administratif',
+                'url'   => 'data-wilayah',
+            ],
+            [
+                'key'   => 'perkembangan-penduduk',
+                'slug'  => 'perkembangan-penduduk',
+                'label' => 'Perkembangan Penduduk',
+                'url'   => 'perkembangan-penduduk',
+            ],
+        ];
+
+        return $data;
     }
 }

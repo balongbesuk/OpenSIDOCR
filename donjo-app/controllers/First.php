@@ -35,6 +35,8 @@
  *
  */
 
+use App\Enums\Statistik\StatistikEnum;
+
 defined('BASEPATH') || exit('No direct script access allowed');
 
 class First extends Web_Controller
@@ -191,6 +193,11 @@ class First extends Web_Controller
 
         public function statistik($stat = 0, $tipe = 0)
     {
+        if ($slug = StatistikEnum::slugFromKey($stat)) {
+            $qs = $this->input->server('QUERY_STRING') ? '?' . $this->input->server('QUERY_STRING') : '';
+            redirect('data-statistik/' . $slug . ($tipe ? "/{$tipe}" : '') . $qs);
+        }
+
         // Penambahan && $stat !== 'perkembangan-penduduk' agar tidak 404
         if (! $this->web_menu_model->menu_aktif('statistik/' . $stat) && $stat !== 'perkembangan-penduduk') {
             show_404();
@@ -204,7 +211,8 @@ class First extends Web_Controller
             $data['title']   = 'Statistik Perkembangan Penduduk';
             $data['stat']    = [];
             $data['tipe']    = 2;
-            $data['st']      = 'perkembangan-penduduk';
+            $data['st']               = 'perkembangan-penduduk';
+            $data['daftar_statistik'] = StatistikEnum::allStatistik();
             
             $this->_get_common_data($data);
             $this->load->view($data['folder_themes'] . '/layouts/perkembangan_penduduk.tpl.php', $data);
@@ -215,7 +223,8 @@ class First extends Web_Controller
         $data['title']   = 'Statistik ' . $data['heading'];
         $data['stat']    = $this->laporan_penduduk_model->list_data($stat);
         $data['tipe']    = $tipe;
-        $data['st']      = $stat;
+        $data['st']               = $stat;
+        $data['daftar_statistik'] = StatistikEnum::allStatistik();
 
         $this->_get_common_data($data);
 
@@ -300,16 +309,28 @@ class First extends Web_Controller
 
     public function dpt()
     {
-        if (! $this->web_menu_model->menu_aktif('dpt')) {
+        if ($this->uri->segment(1) === 'first' && $this->uri->segment(2) === 'dpt') {
+            redirect('daftar-pemilih-tetap', 'location', 301);
+        }
+
+        if ($this->uri->segment(1) === 'dpt') {
+            redirect('daftar-pemilih-tetap', 'location', 301);
+        }
+
+        if (! ($this->web_menu_model->menu_aktif('daftar-pemilih-tetap') || $this->web_menu_model->menu_aktif('dpt') || $this->web_menu_model->menu_aktif('first/dpt'))) {
             show_404();
         }
 
         $this->load->model('dpt_model');
         $data                      = $this->includes;
+        $data['slug_aktif']        = 'daftar-pemilih-tetap';
         $data['title']             = 'Daftar Calon Pemilih Berdasarkan Wilayah';
+        $data['heading']           = 'Daftar Calon Pemilih Berdasarkan Wilayah';
+        $data['stat_nama']         = 'Calon Pemilih (DPT)';
         $data['main']              = $this->dpt_model->statistik_wilayah();
         $data['total']             = $this->dpt_model->statistik_total();
         $data['tanggal_pemilihan'] = $this->dpt_model->tanggal_pemilihan();
+        $data['daftar_statistik']  = StatistikEnum::allStatistik();
         $this->_get_common_data($data);
         $data['tipe'] = 4;
         $this->set_template('layouts/stat.tpl.php');
@@ -325,11 +346,14 @@ class First extends Web_Controller
         $this->load->model('wilayah_model');
         $data = $this->includes;
 
+        $data['slug_aktif']   = 'data-wilayah';
+        $data['stat_nama']    = 'Wilayah Administratif';
         $data['heading']      = 'Populasi Per Wilayah';
         $data['tipe']         = 3;
         $data['daftar_dusun'] = $this->wilayah_model->daftar_wilayah_dusun();
         $data['total']        = $this->wilayah_model->total();
-        $data['st']           = 1;
+        $data['st']           = 'data-wilayah';
+        $data['daftar_statistik'] = StatistikEnum::allStatistik();
         $this->_get_common_data($data);
 
         $this->set_template('layouts/stat.tpl.php');

@@ -1,5 +1,8 @@
 # Abaikan folder desa
 desa/*
+!desa/themes/
+!desa/themes/tema/
+!desa/themes/tema/**
 
 # Abaikan backup_inkremental
 backup_inkremental/*

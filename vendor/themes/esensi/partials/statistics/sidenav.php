@@ -47,7 +47,8 @@ $s_links = [
               <?php foreach ($statistik['submenu'] as $submenu) : ?>
                 <?php
                 $stat_slug = in_array($statistik['target'], ['statistikBantuan', 'statistikLainnya']) ? str_replace('first/', '', $submenu['url']) : 'statistik/' . $submenu['key'];
-                if ($this->web_menu_model->menu_aktif($stat_slug)) :
+                $is_always_shown = ($statistik['target'] === 'statistikLainnya') || in_array(($submenu['key'] ?? ''), ['data-wilayah', 'perkembangan-penduduk', 'dpt']);
+                if ($is_always_shown || $this->web_menu_model->menu_aktif($stat_slug) || $this->web_menu_model->menu_aktif($submenu['url'])) :
                 ?>
                   <li id="statistik_13">
                     <a href="<?= site_url($submenu['url']) ?>" class="px-5 py-2 block <?= $submenu['slug'] == $slug_aktif ? 'bg-primary-100 text-white' : 'hover:cursor-pointer hover:text-primary-100' ?>"><?= $submenu['label'] ?></a>

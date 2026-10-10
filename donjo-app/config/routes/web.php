@@ -51,9 +51,19 @@ $route['peraturan-desa'] = WEB . '/peraturan/index';
 // Tampil Assets
 $route['tampil/(:any)'] = 'dokumen_web/tampil/$1';
 $route['unduh/(:any)']  = 'dokumen_web/unduh/$1';
+
 // Buku Tamu
 $route['buku-tamu/jawaban/(:num)/(:num)'] = WEB . '/buku_tamu/jawaban/$1/$2';
 $route['buku-tamu/kepuasan/(:num)']       = WEB . '/buku_tamu/kepuasan/$1';
 $route['buku-tamu/kepuasan']              = WEB . '/buku_tamu/kepuasan';
 $route['buku-tamu/registrasi']            = WEB . '/buku_tamu/registrasi';
 $route['buku-tamu']                       = WEB . '/buku_tamu/index';
+
+// Statistik
+$route['data-statistik/ajax-rw']           = WEB . '/statistik/ajax_rw';
+$route['data-statistik/ajax-rt']           = WEB . '/statistik/ajax_rt';
+$route['data-statistik/(:any)/(:num)']    = WEB . '/statistik/index/$1/$2';
+$route['data-statistik/(:any)']           = WEB . '/statistik/index/$1';
+$route['perkembangan-penduduk']            = 'first/perkembangan_penduduk';
+$route['daftar-pemilih-tetap']             = 'first/dpt';
+$route['dpt']                              = 'first/dpt';

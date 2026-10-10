@@ -75,6 +75,12 @@ Jika Anda memiliki akses terminal SSH di VPS/Server:
 - **Smart Selection Kepala KK Baru**: Otomatis menyarankan anggota tersisa yang tertua (atau dapat dipilih via *dropdown* oleh operator).
 - **Aksi Cepat Menu**: Menyediakan tombol `[ 🚚 Pindah KK / Sebagian ]` pada halaman rincian anggota keluarga dan tabel data keluarga.
 
+### 6. Visualisasi Statistik Desa Interaktif & Cetak Resmi (SEO Friendly)
+- **Rute URL SEO-Friendly**: Mendukung URL bersih berbasis slug untuk seluruh indikator kependudukan seperti `/data-statistik/pekerjaan`, `/data-statistik/rentang-umur`, `/daftar-pemilih-tetap`, dan `/perkembangan-penduduk`.
+- **Filter Wilayah Bertingkat (Cascading AJAX)**: Penyaringan data demografi berdasarkan Dusun, RW, dan RT secara langsung tanpa memuat ulang seluruh halaman.
+- **Toolbar Grafik Responsif & Sejajar**: Beralih antarmuka grafik batang, lingkaran (*pie*), dan garis (*line*) dengan preservasi query filter aktif serta tampilan tombol cetak yang sejajar rapi.
+- **Laporan Cetak Resmi Standar A4**: Fitur cetak terintegrasi yang otomatis menampilkan Kop Surat Pemerintahan Desa, cakupan wilayah terpilih, membuka seluruh baris data rincian, menyembunyikan elemen web, serta menyertakan lembar tanda tangan pengesahan Kepala Desa.
+
 ---
 
 ## 🛠️ Versi Basis Aplikasi
