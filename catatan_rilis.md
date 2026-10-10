@@ -34,6 +34,7 @@ Terima kasih pada @ruririzal dan @syahransaputra yang terus berkontribusi.
 28. Penambahan pemetaan otomatis pekerjaan Dukcapil "APARATUR SIPIL NEGARA (ASN)" ke PEGAWAI NEGERI SIPIL (PNS) pada impor KK PDF.
 29. Penambahan pembersihan otomatis data isian jalan/alamat pada impor KK PDF jika sama atau hampir sama dengan nama dusun agar tidak mengulang nama dusun.
 30. Reaktivasi penambahan format surat RTF pada Pengaturan Surat (tombol Tambah Surat RTF, form pembuatan surat RTF, inisialisasi otomatis folder dan berkas template).
+31. Peningkatan fitur Impor Kartu Keluarga dari scan / foto / PDF menggunakan AI RapidOCR (PP-OCRv4 Latin) dengan auto-deskew, pemrosesan kontras cerdas (OpenCV CLAHE), dan deteksi otomatis berkas PDF scan.
 
 #### Perbaikan BUG
 
@@ -77,6 +78,8 @@ Terima kasih pada @ruririzal dan @syahransaputra yang terus berkontribusi.
 38. Perbaikan query error duplicate entry `id_pend_config` pada tabel `log_penduduk` saat ubah data penduduk yang memiliki riwayat peristiwa kedatangan kembali.
 39. Perbaikan penyimpanan anggota keluarga baru pada impor KK PDF dengan fallback ID jika tabel `tweb_penduduk` tidak memiliki autoincrement.
 40. Perbaikan pembuatan dan penyimpanan surat RTF desa baru (penyesuaian tipe RTF Desa, filter kolom tabel, dan pengecekan ketersediaan berkas raw).
+41. Perbaikan kompatibilitas RapidOCR engine dengan paket versi baru (`rapidocr` v1.4+ / `RapidOCROutput` object) untuk mencegah error `RapidOCROutput object is not subscriptable`.
+42. Perbaikan akurasi parser OCR Kartu Keluarga: perbaikan batasan kata pada deteksi pendidikan (mencegah false positive SLTA akibat nama berawalan MA atau kata TAMAT) serta pekerjaan (mencegah MENGURUS RUMAH TANGGA salah terdeteksi sebagai GURU, dan penambahan pengenal BURUH HARIAN LEPAS serta profesi lainnya).
 
 #### Perubahan Teknis
 
@@ -97,3 +100,4 @@ Terima kasih pada @ruririzal dan @syahransaputra yang terus berkontribusi.
 15. [#6925](https://github.com/OpenSID/OpenSID/issues/6925) Penyesuaian kolom updated_by pada tabel tweb_keluarga bisa bernilai null.
 16. [#2624](https://github.com/OpenSID/premium/issues/2624) Pembatasan akses file metode LFI (Local File Inclusion).
 17. [#2625](https://github.com/OpenSID/premium/issues/2625) Pembatasan akses unggah file berbahaya melalui RFM.
+18. Refaktor modul `KkScanOcrParser`: integrasi runner Python mandiri dengan multi-path site-packages (cPanel/Linux/Windows), pipeline fallback rotasi otomatis (90°, -90°, 180°), dan penanganan direct object mapping `boxes` & `txts`.

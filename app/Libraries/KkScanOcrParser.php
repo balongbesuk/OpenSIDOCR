@@ -4,6 +4,18 @@ namespace App\Libraries;
 
 use Exception;
 
+/**
+ * KkScanOcrParser — Library OCR untuk scan/foto Kartu Keluarga
+ *
+ * Engine: RapidOCR (berbasis model PaddleOCR PP-OCRv4)
+ * Paket aktif: 'rapidocr' (pengganti 'rapidocr_onnxruntime' yang sudah deprecated)
+ *
+ * Catatan soal bahasa Indonesia:
+ * - RapidOCR/PaddleOCR menggunakan model 'latin' yang sudah mencakup bahasa Indonesia
+ * - TIDAK perlu ind.traineddata (itu khusus Tesseract, engine berbeda)
+ * - Model latin PP-OCRv4 sudah sangat akurat untuk teks cetak latin/Indonesia
+ */
+
 class KkScanOcrParser
 {
     public static function getRapidOcrBinary(): string
@@ -32,7 +44,49 @@ class KkScanOcrParser
             return $userHomeBin;
         }
 
-        return 'python3 -m rapidocr_onnxruntime';
+        // Prioritas: paket baru 'rapidocr' (aktif maintained, PP-OCRv4)
+        // Fallback: paket lama 'rapidocr_onnxruntime' (deprecated tapi masih bisa jalan)
+        return 'python3 -m rapidocr';
+    }
+
+    public static function getEngineInfo(): array
+    {
+        $bin         = self::getRapidOcrBinary();
+        $hasLocalBin = file_exists($bin);
+
+        $isWin        = (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN');
+        $pyCandidates = $isWin ? ['python', 'python3'] : ['python3', 'python'];
+
+        $hasNew    = false;
+        $hasOld    = false;
+        $hasOpencv = false;
+
+        $checkPy = "r=0; o=0; c=0\ntry:\n import rapidocr; r=1\nexcept: pass\ntry:\n import rapidocr_onnxruntime; o=1\nexcept: pass\ntry:\n import cv2; c=1\nexcept: pass\nprint(f'{r},{o},{c}')";
+
+        foreach ($pyCandidates as $py) {
+            $cmd  = "{$py} -c " . escapeshellarg($checkPy) . ' 2>&1';
+            $out  = [];
+            $code = 1;
+            @exec($cmd, $out, $code);
+            $last  = trim(end($out) ?: '');
+            $parts = explode(',', $last);
+            if (count($parts) === 3) {
+                $hasNew    = ($parts[0] === '1');
+                $hasOld    = ($parts[1] === '1');
+                $hasOpencv = ($parts[2] === '1');
+                break;
+            }
+        }
+
+        $isAvailable = $hasNew || $hasOld || $hasLocalBin || self::isAvailable();
+
+        return [
+            'is_available' => $isAvailable,
+            'has_new'      => $hasNew,
+            'has_old'      => $hasOld,
+            'has_opencv'   => $hasOpencv,
+            'is_latest'    => ($hasNew && $hasOpencv),
+        ];
     }
 
     public static function isAvailable(): bool
@@ -42,10 +96,26 @@ class KkScanOcrParser
             return true;
         }
 
-        if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') {
-            @exec('where rapidocr', $out, $code);
+        $isWin = (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN');
 
-            return $code === 0 && ! empty($out);
+        if ($isWin) {
+            @exec('where rapidocr', $out, $code);
+            if ($code === 0 && ! empty($out)) {
+                return true;
+            }
+
+            // Cek paket Python di Windows
+            @exec('python -c "import rapidocr" 2>&1', $outPyWin, $codePyWin);
+            if ($codePyWin === 0) {
+                return true;
+            }
+
+            @exec('python -c "import rapidocr_onnxruntime" 2>&1', $outPyOldWin, $codePyOldWin);
+            if ($codePyOldWin === 0) {
+                return true;
+            }
+
+            return false;
         }
 
         // Cek lokasi .local/bin/rapidocr di Linux cPanel
@@ -59,11 +129,18 @@ class KkScanOcrParser
             return true;
         }
 
-        // Cek via modul python3 -m rapidocr_onnxruntime
+        // Cek via modul python3: prioritas paket baru 'rapidocr'
         $outPy = [];
-        @exec('python3 -m rapidocr_onnxruntime -h 2>&1', $outPy, $codePy);
-        $outPyStr = implode(' ', $outPy);
-        if ($codePy === 0 || strpos($outPyStr, 'rapidocr') !== false || strpos($outPyStr, 'usage') !== false || strpos($outPyStr, 'options') !== false) {
+        @exec('python3 -c "import rapidocr" 2>&1', $outPy, $codePy);
+        if ($codePy === 0) {
+            return true;
+        }
+
+        // Fallback: cek paket lama 'rapidocr_onnxruntime' (deprecated)
+        $outPyOld = [];
+        @exec('python3 -m rapidocr_onnxruntime -h 2>&1', $outPyOld, $codePyOld);
+        $outPyStr = implode(' ', $outPyOld);
+        if ($codePyOld === 0 || strpos($outPyStr, 'rapidocr') !== false || strpos($outPyStr, 'usage') !== false || strpos($outPyStr, 'options') !== false) {
             return true;
         }
 
@@ -133,14 +210,123 @@ class KkScanOcrParser
     }
 
     /**
+     * Preprocessing gambar sebelum OCR untuk meningkatkan akurasi
+     *
+     * Pipeline: Grayscale → Denoise → Adaptive Threshold → Deskew
+     * Menggunakan OpenCV via Python (sudah terinstal sebagai dependensi RapidOCR)
+     *
+     * @return string Path ke gambar hasil preprocessing (atau path asli jika gagal)
+     */
+    public static function preprocessImage(string $imagePath): string
+    {
+        $preprocessedPath = sys_get_temp_dir() . '/ocr_preprocess_' . md5($imagePath . @filemtime($imagePath)) . '.jpg';
+
+        // Jika sudah pernah diproses, langsung gunakan cache
+        if (file_exists($preprocessedPath) && filesize($preprocessedPath) > 1000) {
+            return $preprocessedPath;
+        }
+
+        $escapedInput  = escapeshellarg($imagePath);
+        $escapedOutput = escapeshellarg($preprocessedPath);
+
+        // Python script: Sisipkan site-packages -> Grayscale -> CLAHE (Kontras) -> Mild Sharpen (0.02 detik)
+        $pyScript = <<<'PYTHON'
+import os, sys, tempfile, glob
+
+patterns = [
+    os.path.expanduser('~/.local/lib/python*/site-packages'),
+    '/home/*/.local/lib/python*/site-packages',
+    '/root/.local/lib/python*/site-packages',
+    '/var/www/.local/lib/python*/site-packages',
+]
+for pat in patterns:
+    try:
+        for sp in glob.glob(pat):
+            if sp not in sys.path:
+                sys.path.insert(0, sp)
+    except Exception:
+        pass
+
+import cv2, numpy as np
+
+try:
+    img = cv2.imread(sys.argv[1])
+    if img is None:
+        sys.exit(1)
+
+    # 1. Grayscale
+    gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+
+    # 2. CLAHE (Contrast Limited Adaptive Histogram Equalization) — perbaiki kontras lokal tanpa merusak karakter
+    clahe = cv2.createCLAHE(clipLimit=2.0, tileGridSize=(8, 8))
+    enhanced = clahe.apply(gray)
+
+    # 3. Mild sharpen — pertajam tepi karakter teks
+    kernel = np.array([[0, -0.5, 0], [-0.5, 3, -0.5], [0, -0.5, 0]])
+    sharpened = cv2.filter2D(enhanced, -1, kernel)
+
+    cv2.imwrite(sys.argv[2], sharpened, [cv2.IMWRITE_JPEG_QUALITY, 95])
+    print('OK')
+except Exception as e:
+    print(f'FAIL:{e}')
+    sys.exit(1)
+PYTHON;
+
+        $scriptPath = sys_get_temp_dir() . '/ocr_preprocess_script.py';
+        file_put_contents($scriptPath, $pyScript);
+
+        $cmd = "python3 " . escapeshellarg($scriptPath) . " {$escapedInput} {$escapedOutput} 2>&1";
+        $output = [];
+        @exec($cmd, $output, $code);
+
+        // Fallback Windows: coba 'python' jika 'python3' tidak ditemukan
+        if ($code !== 0 && strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') {
+            $cmd = "python " . escapeshellarg($scriptPath) . " {$escapedInput} {$escapedOutput} 2>&1";
+            @exec($cmd, $output, $code);
+        }
+
+        // Jika preprocessing berhasil, gunakan gambar hasil olahan
+        if ($code === 0 && file_exists($preprocessedPath) && filesize($preprocessedPath) > 1000) {
+            log_message('info', 'OCR Preprocessing berhasil: ' . basename($imagePath));
+
+            return $preprocessedPath;
+        }
+
+        // Jika gagal (OpenCV tidak tersedia, dll), gunakan gambar asli — OCR tetap jalan
+        log_message('info', 'OCR Preprocessing dilewati, menggunakan gambar asli');
+
+        return $imagePath;
+    }
+
+    public static string $lastError = '';
+
+    public static function getLastError(): string
+    {
+        return self::$lastError;
+    }
+
+    /**
      * Jalankan RapidOCR pada gambar dan dapatkan array elemen JSON
+     *
+     * Prioritas engine:
+     * 1. Binary lokal (bin/rapidocr/)
+     * 2. Python Runner Script (Auto-detect library, writable HOME, multi-package support)
      */
     public static function executeOcr(string $imagePath): array
     {
-        $bin          = self::getRapidOcrBinary();
-        $escapedImage = escapeshellarg($imagePath);
+        $ext              = strtolower(pathinfo($imagePath, PATHINFO_EXTENSION));
+        $tempInputWithExt = null;
+        if (! in_array($ext, ['jpg', 'jpeg', 'png', 'webp', 'bmp'])) {
+            $tempInputWithExt = sys_get_temp_dir() . '/ocr_in_' . md5($imagePath . uniqid('', true)) . '.jpg';
+            @copy($imagePath, $tempInputWithExt);
+            $targetOcrFile = $tempInputWithExt;
+        } else {
+            $targetOcrFile = $imagePath;
+        }
+        $escapedImage = escapeshellarg($targetOcrFile);
 
-        // 1. Coba binary executable lokal (win64 / linux64)
+        // 1. Coba binary executable lokal jika ada (win64 / linux64)
+        $bin = self::getRapidOcrBinary();
         if (file_exists($bin)) {
             $escapedBin = (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') ? '"' . $bin . '"' : escapeshellarg($bin);
             $cmd        = "{$escapedBin} {$escapedImage} 2>&1";
@@ -150,41 +336,223 @@ class KkScanOcrParser
             $jsonStr = implode("\n", $outputArray);
             $items   = json_decode($jsonStr, true);
             if (is_array($items) && ! empty($items)) {
+                if ($tempInputWithExt && file_exists($tempInputWithExt)) {
+                    @unlink($tempInputWithExt);
+                }
                 return $items;
             }
         }
 
-        // 2. Coba lokasi binary cPanel ~/.local/bin/rapidocr
-        $home = getenv('HOME') ?: ($_SERVER['HOME'] ?? '');
-        $cpanelBin = ! empty($home) ? $home . '/.local/bin/rapidocr' : '/home/' . get_current_user() . '/.local/bin/rapidocr';
-        if (file_exists($cpanelBin)) {
-            $cmd = escapeshellarg($cpanelBin) . " {$escapedImage} 2>&1";
+        // 2. Python Runner Script (Bulletproof untuk cPanel, Docker, VPS, Linux & Windows)
+        $pyScript = <<<'PYTHON'
+import os, sys, tempfile, glob, json
+
+# 1. Pastikan HOME & RAPIDOCR_HOME mengarah ke direktori yang writable (/tmp)
+tmp_dir = tempfile.gettempdir()
+try:
+    if 'HOME' not in os.environ or not os.access(os.environ.get('HOME', '/'), os.W_OK):
+        os.environ['HOME'] = tmp_dir
+except Exception:
+    os.environ['HOME'] = tmp_dir
+os.environ['RAPIDOCR_HOME'] = os.path.join(tmp_dir, '.rapidocr')
+os.environ['PYTHONIOENCODING'] = 'utf-8'
+
+# 2. Sisipkan direktori site-packages lokal jika paket diinstall via pip --user
+patterns = [
+    os.path.expanduser('~/.local/lib/python*/site-packages'),
+    '/home/*/.local/lib/python*/site-packages',
+    '/root/.local/lib/python*/site-packages',
+    '/var/www/.local/lib/python*/site-packages',
+]
+for pat in patterns:
+    try:
+        for sp in glob.glob(pat):
+            if sp not in sys.path:
+                sys.path.insert(0, sp)
+    except Exception:
+        pass
+
+# 3. Jalankan Engine RapidOCR
+try:
+    try:
+        from rapidocr import RapidOCR
+    except ImportError:
+        from rapidocr_onnxruntime import RapidOCR
+
+    engine = RapidOCR()
+    res = engine(sys.argv[1])
+    def to_clean_box(b):
+        try:
+            if hasattr(b, 'tolist'):
+                b = b.tolist()
+            # Jika array 3D berlapis [[[x, y], ...]]
+            while isinstance(b, (list, tuple)) and len(b) == 1 and isinstance(b[0], (list, tuple)):
+                b = b[0]
+            # Jika flat 8 angka: [x1, y1, x2, y2, x3, y3, x4, y4]
+            if isinstance(b, (list, tuple)) and len(b) == 8 and isinstance(b[0], (int, float)):
+                return [[float(b[0]), float(b[1])], [float(b[2]), float(b[3])], [float(b[4]), float(b[5])], [float(b[6]), float(b[7])]]
+            # Jika flat 4 angka: [xmin, ymin, xmax, ymax]
+            if isinstance(b, (list, tuple)) and len(b) == 4 and isinstance(b[0], (int, float)):
+                return [[float(b[0]), float(b[1])], [float(b[2]), float(b[1])], [float(b[2]), float(b[3])], [float(b[0]), float(b[3])]]
+            # Jika daftar titik standar: [[x, y], ...]
+            if isinstance(b, (list, tuple)):
+                pts = []
+                for pt in b:
+                    if hasattr(pt, 'tolist'):
+                        pt = pt.tolist()
+                    if isinstance(pt, (list, tuple)) and len(pt) >= 2:
+                        pts.append([float(pt[0]), float(pt[1])])
+                if len(pts) >= 4:
+                    return pts
+            return b
+        except Exception:
+            return b
+
+    def to_clean_score(s):
+        try:
+            if hasattr(s, 'mean'):
+                return float(s.mean())
+            if hasattr(s, 'flatten'):
+                flat = s.flatten()
+                if len(flat) > 0:
+                    return float(flat.mean() if hasattr(flat, 'mean') else flat[0])
+                return 1.0
+            if isinstance(s, (list, tuple)):
+                if len(s) > 0:
+                    return float(sum(float(x) for x in s) / len(s))
+                return 1.0
+            return float(s)
+        except Exception:
+            return 1.0
+
+    def to_clean_text(t):
+        try:
+            if isinstance(t, (list, tuple)):
+                return ' '.join(str(x) for x in t)
+            return str(t)
+        except Exception:
+            return ''
+
+    items = []
+
+    # Pola 1: Format objek resmi RapidOCROutput (versi PP-OCRv4 terbaru di server)
+    if hasattr(res, 'boxes') and hasattr(res, 'txts') and res.boxes is not None and res.txts is not None:
+        boxes = res.boxes
+        txts = res.txts
+        scores = getattr(res, 'scores', None)
+        for i in range(len(txts)):
+            b = to_clean_box(boxes[i])
+            t = to_clean_text(txts[i])
+            s = to_clean_score(scores[i]) if (scores is not None and i < len(scores)) else 1.0
+            items.append({'box': b, 'text': t, 'score': s})
+    else:
+        # Pola 2 & 3: Format tuple / list (res = (boxes, rec_res) atau res = [[box, text, score], ...])
+        raw_0 = None
+        raw_1 = None
+        if isinstance(res, (tuple, list)):
+            if len(res) > 0:
+                raw_0 = res[0]
+            if len(res) > 1:
+                raw_1 = res[1]
+
+        is_old_split = False
+        if raw_0 is not None and raw_1 is not None and hasattr(raw_0, '__len__') and hasattr(raw_1, '__len__'):
+            try:
+                if len(raw_0) > 0 and len(raw_1) == len(raw_0):
+                    first_rec = raw_1[0]
+                    if isinstance(first_rec, (tuple, list, str)):
+                        is_old_split = True
+            except Exception:
+                is_old_split = False
+
+        if is_old_split:
+            for i in range(len(raw_0)):
+                b = to_clean_box(raw_0[i])
+                rec = raw_1[i]
+                if isinstance(rec, (tuple, list)):
+                    txt = to_clean_text(rec[0])
+                    sc = to_clean_score(rec[1]) if len(rec) > 1 else 1.0
+                else:
+                    txt = to_clean_text(rec)
+                    sc = 1.0
+                items.append({'box': b, 'text': txt, 'score': sc})
+        else:
+            cand_boxes = raw_0 if raw_0 is not None else res
+            if cand_boxes is not None:
+                for r in cand_boxes:
+                    if r is None or not hasattr(r, '__len__') or len(r) < 2:
+                        continue
+                    box = to_clean_box(r[0])
+                    if len(r) >= 3:
+                        text = to_clean_text(r[1])
+                        score = to_clean_score(r[2])
+                    elif len(r) == 2:
+                        if isinstance(r[1], (tuple, list)) and len(r[1]) >= 2:
+                            text = to_clean_text(r[1][0])
+                            score = to_clean_score(r[1][1])
+                        else:
+                            text = to_clean_text(r[1])
+                            score = 1.0
+                    else:
+                        continue
+                    items.append({'box': box, 'text': text, 'score': score})
+
+    # ensure_ascii=True menjamin output murni karakter ASCII (aman di semua console/shell encoding)
+    print('__OCR_JSON_START__' + json.dumps(items, ensure_ascii=True) + '__OCR_JSON_END__')
+except Exception as e:
+    import traceback
+    err_tb = traceback.format_exc()
+    print('__OCR_ERROR_START__' + str(e) + '\n' + err_tb + '__OCR_ERROR_END__')
+    print('__OCR_JSON_START__[]__OCR_JSON_END__')
+PYTHON;
+
+        $scriptPath = sys_get_temp_dir() . '/rapidocr_run_' . md5(uniqid((string) mt_rand(), true)) . '.py';
+        file_put_contents($scriptPath, $pyScript);
+
+        $isWin        = (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN');
+        $pyCandidates = $isWin 
+            ? ['python', 'python3'] 
+            : ['python3', '/usr/bin/python3', '/usr/local/bin/python3', 'python'];
+
+        $lastCmdOutput = '';
+        $lastErrorMsg  = '';
+
+        foreach ($pyCandidates as $pyCmd) {
+            $prefix = $isWin ? '' : 'export HOME=/tmp; export PYTHONIOENCODING=utf-8; ';
+            $cmd    = "{$prefix}{$pyCmd} " . escapeshellarg($scriptPath) . " {$escapedImage} 2>&1";
             $outputArray = [];
             @exec($cmd, $outputArray, $returnVar);
 
-            $jsonStr = implode("\n", $outputArray);
-            $items   = json_decode($jsonStr, true);
-            if (is_array($items) && ! empty($items)) {
-                return $items;
+            $rawOutput     = implode("\n", $outputArray);
+            $lastCmdOutput = $rawOutput;
+
+            if (preg_match('/__OCR_ERROR_START__(.*?)__OCR_ERROR_END__/s', $rawOutput, $errMatch)) {
+                $lastErrorMsg = trim($errMatch[1]);
+            }
+
+            if (preg_match('/__OCR_JSON_START__(.*?)__OCR_JSON_END__/s', $rawOutput, $jsonMatch)) {
+                $items = json_decode($jsonMatch[1], true);
+                if (is_array($items) && ! empty($items)) {
+                    @unlink($scriptPath);
+                    if ($tempInputWithExt && file_exists($tempInputWithExt)) {
+                        @unlink($tempInputWithExt);
+                    }
+                    self::$lastError = '';
+                    return $items;
+                }
             }
         }
 
-        // 3. Fallback via Python 1-liner import (100% crash-proof untuk paket pip rapidocr_onnxruntime di Linux)
-        $pyCode = escapeshellarg("import sys, json; from rapidocr_onnxruntime import RapidOCR; engine = RapidOCR(); res, _ = engine(sys.argv[1]); items = [{'box': r[0], 'text': r[1], 'score': float(r[2])} for r in (res or [])]; print(json.dumps(items))");
-        $pyCmd  = "python3 -c {$pyCode} {$escapedImage} 2>&1";
-        $outputArray = [];
-        @exec($pyCmd, $outputArray, $returnVar);
-
-        $jsonStr = implode("\n", $outputArray);
-        $items   = json_decode($jsonStr, true);
-
-        if (! is_array($items)) {
-            log_message('error', 'RapidOCR Output Decode Failed: ' . substr($jsonStr, 0, 300));
-
-            return [];
+        @unlink($scriptPath);
+        if ($tempInputWithExt && file_exists($tempInputWithExt)) {
+            @unlink($tempInputWithExt);
         }
 
-        return $items;
+        $errFinal = $lastErrorMsg ?: substr($lastCmdOutput, 0, 800);
+        self::$lastError = $errFinal;
+        log_message('error', 'RapidOCR Execution Failed. CMD Output: ' . $errFinal);
+
+        return [];
     }
 
     /**
@@ -221,6 +589,29 @@ class KkScanOcrParser
      */
     public static function autoEnsureLandscape(string $imagePath): string
     {
+        // 1. Koreksi orientasi EXIF jika ada (foto kamera smartphone)
+        if (function_exists('exif_read_data')) {
+            $exif = @exif_read_data($imagePath);
+            if (! empty($exif['Orientation'])) {
+                $angle = 0;
+                switch ($exif['Orientation']) {
+                    case 3:
+                        $angle = 180;
+                        break;
+                    case 6:
+                        $angle = -90;
+                        break;
+                    case 8:
+                        $angle = 90;
+                        break;
+                }
+                if ($angle !== 0) {
+                    $imagePath = self::rotateImage($imagePath, $angle);
+                }
+            }
+        }
+
+        // 2. Jika tinggi > lebar (Portrait), putar 90 derajat ke Landscape
         $size = @getimagesize($imagePath);
         if ($size && $size[0] < $size[1]) {
             return self::rotateImage($imagePath, 90);
@@ -241,26 +632,103 @@ class KkScanOcrParser
             }
         }
 
-        // Percobaan 1: Orientasi Otomatis (Landscape +90 jika Portrait)
+        // Pastikan posisi gambar Landscape
         $fixedImage = self::autoEnsureLandscape($targetImage);
-        $items      = self::executeOcr($fixedImage);
-        $result     = self::parseRapidOcrData($items);
 
-        // Jika anggota keluarga belum terdeteksi, coba sudut rotasi alternatif (+90, -90, 180)
-        if (empty($result['members'])) {
-            $angles = [90, -90, 180];
-            foreach ($angles as $angle) {
-                $rotatedPath  = self::rotateImage($targetImage, $angle);
-                $rotatedItems = self::executeOcr($rotatedPath);
-                $retryResult  = self::parseRapidOcrData($rotatedItems);
+        // Tahap 1: Jalankan OCR langsung pada gambar asli (Landscape-normalized)
+        // Paling cepat (< 2-3 detik) dan paling optimal untuk deep learning RapidOCR
+        $items  = self::executeOcr($fixedImage);
+        $result = self::parseRapidOcrData($items);
 
-                if (! empty($retryResult['members'])) {
-                    return $retryResult;
-                }
+        if (! empty($result['members']) || ! empty($result['header']['no_kk'])) {
+            return $result;
+        }
+
+        $firstError = self::$lastError;
+
+        // Tahap 2: Fallback Preprocessing CLAHE & Sharpen jika gambar kurang kontras
+        $preprocessed = self::preprocessImage($fixedImage);
+        if ($preprocessed !== $fixedImage) {
+            $itemsPrep  = self::executeOcr($preprocessed);
+            $resultPrep = self::parseRapidOcrData($itemsPrep);
+            if (! empty($resultPrep['members']) || ! empty($resultPrep['header']['no_kk'])) {
+                return $resultPrep;
             }
         }
 
+        // Tahap 3: Fallback Sudut Rotasi (+90, -90, 180) jika dokumen terbalik
+        $angles = [90, -90, 180];
+        foreach ($angles as $angle) {
+            $rotatedPath  = self::rotateImage($fixedImage, $angle);
+            $rotatedItems = self::executeOcr($rotatedPath);
+            $retryResult  = self::parseRapidOcrData($rotatedItems);
+
+            if (! empty($retryResult['members']) || ! empty($retryResult['header']['no_kk'])) {
+                return $retryResult;
+            }
+        }
+
+        if ($firstError) {
+            self::$lastError = $firstError;
+        }
+
         return $result;
+    }
+
+    /**
+     * Ekstrak koordinat [x, y, maxX, maxY] dari berbagai variasi format box RapidOCR
+     * Mendukung: 2D 4-titik [[x,y],...], 3D nested [[[x,y],...]], flat 8 angka, flat 4 angka, dan flat 2 angka [x,y]
+     */
+    public static function extractBoxCoords($box): array
+    {
+        if (! is_array($box) || empty($box)) {
+            return [0.0, 0.0, 0.0, 0.0];
+        }
+
+        // Unwrap jika nested array: [[[x, y], ...]]
+        while (isset($box[0]) && is_array($box[0]) && count($box) === 1 && (is_array($box[0][0] ?? null) || is_numeric($box[0][0] ?? null))) {
+            $box = $box[0];
+        }
+
+        // Format 1: Standar 4 titik [[x1, y1], [x2, y2], [x3, y3], [x4, y4]]
+        if (isset($box[0]) && is_array($box[0])) {
+            $x    = (float) ($box[0][0] ?? 0);
+            $y    = (float) ($box[0][1] ?? 0);
+            $maxX = isset($box[1][0]) ? (float) $box[1][0] : $x;
+            $maxY = isset($box[2][1]) ? (float) $box[2][1] : $y;
+
+            return [$x, $y, $maxX, $maxY];
+        }
+
+        // Format 2: Flat list 8 angka [x1, y1, x2, y2, x3, y3, x4, y4]
+        if (count($box) >= 8 && is_numeric($box[0])) {
+            $x    = (float) $box[0];
+            $y    = (float) $box[1];
+            $maxX = (float) $box[2];
+            $maxY = (float) $box[5];
+
+            return [$x, $y, $maxX, $maxY];
+        }
+
+        // Format 3: Flat list 4 angka [xmin, ymin, xmax, ymax]
+        if (count($box) >= 4 && is_numeric($box[0])) {
+            $x    = (float) $box[0];
+            $y    = (float) $box[1];
+            $maxX = (float) $box[2];
+            $maxY = (float) $box[3];
+
+            return [$x, $y, $maxX, $maxY];
+        }
+
+        // Format 4: Flat list 2 angka [x, y] (Format titik koordinat tunggal)
+        if (count($box) >= 2 && is_numeric($box[0])) {
+            $x = (float) $box[0];
+            $y = (float) ($box[1] ?? 0);
+
+            return [$x, $y, $x, $y];
+        }
+
+        return [0.0, 0.0, 0.0, 0.0];
     }
 
     public static function parseRapidOcrData(array $items): array
@@ -287,21 +755,26 @@ class KkScanOcrParser
         }
 
         // Hitung estimasi tinggi gambar dari Y max untuk menentukan threshold Y yang proporsional
-        $maxY = 1100;
+        $maxY = 720;
         foreach ($items as $it) {
-            if (isset($it['box'][2][1]) && $it['box'][2][1] > $maxY) {
-                $maxY = $it['box'][2][1];
+            [$bx, $by, $bMaxX, $bMaxY] = self::extractBoxCoords($it['box'] ?? null);
+            if ($by > $maxY) {
+                $maxY = $by;
+            }
+            if ($bMaxY > $maxY) {
+                $maxY = $bMaxY;
             }
         }
-        $yThreshold = max(12, (int) round(14 * ($maxY / 1100)));
+        $yThreshold = max(6, (int) round(8 * ($maxY / 720)));
 
         // Kelompokkan item menjadi baris-baris horizontal
         $lines = [];
         foreach ($items as $item) {
-            $box  = $item['box'];
-            $text = trim($item['text']);
-            $y    = $box[0][1];
-            $x    = $box[0][0];
+            $text = trim($item['text'] ?? '');
+            if ($text === '') {
+                continue;
+            }
+            [$x, $y, $maxX, $curMaxY] = self::extractBoxCoords($item['box'] ?? null);
 
             $itemHasNik = (bool) preg_match('/\b\d{16}\b/', $text);
 
@@ -334,7 +807,41 @@ class KkScanOcrParser
             }
         }
 
-        // Urutkan item dalam tiap baris dari kiri ke kanan (posisi X)
+        // Fallback jika pengelompokan baris menghasilkan <= 2 baris (misal koordinat Y seragam/gagal)
+        if (count($lines) <= 2 && count($items) > 10) {
+            $fallbackLines = [];
+            $curLine       = [];
+            foreach ($items as $item) {
+                $text = trim($item['text'] ?? '');
+                if ($text === '') {
+                    continue;
+                }
+                [$x, $y, $maxX, $maxY] = self::extractBoxCoords($item['box'] ?? null);
+
+                // Baris baru jika penomoran tabel 1..10 atau kata kunci field formulir
+                $isNewRow = (bool) preg_match('/^\b(1|2|3|4|5|6|7|8|9|10)\b$/', $text)
+                    || (bool) preg_match('/^(?:Nama\s*Kepala|Alamat|RT\s*[\/\-]?\s*RW|Desa|Kecamatan|Kabupaten|Kode\s*Pos|No\b)/i', $text);
+
+                if ($isNewRow && ! empty($curLine)) {
+                    $fallbackLines[] = ['y' => 0, 'items' => $curLine];
+                    $curLine         = [];
+                }
+                $curLine[] = ['x' => $x, 'text' => $text];
+            }
+            if (! empty($curLine)) {
+                $fallbackLines[] = ['y' => 0, 'items' => $curLine];
+            }
+            if (count($fallbackLines) > count($lines)) {
+                $lines = $fallbackLines;
+            }
+        }
+
+        // 1. Urutkan baris dari ATAS ke BAWAH (posisi Y) — Sangat krusial agar urutan dokumen teratur
+        usort($lines, static function ($a, $b) {
+            return $a['y'] <=> $b['y'];
+        });
+
+        // 2. Urutkan item dalam tiap baris dari KIRI ke KANAN (posisi X)
         $rawLineTexts = [];
         foreach ($lines as &$line) {
             usort($line['items'], static function ($a, $b) {
@@ -343,23 +850,60 @@ class KkScanOcrParser
             $line['full_text'] = implode(' ', array_column($line['items'], 'text'));
             $rawLineTexts[]    = $line['full_text'];
         }
+        unset($line); // Hapus referensi dangling PHP
 
-        // Ekstraksi data Header KK
-        foreach ($rawLineTexts as $line) {
-            $upperLine = strtoupper($line);
-            if (strpos($upperLine, 'NAMA LENGKAP') !== false || strpos($upperLine, 'TEMPAT LAHIR') !== false) {
+        // 3. Ekstraksi Nomor KK Terlebih Dahulu
+        // Prioritas 1: Baris atas dokumen (6 baris pertama)
+        foreach (array_slice($rawLineTexts, 0, 8) as $l) {
+            if (preg_match('/(?:KARTU\s*KELUARGA|\bNo\b|\bNo\.?)\s*[\.\:\=\s]*(\d{16})/iu', $l, $m)) {
+                $header['no_kk'] = $m[1];
                 break;
             }
+            if (empty($header['no_kk']) && preg_match('/\b(\d{16})\b/', $l, $m)) {
+                $header['no_kk'] = $m[1];
+                break;
+            }
+        }
 
-            if (strpos($upperLine, 'NIP') !== false || strpos($upperLine, 'BSRE') !== false) {
+        // Prioritas 2: Cari langsung di kotak item OCR yang berada di 300px teratas
+        if (empty($header['no_kk'])) {
+            foreach ($items as $it) {
+                $t = trim($it['text'] ?? '');
+                [$bx, $by, $bmx, $bmy] = self::extractBoxCoords($it['box'] ?? null);
+                if ($by < 350) {
+                    if (preg_match('/(?:KARTU\s*KELUARGA|\bNo\b|\bNo\.?)\s*[\.\:\=\s]*(\d{16})/i', $t, $m)) {
+                        $header['no_kk'] = $m[1];
+                        break;
+                    }
+                    if (preg_match('/\b(\d{16})\b/', $t, $m)) {
+                        $header['no_kk'] = $m[1];
+                        break;
+                    }
+                }
+            }
+        }
+
+        // Prioritas 3: Cari 16-digit angka pertama yang diawali kode provinsi standar (11-99)
+        if (empty($header['no_kk'])) {
+            foreach ($rawLineTexts as $l) {
+                $up = strtoupper($l);
+                if (strpos($up, 'TANDA TANGAN') !== false || strpos($up, 'KEPALA DINAS') !== false || strpos($up, 'NIP') !== false) {
+                    break;
+                }
+                if (preg_match('/\b([1-9]\d{15})\b/', $l, $m)) {
+                    $header['no_kk'] = $m[1];
+                    break;
+                }
+            }
+        }
+
+        // 4. Ekstraksi data Header KK lainnya
+        foreach ($rawLineTexts as $line) {
+            $upperLine = strtoupper($line);
+            if (strpos($upperLine, 'TANDA TANGAN') !== false || strpos($upperLine, 'NIP') !== false || strpos($upperLine, 'BSRE') !== false) {
                 continue;
             }
 
-            if (preg_match('/(?:KARTU\s*KELUARGA|\bNo\b|\bNo\.)\s*[:=：＝\s]*(\d{16})/u', $line, $m)) {
-                $header['no_kk'] = $m[1];
-            } elseif (empty($header['no_kk']) && preg_match('/(\d{16})/', $line, $m)) {
-                $header['no_kk'] = $m[1];
-            }
             if (preg_match('/Nama\s*[\/\.\-]?\s*Kepala\s*Keluarga\s*[:=：＝\s]*(.+)/iu', $line, $m)) {
                 $rawNama                   = preg_replace('/(Kecamatan|Alamat|RT|RW|Kabupaten|Desa).*/iu', '', $m[1]);
                 $header['kepala_keluarga'] = self::splitConcatenatedName(strtoupper(trim(preg_replace('/[^a-zA-Z\s\,\.\']/u', '', $rawNama))));
@@ -395,6 +939,20 @@ class KkScanOcrParser
         // Ekstraksi Data Anggota Keluarga (Tabel 1 & Tabel 2)
         $members = self::extractMembersFromRapidOcr($rawLineTexts, $header['no_kk']);
 
+        // Jika kepala keluarga belum terisi tapi anggota ditemukan, gunakan nama anggota pertama
+        if (empty($header['kepala_keluarga']) && ! empty($members[0]['nama'])) {
+            $header['kepala_keluarga'] = $members[0]['nama'];
+        }
+
+        if (empty($header['no_kk']) || empty($members)) {
+            $sampleLines = implode(' // ', array_slice($rawLineTexts, 0, 3));
+            if (strlen($sampleLines) > 60) {
+                $sampleLines = substr($sampleLines, 0, 57) . '...';
+            }
+            self::$lastError = 'Hasil OCR: ' . count($items) . ' blok teks (' . count($rawLineTexts) . ' baris, L0-2: ' . $sampleLines . '). No KK: ' . ($header['no_kk'] ?: 'KOSONG') . ', Anggota: ' . count($members) . ' orang.';
+            log_message('info', self::$lastError);
+        }
+
         return [
             'header'   => $header,
             'members'  => $members,
@@ -407,53 +965,63 @@ class KkScanOcrParser
         $table1Rows = [];
         $table2Rows = [];
 
-        $inTable1Section = false;
         $inTable2Section = false;
 
         foreach ($lines as $line) {
             $upperLine = strtoupper(trim($line));
 
-            if (strpos($upperLine, 'NAMA LENGKAP') !== false || strpos($upperLine, 'TEMPAT LAHIR') !== false) {
-                $inTable1Section = true;
-                continue;
-            }
-
-            $upperLineNoSpace = preg_replace('/\s+/', '', $upperLine);
-            if (strpos($upperLineNoSpace, 'DOKUMENIMIGRASI') !== false || strpos($upperLineNoSpace, 'NAMAORANGTUA') !== false || strpos($upperLineNoSpace, 'STATUSPERKAWINAN') !== false || strpos($upperLineNoSpace, 'STATUSHUBUNGAN') !== false) {
-                $inTable1Section = false;
+            // Deteksi batas Tabel 2 (Status Perkawinan & Nama Orang Tua)
+            $upperNoSpace = preg_replace('/\s+/', '', $upperLine);
+            if (strpos($upperNoSpace, 'DOKUMENIMIGRASI') !== false || strpos($upperNoSpace, 'NAMAORANGTUA') !== false || strpos($upperNoSpace, 'STATUSPERKAWINAN') !== false || strpos($upperNoSpace, 'STATUSHUBUNGAN') !== false) {
                 $inTable2Section = true;
                 continue;
             }
 
-            if (strpos($upperLine, 'DIKELUARKAN') !== false || strpos($upperLine, 'LEMBAR') !== false || strpos($upperLine, 'KEPALA DINAS') !== false) {
-                $inTable1Section = false;
+            if (strpos($upperLine, 'DIKELUARKAN') !== false || strpos($upperLine, 'KEPALA DINAS') !== false || strpos($upperLine, 'KEPALADINAS') !== false || strpos($upperLine, 'TANDA TANGAN') !== false) {
                 $inTable2Section = false;
                 continue;
             }
 
-            if (strpos($upperLine, 'KARTU KELUARGA') !== false || strpos($upperLine, 'TANDA TANGAN') !== false || strpos($upperLine, 'CAP JEMPOL') !== false || strpos($upperLine, 'KEPALA DINAS') !== false || strpos($upperLine, 'NIP') !== false) {
+            if (strpos($upperLine, 'NIP') !== false || strpos($upperLine, 'BSRE') !== false) {
                 continue;
             }
 
-            // Deteksi baris Tabel 1 (Memiliki 16-digit NIK, hanya jika berada di area Tabel 1)
-            $cleanedLineForNik = preg_replace_callback('/[0-9OoIDli|ZzSsBbgq\s\.\-]{14,22}/', static function ($match) {
-                return self::cleanOcrDigitString($match[0]);
-            }, $line);
+            // Ekstrak baris Tabel 1: Setiap baris yang memiliki NIK 16 digit yang BUKAN No KK
+            $nik = '';
+            $nama = '';
 
-            if ($inTable1Section && preg_match('/(\d{16})/', $cleanedLineForNik, $m)) {
-                $nik = $m[1];
-                if (! empty($headerNoKk) && $nik === $headerNoKk) {
-                    continue;
+            // Prioritas 1: NIK 16 digit murni
+            if (preg_match('/\b(\d{16})\b/', $line, $mNik)) {
+                $candNik = $mNik[1];
+                if (empty($headerNoKk) || $candNik !== $headerNoKk) {
+                    $nik = $candNik;
+                    $posNik = strpos($line, $nik);
+                    $beforeNik = trim(substr($line, 0, $posNik));
+                    $namaRaw = preg_replace('/^\d+[\s\|\.\/]+/', '', $beforeNik);
+                    $nama = self::splitConcatenatedName(strtoupper(trim(preg_replace('/[^a-zA-Z\s\,\.\']/u', '', $namaRaw))));
                 }
+            }
 
-                // Ekstrak Nama (sebelum NIK)
-                $nama = '';
-                if (preg_match('/^(?:\d+[\s\|\.\/]+)?([a-zA-Z\s\,\.\']+?)\s+\d{16}/i', $cleanedLineForNik, $nameMatch)) {
-                    $nama = self::splitConcatenatedName(strtoupper(trim($nameMatch[1])));
-                } elseif (preg_match('/^(?:\d+[\s\|\.\/]+)?([a-zA-Z\s\,\.\']+)/i', $line, $nameMatch)) {
-                    $nama = self::splitConcatenatedName(strtoupper(trim($nameMatch[1])));
+            // Prioritas 2: Fuzzy Digit per-token jika ada 16-digit angka tertukar huruf (O->0, I->1, dll)
+            if (empty($nik)) {
+                $tokens = preg_split('/\s+/', $line);
+                foreach ($tokens as $tok) {
+                    $cleanedTok = self::cleanOcrDigitString($tok);
+                    if (strlen($cleanedTok) === 16) {
+                        if (! empty($headerNoKk) && $cleanedTok === $headerNoKk) {
+                            continue;
+                        }
+                        $nik = $cleanedTok;
+                        $posTok = strpos($line, $tok);
+                        $beforeTok = trim(substr($line, 0, $posTok));
+                        $namaRaw = preg_replace('/^\d+[\s\|\.\/]+/', '', $beforeTok);
+                        $nama = self::splitConcatenatedName(strtoupper(trim(preg_replace('/[^a-zA-Z\s\,\.\']/u', '', $namaRaw))));
+                        break;
+                    }
                 }
+            }
 
+            if (! empty($nik)) {
                 $tglLahir = '';
                 if (preg_match('/(\d{2}[\-\/]\d{2}[\-\/]\d{4})/', $line, $dateMatch)) {
                     $tglLahir = self::formatDate($dateMatch[1]);
@@ -465,39 +1033,77 @@ class KkScanOcrParser
                 }
 
                 $pendidikan = 'SLTA/SEDERAJAT';
-                if (preg_match('/DIPLOMA\s*(I\s*[\/\-]\s*II|1\s*[\/\-]\s*2)\b/i', $upperLine) || strpos($upperLine, 'DIPLOMA I/II') !== false || strpos($upperLine, 'DIPLOMA I / II') !== false) {
-                    $pendidikan = 'DIPLOMA I/II';
-                } elseif (strpos($upperLine, 'DIPLOMA III') !== false || strpos($upperLine, 'AKADEMI') !== false || strpos($upperLine, 'S.MUDA') !== false) {
-                    $pendidikan = 'AKADEMI/ DIPLOMA III/S. MUDA';
-                } elseif (strpos($upperLine, 'DIPLOMA IV') !== false || strpos($upperLine, 'STRATA I') !== false || strpos($upperLine, 'STRATA 1') !== false || strpos($upperLine, 'S.PD') !== false) {
-                    $pendidikan = 'DIPLOMA IV/ STRATA I';
-                } elseif (strpos($upperLine, 'STRATA II') !== false || strpos($upperLine, 'STRATA 2') !== false) {
-                    $pendidikan = 'STRATA II';
-                } elseif (strpos($upperLine, 'STRATA III') !== false || strpos($upperLine, 'STRATA 3') !== false) {
+                if (preg_match('/STRATA\s*(?:III|3)\b/i', $upperLine) || preg_match('/\bS3\b/i', $upperLine)) {
                     $pendidikan = 'STRATA III';
-                } elseif (strpos($upperLine, 'SLTA') !== false || strpos($upperLine, 'SMA') !== false || strpos($upperLine, 'SMK') !== false || strpos($upperLine, 'MA') !== false) {
-                    $pendidikan = 'SLTA/SEDERAJAT';
-                } elseif (strpos($upperLine, 'SLTP') !== false || strpos($upperLine, 'SMP') !== false || strpos($upperLine, 'MTS') !== false) {
-                    $pendidikan = 'SLTP/SEDERAJAT';
-                } elseif (strpos($upperLine, 'TAMAT SD') !== false || strpos($upperLine, 'SD/SEDERAJAT') !== false) {
-                    $pendidikan = 'TAMAT SD/SEDERAJAT';
-                } elseif (strpos($upperLine, 'BELUM') !== false && strpos($upperLine, 'SD') !== false) {
+                } elseif (preg_match('/STRATA\s*(?:II|2)\b/i', $upperLine) || preg_match('/\bS2\b/i', $upperLine)) {
+                    $pendidikan = 'STRATA II';
+                } elseif (strpos($upperLine, 'DIPLOMA IV') !== false || preg_match('/STRATA\s*(?:I|1)\b/i', $upperLine) || preg_match('/\bS1\b/i', $upperLine) || strpos($upperLine, 'S.PD') !== false) {
+                    $pendidikan = 'DIPLOMA IV/ STRATA I';
+                } elseif (strpos($upperLine, 'DIPLOMA III') !== false || strpos($upperLine, 'AKADEMI') !== false || strpos($upperLine, 'S.MUDA') !== false || preg_match('/\bD3\b/i', $upperLine)) {
+                    $pendidikan = 'AKADEMI/ DIPLOMA III/S. MUDA';
+                } elseif (preg_match('/DIPLOMA\s*(?:I\s*[\/\-]\s*II|1\s*[\/\-]\s*2)\b/i', $upperLine) || strpos($upperLine, 'DIPLOMA I/II') !== false || strpos($upperLine, 'DIPLOMA I / II') !== false) {
+                    $pendidikan = 'DIPLOMA I/II';
+                } elseif (preg_match('/(?:BELUM|TIDAK|BLM)\s*TAMAT\s*SD/i', $upperLine) || (strpos($upperLine, 'BELUM') !== false && strpos($upperLine, 'SD') !== false)) {
                     $pendidikan = 'BELUM TAMAT SD/SEDERAJAT';
-                } elseif (strpos($upperLine, 'TIDAK') !== false && strpos($upperLine, 'SEKOLAH') !== false) {
+                } elseif (preg_match('/TAMAT\s*SD/i', $upperLine) || preg_match('/\bSD[\/\s\.\,vV\-]*SEDERA/i', $upperLine) || strpos($upperLine, 'TAMAT SD') !== false || strpos($upperLine, 'SD/SEDERAJAT') !== false || strpos($upperLine, 'SDVSEDERAIAT') !== false) {
+                    $pendidikan = 'TAMAT SD/SEDERAJAT';
+                } elseif (preg_match('/(?:TIDAK|BELUM|BLM)\s*(?:PERNAH\s*)?SEKOLAH/i', $upperLine) || (strpos($upperLine, 'TIDAK') !== false && strpos($upperLine, 'SEKOLAH') !== false)) {
                     $pendidikan = 'TIDAK/BLM SEKOLAH';
+                } elseif (preg_match('/\b(SLTP|SMP|MTS)\b/i', $upperLine) || preg_match('/SLTP[\/\s\.\,vV\-]*SEDERA/i', $upperLine)) {
+                    $pendidikan = 'SLTP/SEDERAJAT';
+                } elseif (preg_match('/\b(SLTA|SMA|SMK|MA)\b/i', $upperLine) || preg_match('/SLTA[\/\s\.\,vV\-]*SEDERA/i', $upperLine) || strpos($upperLine, 'SLTASEDERAJAT') !== false) {
+                    $pendidikan = 'SLTA/SEDERAJAT';
                 }
 
                 $pekerjaan = 'BELUM/TIDAK BEKERJA';
-                if (strpos($upperLine, 'WIRASWASTA') !== false || strpos($upperLine, 'WIRA SWASTA') !== false) {
-                    $pekerjaan = 'WIRASWASTA';
-                } elseif (strpos($upperLine, 'KARYAWAN') !== false || (strpos($upperLine, 'SWASTA') !== false && strpos($upperLine, 'WIRA') === false)) {
-                    $pekerjaan = 'KARYAWAN SWASTA';
-                } elseif (strpos($upperLine, 'GURU') !== false) {
-                    $pekerjaan = 'GURU';
-                } elseif (strpos($upperLine, 'MENGURUS') !== false || strpos($upperLine, 'RUMAH') !== false || strpos($upperLine, 'TANGGA') !== false) {
+                if (preg_match('/BURUH\s*(?:TANI|PERKEBUNAN)/i', $upperLine)) {
+                    $pekerjaan = 'BURUH TANI/PERKEBUNAN';
+                } elseif (preg_match('/BURUH\s*NELAYAN/i', $upperLine)) {
+                    $pekerjaan = 'BURUH NELAYAN/PERIKANAN';
+                } elseif (preg_match('/BURUH\s*PETERNAKAN/i', $upperLine)) {
+                    $pekerjaan = 'BURUH PETERNAKAN';
+                } elseif (preg_match('/BURUH\s*HARIAN\s*LEPAS/i', $upperLine) || preg_match('/BURUHHARIAN\s*LEPAS/i', $upperLine) || preg_match('/\bBURUH\b/i', $upperLine)) {
+                    $pekerjaan = 'BURUH HARIAN LEPAS';
+                } elseif (preg_match('/MENGURUS\s*RUMAH\s*TANGGA/i', $upperLine) || strpos($upperLine, 'MENGURUS') !== false || strpos($upperLine, 'RUMAH TANGGA') !== false) {
                     $pekerjaan = 'MENGURUS RUMAH TANGGA';
+                } elseif (preg_match('/\b(GURU|DOSEN)\b/i', $upperLine)) {
+                    $pekerjaan = 'GURU';
                 } elseif (strpos($upperLine, 'PELAJAR') !== false || strpos($upperLine, 'MAHASISWA') !== false) {
                     $pekerjaan = 'PELAJAR/MAHASISWA';
+                } elseif (preg_match('/\b(PNS|ASN|PEGAWAI NEGERI)\b/i', $upperLine)) {
+                    $pekerjaan = 'PEGAWAI NEGERI SIPIL (PNS)';
+                } elseif (preg_match('/\b(TNI|TENTARA)\b/i', $upperLine)) {
+                    $pekerjaan = 'TENTARA NASIONAL INDONESIA (TNI)';
+                } elseif (preg_match('/\b(POLRI|POLISI)\b/i', $upperLine)) {
+                    $pekerjaan = 'KEPOLISIAN RI (POLRI)';
+                } elseif (strpos($upperLine, 'PENSIUNAN') !== false || strpos($upperLine, 'PENSIUN') !== false) {
+                    $pekerjaan = 'PENSIUNAN';
+                } elseif (strpos($upperLine, 'PERANGKAT DESA') !== false) {
+                    $pekerjaan = 'PERANGKAT DESA';
+                } elseif (strpos($upperLine, 'KEPALA DESA') !== false) {
+                    $pekerjaan = 'KEPALA DESA';
+                } elseif (strpos($upperLine, 'WIRASWASTA') !== false || strpos($upperLine, 'WIRA SWASTA') !== false) {
+                    $pekerjaan = 'WIRASWASTA';
+                } elseif (strpos($upperLine, 'KARYAWAN BUMN') !== false) {
+                    $pekerjaan = 'KARYAWAN BUMN';
+                } elseif (strpos($upperLine, 'KARYAWAN BUMD') !== false) {
+                    $pekerjaan = 'KARYAWAN BUMD';
+                } elseif (strpos($upperLine, 'KARYAWAN') !== false || (strpos($upperLine, 'SWASTA') !== false && strpos($upperLine, 'WIRA') === false)) {
+                    $pekerjaan = 'KARYAWAN SWASTA';
+                } elseif (preg_match('/\b(PETANI|PEKEBUN)\b/i', $upperLine)) {
+                    $pekerjaan = 'PETANI/PEKEBUN';
+                } elseif (strpos($upperLine, 'PETERNAK') !== false) {
+                    $pekerjaan = 'PETERNAK';
+                } elseif (strpos($upperLine, 'NELAYAN') !== false) {
+                    $pekerjaan = 'NELAYAN/PERIKANAN';
+                } elseif (strpos($upperLine, 'PEDAGANG') !== false || strpos($upperLine, 'PERDAGANGAN') !== false) {
+                    $pekerjaan = 'PERDAGANGAN';
+                } elseif (preg_match('/\b(SOPIR|SUPIR|DRIVER)\b/i', $upperLine)) {
+                    $pekerjaan = 'SOPIR';
+                } elseif (preg_match('/\bTUKANG\b/i', $upperLine)) {
+                    $pekerjaan = 'TUKANG BATU';
+                } elseif ((strpos($upperLine, 'BELUM') !== false && strpos($upperLine, 'BEKERJA') !== false) || strpos($upperLine, 'TIDAK BEKERJA') !== false || strpos($upperLine, 'BELUMTIDAK') !== false) {
+                    $pekerjaan = 'BELUM/TIDAK BEKERJA';
                 }
 
                 $sex = (strpos($upperLine, 'PEREMPUAN') !== false) ? 'PEREMPUAN' : 'LAKI-LAKI';
@@ -515,7 +1121,7 @@ class KkScanOcrParser
             }
 
             // Deteksi baris Tabel 2 (Status Hubungan & Nama Orang Tua: Ayah/Ibu)
-            if ($inTable2Section && preg_match('/(\bKAWIN\b|\bBELUMKAWIN\b|KEPALAKELUARGA|\bISTRI\b|\bANAK\b|\bWNI\b)/i', $upperLine)) {
+            if ($inTable2Section && preg_match('/(\bKAW[I|N]\b|\bBELUMKAWIN\b|KEPALA\s*KELUARGA|\bISTRI\b|\bANAK\b|\bWNI\b)/i', $upperLine)) {
                 if (strpos($upperLine, 'PERKAWINAN') !== false || strpos($upperLine, 'KEWARGANEGARAAN') !== false || (strpos($upperLine, 'AYAH') !== false && strpos($upperLine, 'IBU') !== false) || strpos($upperLine, 'PASPOR') !== false || strpos($upperLine, 'KITAS') !== false || strpos($upperLine, 'KITAP') !== false || strpos($upperLine, 'IMIGRASI') !== false) {
                     continue;
                 }

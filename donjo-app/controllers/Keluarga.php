@@ -724,14 +724,15 @@ class Keluarga extends Admin_Controller
 
     public function dialog_import_scan_kk()
     {
-        $this->redirect_hak_akses('u', '', '', true);
-        $data['ocr_available'] = \App\Libraries\KkScanOcrParser::isAvailable();
+        $this->redirect_hak_akses('u');
+        $data['ocr_info']      = \App\Libraries\KkScanOcrParser::getEngineInfo();
+        $data['ocr_available'] = $data['ocr_info']['is_available'];
         $this->load->view('sid/kependudukan/ajax_import_scan_form', $data);
     }
 
     public function ajax_install_ocr()
     {
-        $this->redirect_hak_akses('u', '', '', true);
+        $this->redirect_hak_akses('u');
 
         if (! function_exists('exec')) {
             echo json_encode([
@@ -742,26 +743,57 @@ class Keluarga extends Admin_Controller
             return;
         }
 
-        $cmd    = 'python3 -m pip install --user --upgrade opencv-python-headless rapidocr_onnxruntime 2>&1';
+        // Prioritas 1: Install paket baru 'rapidocr' (PP-OCRv4) + 'opencv-python-headless'
+        $cmd    = 'python3 -m pip install --user --upgrade opencv-python-headless rapidocr 2>&1';
         $output = [];
         @exec($cmd, $output, $code);
 
-        if (! \App\Libraries\KkScanOcrParser::isAvailable()) {
-            $cmd2 = 'pip3 install --user --upgrade opencv-python-headless rapidocr_onnxruntime 2>&1';
-            @exec($cmd2, $output, $code);
+        // Fallback PEP 668 (externally managed environment di Debian 12 / Ubuntu 24+)
+        if ($code !== 0) {
+            $cmdPep = 'python3 -m pip install --user --upgrade --break-system-packages opencv-python-headless rapidocr 2>&1';
+            @exec($cmdPep, $output, $code);
         }
 
-        $available = \App\Libraries\KkScanOcrParser::isAvailable();
+        // Fallback 2: Coba via pip3 jika python3 -m pip gagal
+        if (! \App\Libraries\KkScanOcrParser::isAvailable()) {
+            $cmd2 = 'pip3 install --user --upgrade opencv-python-headless rapidocr 2>&1';
+            @exec($cmd2, $output, $code);
+        }
+        if (! \App\Libraries\KkScanOcrParser::isAvailable()) {
+            $cmd2Pep = 'pip3 install --user --upgrade --break-system-packages opencv-python-headless rapidocr 2>&1';
+            @exec($cmd2Pep, $output, $code);
+        }
 
-        if ($available) {
+        // Fallback 3: Fallback ke paket lama 'rapidocr_onnxruntime' jika perlu
+        if (! \App\Libraries\KkScanOcrParser::isAvailable()) {
+            $cmd3 = 'python3 -m pip install --user --upgrade opencv-python-headless rapidocr_onnxruntime 2>&1';
+            @exec($cmd3, $output, $code);
+        }
+
+        // Fallback 4: Lingkungan Windows (python)
+        if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') {
+            $cmdWin = 'python -m pip install --upgrade opencv-python-headless rapidocr 2>&1';
+            @exec($cmdWin, $output, $code);
+        }
+
+        $info = \App\Libraries\KkScanOcrParser::getEngineInfo();
+
+        if ($info['is_available']) {
+            $msg = 'RapidOCR Engine berhasil terpasang dan siap digunakan!';
+            if ($info['has_new'] && $info['has_opencv']) {
+                $msg = 'Berhasil! Engine telah di-upgrade ke versi terbaru (RapidOCR PP-OCRv4 + OpenCV Preprocessing).';
+            } elseif ($info['has_new']) {
+                $msg = 'Berhasil! Engine RapidOCR PP-OCRv4 terbaru telah terpasang.';
+            }
+
             echo json_encode([
                 'status'  => true,
-                'message' => 'RapidOCR ONNX Engine berhasil terpasang di server!',
+                'message' => $msg,
             ]);
         } else {
             echo json_encode([
                 'status'  => false,
-                'message' => 'Gagal memasang RapidOCR. Pesan: ' . implode(' ', array_slice($output, -2)),
+                'message' => 'Gagal memasang RapidOCR. Pesan: ' . implode(' ', array_slice($output, -3)),
             ]);
         }
     }
@@ -891,10 +923,22 @@ class Keluarga extends Admin_Controller
 
     public function proses_import_scan_kk()
     {
-        $this->redirect_hak_akses('u', '', '', true);
+        $this->redirect_hak_akses('u');
+        @set_time_limit(180);
+        @ini_set('memory_limit', '512M');
 
         if (empty($_FILES['kk_scan']['tmp_name'])) {
-            set_session('error_msg', 'Silakan pilih berkas foto / scan Kartu Keluarga terlebih dahulu.');
+            $errCode      = $_FILES['kk_scan']['error'] ?? UPLOAD_ERR_NO_FILE;
+            $uploadErrors = [
+                UPLOAD_ERR_INI_SIZE   => 'Ukuran file melebihi upload_max_filesize di server (php.ini).',
+                UPLOAD_ERR_FORM_SIZE  => 'Ukuran file melebihi batas form.',
+                UPLOAD_ERR_PARTIAL    => 'File hanya terunggah sebagian. Silakan coba lagi.',
+                UPLOAD_ERR_NO_FILE    => 'Silakan pilih berkas foto / scan Kartu Keluarga terlebih dahulu.',
+                UPLOAD_ERR_NO_TMP_DIR => 'Folder temp server tidak ditemukan.',
+                UPLOAD_ERR_CANT_WRITE => 'Gagal menulis file ke disk server.',
+            ];
+            $msg = $uploadErrors[$errCode] ?? 'Gagal mengunggah berkas foto KK (kode: ' . $errCode . ').';
+            session_error($msg);
             redirect('keluarga');
         }
 
@@ -904,130 +948,17 @@ class Keluarga extends Admin_Controller
         $parsed = \App\Libraries\KkScanOcrParser::parseImage($tmpFile, $_FILES['kk_scan']['name']);
 
         if (empty($parsed['header']['no_kk']) && empty($parsed['members'])) {
-            set_session('error_msg', 'Gagal membaca teks dari hasil scan / foto KK. Pastikan gambar cukup terang, tidak miring, dan tulisan terbaca jelas.');
+            $errDetail = \App\Libraries\KkScanOcrParser::getLastError();
+            $msg       = 'Gagal membaca teks dari hasil scan / foto KK. Pastikan gambar cukup terang, tidak miring, dan tulisan terbaca jelas.';
+            if (! empty($errDetail)) {
+                $msg .= ' [Diagnosa Server: ' . $errDetail . ']';
+            }
+            session_error($msg);
+            log_message('error', 'Import Scan KK Gagal: ' . $msg);
             redirect('keluarga');
         }
 
-        $target_dir = FCPATH . LOKASI_DOKUMEN;
-        if (! is_dir($target_dir)) {
-            mkdir($target_dir, 0755, true);
-        }
-        $no_kk         = ! empty($parsed['header']['no_kk']) ? $parsed['header']['no_kk'] : 'SCAN_' . date('YmdHis');
-        $scan_filename = 'KK_SCAN_' . $no_kk . '_' . date('YmdHis') . '.' . ($ext ?: 'jpg');
-        @copy($tmpFile, $target_dir . $scan_filename);
-        $parsed['pdf_file'] = $scan_filename;
-
-        $target_kk                 = $this->find_target_kk_for_import($parsed['header']['no_kk'], $parsed['members']);
-        $kk                        = $target_kk['kk'];
-        $data['kk_exists']         = ! empty($kk);
-        $data['id_kk']             = $kk ? $kk['id'] : null;
-        $data['is_nokk_sementara'] = $target_kk['is_nokk_sementara'];
-        $data['no_kk_lama']        = $target_kk['no_kk_lama'];
-
-        $norm       = static fn ($str) => strtolower(preg_replace('/\s+/', '', (string) $str));
-        $norm_clean = static fn ($str) => strtoupper(preg_replace('/[^A-Z0-9]/', '', (string) $str));
-
-        $ref_sex       = [1 => 'LAKI-LAKI', 2 => 'PEREMPUAN'];
-        $ref_kawin_map = [
-            $norm_clean('BELUM KAWIN')          => 1,
-            $norm_clean('KAWIN TERCATAT')       => 2,
-            $norm_clean('KAWIN BELUM TERCATAT') => 2,
-            $norm_clean('KAWIN')                => 2,
-            $norm_clean('NIKAH')                => 2,
-            $norm_clean('CERAI HIDUP')          => 3,
-            $norm_clean('CERAI TERCATAT')       => 3,
-            $norm_clean('CERAI BELUM TERCATAT') => 3,
-            $norm_clean('CERAI MATI')           => 4,
-        ];
-        $kawin_rows = $this->db->get('tweb_penduduk_kawin')->result_array();
-        $ref_kawin_label = [];
-        foreach ($kawin_rows as $row) {
-            $ref_kawin_label[$row['id']] = strtoupper(trim($row['nama']));
-        }
-
-        if (! empty($parsed['header']['kepala_keluarga'])) {
-            $parsed['header']['kepala_keluarga'] = \App\Libraries\KkScanOcrParser::splitConcatenatedName($parsed['header']['kepala_keluarga']);
-        }
-        if (! empty($parsed['header']['alamat'])) {
-            $parsed['header']['alamat'] = \App\Libraries\KkScanOcrParser::splitConcatenatedName($parsed['header']['alamat']);
-            $cluster_cek = $this->db->where('rt', $parsed['header']['rt'])->where('rw', $parsed['header']['rw'])->get('tweb_wil_clusterdesa')->row_array();
-            $parsed['header']['alamat'] = $this->bersihkan_alamat_dusun($parsed['header']['alamat'], $cluster_cek['dusun'] ?? '');
-        }
-
-        foreach ($parsed['members'] as &$m) {
-            $nik                    = $m['nik'];
-            $p                      = null;
-            $is_nik_sementara_match = false;
-            $nik_lama               = null;
-
-            if (! empty($nik)) {
-                $p = $this->db->where('nik', $nik)->get('tweb_penduduk')->row_array();
-            }
-
-            if (! $p && ! empty($m['nama'])) {
-                $m_nama_clean = strtolower(trim(preg_replace('/[^a-zA-Z ]/', '', $m['nama'])));
-                $candidates   = $this->db
-                    ->group_start()
-                        ->like('nik', '0', 'after')
-                        ->or_where('nik IS NULL', null, false)
-                    ->group_end()
-                    ->where('tanggallahir', $m['tanggallahir'])
-                    ->get('tweb_penduduk')
-                    ->result_array();
-
-                foreach ($candidates as $cand) {
-                    $cand_nama_clean = strtolower(trim(preg_replace('/[^a-zA-Z ]/', '', $cand['nama'])));
-                    if ($cand_nama_clean === $m_nama_clean) {
-                        $p                      = $cand;
-                        $is_nik_sementara_match = true;
-                        $nik_lama               = $cand['nik'];
-
-                        break;
-                    }
-                }
-            }
-
-            if ($p) {
-                if (! empty($p['nama']) && $norm_clean($p['nama']) === $norm_clean($m['nama'])) {
-                    $m['nama'] = $p['nama'];
-                }
-                if (! empty($p['nama_ayah']) && (! empty($m['nama_ayah']) && $m['nama_ayah'] !== '-') && $norm_clean($p['nama_ayah']) === $norm_clean($m['nama_ayah'])) {
-                    $m['nama_ayah'] = $p['nama_ayah'];
-                }
-                if (! empty($p['nama_ibu']) && (! empty($m['nama_ibu']) && $m['nama_ibu'] !== '-') && $norm_clean($p['nama_ibu']) === $norm_clean($m['nama_ibu'])) {
-                    $m['nama_ibu'] = $p['nama_ibu'];
-                }
-            } else {
-                $m['nama'] = \App\Libraries\KkScanOcrParser::splitConcatenatedName($m['nama']);
-                if (! empty($m['nama_ayah'])) {
-                    $m['nama_ayah'] = \App\Libraries\KkScanOcrParser::splitConcatenatedName($m['nama_ayah']);
-                }
-                if (! empty($m['nama_ibu'])) {
-                    $m['nama_ibu'] = \App\Libraries\KkScanOcrParser::splitConcatenatedName($m['nama_ibu']);
-                }
-            }
-
-            $m['db_exists']              = ! empty($p);
-            $m['is_nik_sementara_match'] = $is_nik_sementara_match;
-            $m['nik_lama']               = $nik_lama;
-            $m['status_dasar']           = $p ? $p['status_dasar'] : 1;
-            $m['pindah_kk']              = false;
-            $m['no_kk_lama']             = null;
-            $m['kepala_kk_lama']         = null;
-            $m['diff']                   = [];
-            if ($p) {
-                $m['db_id']             = $p['id'];
-                $m['alamat_sebelumnya'] = $p['alamat_sebelumnya'];
-            }
-        }
-
-        $data['parsed'] = $parsed;
-
-        if ($this->input->is_ajax_request()) {
-            $this->load->view('sid/kependudukan/ajax_import_pdf_preview', $data);
-        } else {
-            $this->render('sid/kependudukan/import_pdf_preview', $data);
-        }
+        return $this->siapkan_dan_tampilkan_preview_import($parsed, $tmpFile, $ext ?: 'jpg', 'KK_SCAN');
     }
 
     public function proses_import_pdf()
@@ -1035,24 +966,29 @@ class Keluarga extends Admin_Controller
         $this->redirect_hak_akses('u');
 
         if (empty($_FILES['kk_pdf']['tmp_name'])) {
-            set_session('error_msg', 'Silakan pilih file PDF Kartu Keluarga terlebih dahulu.');
+            session_error('Silakan pilih file PDF Kartu Keluarga terlebih dahulu.');
             redirect('keluarga');
         }
 
         $parsed = \App\Libraries\KkPdfParser::parseFile($_FILES['kk_pdf']['tmp_name']);
         if (! $parsed['status'] || empty($parsed['header']['no_kk'])) {
-            set_session('error_msg', 'Gagal membaca format Kartu Keluarga PDF. Pastikan file PDF merupakan KK elektronik Dukcapil.');
+            session_error('Gagal membaca format Kartu Keluarga PDF. Pastikan file PDF merupakan KK elektronik Dukcapil.');
             redirect('keluarga');
         }
 
-        // Arsipkan file PDF ke folder desa/upload/dokumen/
+        return $this->siapkan_dan_tampilkan_preview_import($parsed, $_FILES['kk_pdf']['tmp_name'], 'pdf', 'KK');
+    }
+
+    private function siapkan_dan_tampilkan_preview_import(array $parsed, string $uploadedFile, string $ext, string $prefix = 'KK')
+    {
         $target_dir = FCPATH . LOKASI_DOKUMEN;
         if (! is_dir($target_dir)) {
             mkdir($target_dir, 0755, true);
         }
-        $pdf_filename = 'KK_' . $parsed['header']['no_kk'] . '_' . date('YmdHis') . '.pdf';
-        @copy($_FILES['kk_pdf']['tmp_name'], $target_dir . $pdf_filename);
-        $parsed['pdf_file'] = $pdf_filename;
+        $no_kk = ! empty($parsed['header']['no_kk']) ? $parsed['header']['no_kk'] : 'TEMP_' . date('YmdHis');
+        $filename = $prefix . '_' . $no_kk . '_' . date('YmdHis') . '.' . ($ext ?: 'pdf');
+        @copy($uploadedFile, $target_dir . $filename);
+        $parsed['pdf_file'] = $filename;
 
         $target_kk                 = $this->find_target_kk_for_import($parsed['header']['no_kk'], $parsed['members']);
         $kk                        = $target_kk['kk'];
@@ -1065,13 +1001,13 @@ class Keluarga extends Admin_Controller
             $tgl_pdf = date('Y-m-d', strtotime($parsed['header']['tgl_cetak']));
             $tgl_db  = date('Y-m-d', strtotime($kk['tgl_cetak_kk']));
             if ($tgl_pdf < $tgl_db) {
-                $data['warning_kk_lama'] = 'Tanggal cetak KK PDF (' . tgl_indo($parsed['header']['tgl_cetak']) . ') lebih tua daripada tanggal cetak KK di database (' . tgl_indo($kk['tgl_cetak_kk']) . '). Harap periksa kembali berkas KK yang diunggah.';
+                $data['warning_kk_lama'] = 'Tanggal cetak KK (' . tgl_indo($parsed['header']['tgl_cetak']) . ') lebih tua daripada tanggal cetak KK di database (' . tgl_indo($kk['tgl_cetak_kk']) . '). Harap periksa kembali berkas KK yang diunggah.';
             }
         }
 
         $norm_clean = static fn ($str) => strtoupper(preg_replace('/[^A-Z0-9]/', '', (string) $str));
 
-        $ref_sex   = [1 => 'LAKI-LAKI', 2 => 'PEREMPUAN'];
+        $ref_sex       = [1 => 'LAKI-LAKI', 2 => 'PEREMPUAN'];
         $ref_kawin_map = [
             $norm_clean('BELUM KAWIN')          => 1,
             $norm_clean('KAWIN TERCATAT')       => 2,
@@ -1180,11 +1116,15 @@ class Keluarga extends Admin_Controller
 
             if (! $p && ! empty($m['nama'])) {
                 $m_nama_clean = strtolower(trim(preg_replace('/[^a-zA-Z ]/', '', $m['nama'])));
-                $this->db->group_start()
-                    ->like('nik', '0', 'after')
-                    ->or_where('nik IS NULL', null, false)
-                    ->group_end();
-                $candidates = $this->db->where('tanggallahir', $m['tanggallahir'])->get('tweb_penduduk')->result_array();
+                $candidates   = $this->db
+                    ->group_start()
+                        ->like('nik', '0', 'after')
+                        ->or_where('nik IS NULL', null, false)
+                    ->group_end()
+                    ->where('tanggallahir', $m['tanggallahir'])
+                    ->get('tweb_penduduk')
+                    ->result_array();
+
                 foreach ($candidates as $cand) {
                     $cand_nama_clean = strtolower(trim(preg_replace('/[^a-zA-Z ]/', '', $cand['nama'])));
                     if ($cand_nama_clean === $m_nama_clean) {
