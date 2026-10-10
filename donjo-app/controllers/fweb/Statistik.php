@@ -189,7 +189,9 @@ class Statistik extends Web_Controller
         $dpt_aktif = (bool) ($this->web_menu_model->menu_aktif('daftar-pemilih-tetap') || $this->web_menu_model->menu_aktif('dpt') || $this->web_menu_model->menu_aktif('first/dpt'));
         $total_dpt = 0;
         if ($dpt_aktif) {
-            $total_dpt = (int) ($this->db->query("SELECT count(*) as jml FROM tweb_penduduk WHERE status_dasar = 1 AND config_id = ? AND (TIMESTAMPDIFF(YEAR, tanggallahir, CURDATE()) >= 17 OR status_kawin > 1)", [$config_id])->row()->jml ?? 0);
+            $this->load->model('dpt_model');
+            $stat_dpt  = $this->dpt_model->statistik_total();
+            $total_dpt = (int) ($stat_dpt['total_warga'] ?? 0);
         }
 
         $data = $this->includes;
