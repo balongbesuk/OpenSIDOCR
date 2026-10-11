@@ -39,6 +39,9 @@ Terima kasih pada @ruririzal dan @syahransaputra yang terus berkontribusi.
 33. Penambahan fitur Filter Wilayah bertingkat (Dusun, RW, RT) dengan pembaruan dinamis (AJAX) pada halaman data statistik publik.
 34. Penambahan format cetak laporan statistik resmi berstandar A4 dengan Kop Surat Pemerintahan Desa, cakupan filter wilayah, dan lembar pengesahan tanda tangan Kepala Desa.
 35. Penambahan halaman portal indeks statistik desa (`/data-statistik`) dengan ringkasan data kependudukan (Quick Stats), kartu indikator statistik yang terintegrasi hak akses menu aktif OpenSID, serta fitur pencarian dan filter kategori indikator secara realtime.
+36. Penambahan dashboard terpadu Beranda Layanan Mandiri (`/layanan-mandiri/beranda`) yang memuat ringkasan permohonan surat terkini beserta status & no antrean, kotak pesan masuk dari desa, data profil kependudukan warga, status verifikasi keamanan ganda (Telegram & Email), informasi kontak darurat, serta jadwal jam layanan operasional kantor desa.
+37. Redesain modern UI/UX Layanan Mandiri berbasis sistem antarmuka responsif (mobile & desktop), kartu aksi cepat (Quick Actions), penataan formulir permohonan surat, pratinjau dokumen, profil kependudukan, dan fitur ganti PIN yang lebih interaktif.
+38. Penambahan sistem notifikasi otomatis ke kotak pesan Layanan Mandiri warga ketika status permohonan surat diperbarui oleh petugas desa (sedang diperiksa, menunggu tandatangan, siap diambil, selesai, atau perlu dilengkapi).
 
 
 #### Perbaikan BUG
@@ -87,6 +90,11 @@ Terima kasih pada @ruririzal dan @syahransaputra yang terus berkontribusi.
 42. Perbaikan akurasi parser OCR Kartu Keluarga: perbaikan batasan kata pada deteksi pendidikan (mencegah false positive SLTA akibat nama berawalan MA atau kata TAMAT) serta pekerjaan (mencegah MENGURUS RUMAH TANGGA salah terdeteksi sebagai GURU, dan penambahan pengenal BURUH HARIAN LEPAS serta profesi lainnya).
 43. Perbaikan tata letak grup tombol tipe grafik (batang, lingkaran, garis) dan tombol cetak pada tema website desa agar tersusun sejajar rapi tanpa membungkus (wrapping) ke baris baru, serta preservasi parameter filter wilayah saat beralih jenis grafik.
 44. Perbaikan integrasi menu sidebar statistik pada tema website desa (navigasi sticky di desktop, penyorotan menu aktif yang presisi, dan kelengkapan daftar statistik lainnya).
+45. Perbaikan alur navigasi verifikasi kontak OTP Telegram dan Email pada Layanan Mandiri agar langsung diarahkan ke langkah selanjutnya tanpa perulangan langkah atau refresh yang membingungkan warga.
+46. Perbaikan popup notifikasi dan pesan peringatan di Layanan Mandiri agar tidak terpotong atau tersembunyi pada tampilan layar perangkat mobile/smartphone.
+47. Perbaikan tata letak sidebar Layanan Mandiri: memindahkan menu Dokumen ke bawah Cetak Salinan KK, serta mengeliminasi gaya garis bawah (text underline) global agar tampilan antarmuka lebih rapi dan bersih.
+48. Perbaikan pembungkusan teks (word wrapping) judul surat dan posisi badge status pada kartu permohonan surat terkini di layar perangkat mobile agar teks tidak terpotong atau menyempit vertikal.
+49. Perbaikan tombol aksi Ganti PIN dan elemen kartu aksi pada layar mobile agar tidak terpotong (clipped) atau meluap dari batas kontainer.
 
 #### Perubahan Teknis
 
@@ -107,4 +115,6 @@ Terima kasih pada @ruririzal dan @syahransaputra yang terus berkontribusi.
 15. [#6925](https://github.com/OpenSID/OpenSID/issues/6925) Penyesuaian kolom updated_by pada tabel tweb_keluarga bisa bernilai null.
 16. [#2624](https://github.com/OpenSID/premium/issues/2624) Pembatasan akses file metode LFI (Local File Inclusion).
 17. [#2625](https://github.com/OpenSID/premium/issues/2625) Pembatasan akses unggah file berbahaya melalui RFM.
-18. Refaktor modul `KkScanOcrParser`: integrasi runner Python mandiri dengan multi-path site-packages (cPanel/Linux/Windows), pipeline fallback rotasi otomatis (90°, -90°, 180°), dan penanganan direct object mapping `boxes` & `txts`.
+18. Refaktor modul `KkScanOcrParser`: integrasi runner Python mandiri dengan multi-path site-packages (cPanel/Linux/Windows), pipeline fallback rotasi otomatis (90°, -90°, 180°), dan penanganan direct object mapping `boxes` & `txts`.
+19. Penambahan controller `fmandiri/Beranda.php` dan view `fmandiri/beranda.php` terintegrasi dengan pemuatan data real-time pemohon, status identifikasi, dan relasi log surat.
+20. Optimalisasi stylesheet dan penanganan konflik kelas utilitas Tailwind CSS dengan framework Bootstrap 3 pada layout utama `fmandiri/template.php` menggunakan helper class `.hide-on-mobile`.

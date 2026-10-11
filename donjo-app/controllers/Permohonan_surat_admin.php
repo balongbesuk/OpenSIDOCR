@@ -92,6 +92,15 @@ class Permohonan_surat_admin extends Admin_Controller
                 ->editColumn('no_antrian', static function ($row) {
                     return get_antrian($row->no_antrian);
                 })
+                ->editColumn('no_hp_aktif', static function ($row) {
+                    $hp = $row->no_hp_aktif;
+                    if ($hp) {
+                        $clean = preg_replace('/[^0-9]/', '', (string) $hp);
+                        $clean = preg_replace('/^(62|0)/', '', $clean);
+                        return ! empty($clean) ? ('62' . $clean) : '-';
+                    }
+                    return '-';
+                })
                 ->editColumn('created_at', static function ($row) {
                     return tgl_indo2($row->created_at);
                 })
@@ -190,16 +199,23 @@ class Permohonan_surat_admin extends Admin_Controller
 
     public function kirim_pesan($id_permohonan = 0, $tipe = 0)
     {
-        $periksa = $this->permohonan_surat_model->get_permohonan(['id' => $id_permohonan, 'status' => 1]);
-        $pemohon = $this->surat_model->get_penduduk($periksa['id_pemohon']);
-        $post    = $this->input->post();
-        $judul   = ($tipe == 0) ? 'Perlu Dilengkapi' : 'Dibatalkan';
-        $data    = [
-            'subjek'     => 'Permohonan Surat ' . $surat['nama'] . ' ' . $judul,
+        $periksa = $this->permohonan_surat_model->get_permohonan(['id' => $id_permohonan]);
+        if (! $periksa) {
+            redirect('permohonan_surat_admin');
+            return;
+        }
+
+        $pemohon      = $this->surat_model->get_penduduk($periksa['id_pemohon']);
+        $format_surat = FormatSurat::find($periksa['id_surat']);
+        $nama_surat   = $format_surat->nama ?? 'Surat';
+        $post         = $this->input->post();
+        $judul        = ($tipe == 0) ? 'Perlu Dilengkapi' : 'Dibatalkan';
+        $data         = [
+            'subjek'     => 'Permohonan Surat ' . $nama_surat . ' - ' . $judul,
             'komentar'   => $post['pesan'],
-            'owner'      => $pemohon['nama'], // TODO : Gunakan id_pend
-            'email'      => $pemohon['nik'], // TODO : Gunakan id_pend
-            'permohonan' => $id_permohonan, // Menyimpan id_permohonan untuk link
+            'owner'      => 'Pemerintah Desa',
+            'email'      => $pemohon['nik'],
+            'permohonan' => $id_permohonan,
             'tipe'       => 2,
             'status'     => 2,
         ];

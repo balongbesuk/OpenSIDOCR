@@ -14,7 +14,7 @@ defined('BASEPATH') || exit('No direct script access allowed');
             <div class="space-y-2">
                 <label class="text-xs font-bold text-slate-700 ml-1">Nama Lengkap</label>
                 <div class="relative group">
-                    <i class="fa-solid fa-user absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-green-600 transition-colors"></i>
+                    <i class="fa-solid fa-user absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-brand-600 transition-colors"></i>
                     <input type="text" autocomplete="off" name="daftar_nama" placeholder="Sesuai KTP"
                         class="input-premium w-full h-12 rounded-xl pl-12 pr-4 text-sm font-semibold text-slate-900 required <?= jecho($cek_anjungan['keyboard'] == 1, true, 'kbvnumber'); ?>">
                 </div>
@@ -23,7 +23,7 @@ defined('BASEPATH') || exit('No direct script access allowed');
             <div class="space-y-2">
                 <label class="text-xs font-bold text-slate-700 ml-1">Tanggal Lahir</label>
                 <div class="relative group">
-                    <i class="fa-solid fa-calendar absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-green-600 transition-colors"></i>
+                    <i class="fa-solid fa-calendar absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-brand-600 transition-colors"></i>
                     <input type="text" id="daftar_tgl_lahir" name="daftar_tgl_lahir" placeholder="DD-MM-YYYY" autocomplete="off"
                         class="input-premium w-full h-12 rounded-xl pl-12 pr-4 text-sm font-semibold text-slate-900 required <?= jecho($cek_anjungan['keyboard'] == 1, true, 'kbvnumber'); ?>">
                 </div>
@@ -35,7 +35,7 @@ defined('BASEPATH') || exit('No direct script access allowed');
             <div class="space-y-2">
                 <label class="text-xs font-bold text-slate-700 ml-1">NIK</label>
                 <div class="relative group">
-                    <i class="fa-solid fa-id-card absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-green-600 transition-colors"></i>
+                    <i class="fa-solid fa-id-card absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-brand-600 transition-colors"></i>
                     <input type="text" autocomplete="off" name="daftar_nik" placeholder="16 Digit NIK" minlength="16" maxlength="16"
                         class="input-premium w-full h-12 rounded-xl pl-12 pr-4 text-sm font-semibold text-slate-900 required <?= jecho($cek_anjungan['keyboard'] == 1, true, 'kbvnumber'); ?>">
                 </div>
@@ -44,10 +44,10 @@ defined('BASEPATH') || exit('No direct script access allowed');
             <div class="space-y-2">
                 <label class="text-xs font-bold text-slate-700 ml-1">PIN (6 Digit)</label>
                 <div class="relative group">
-                    <i class="fa-solid fa-key absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-green-600 transition-colors"></i>
+                    <i class="fa-solid fa-key absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-brand-600 transition-colors"></i>
                     <input type="password" name="daftar_pin1" id="daftar_pin1" placeholder="Buat PIN" minlength="6" maxlength="6"
                         class="input-premium w-full h-12 rounded-xl pl-12 pr-12 text-sm font-semibold text-slate-900 required <?= jecho($cek_anjungan['keyboard'] == 1, true, 'kbvnumber'); ?>">
-                    <button type="button" onclick="show(this);" class="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-green-600">
+                    <button type="button" onclick="show(this);" class="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-brand-600">
                         <i class="fa fa-eye-slash" id="baru1" aria-hidden="true"></i>
                     </button>
                 </div>
@@ -59,7 +59,7 @@ defined('BASEPATH') || exit('No direct script access allowed');
             <div class="space-y-2">
                 <label class="text-xs font-bold text-slate-700 ml-1">Nomor KK</label>
                 <div class="relative group">
-                    <i class="fa-solid fa-users absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-green-600 transition-colors"></i>
+                    <i class="fa-solid fa-users absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-brand-600 transition-colors"></i>
                     <input type="text" autocomplete="off" name="daftar_kk" placeholder="16 Digit KK" minlength="16" maxlength="16"
                         class="input-premium w-full h-12 rounded-xl pl-12 pr-4 text-sm font-semibold text-slate-900 required <?= jecho($cek_anjungan['keyboard'] == 1, true, 'kbvnumber'); ?>">
                 </div>
@@ -68,10 +68,10 @@ defined('BASEPATH') || exit('No direct script access allowed');
             <div class="space-y-2">
                 <label class="text-xs font-bold text-slate-700 ml-1">Konfirmasi PIN</label>
                 <div class="relative group">
-                    <i class="fa-solid fa-lock absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-green-600 transition-colors"></i>
+                    <i class="fa-solid fa-lock absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-brand-600 transition-colors"></i>
                     <input type="password" name="daftar_pin2" id="daftar_pin2" placeholder="Ulangi PIN" minlength="6" maxlength="6"
                         class="input-premium w-full h-12 rounded-xl pl-12 pr-12 text-sm font-semibold text-slate-900 required <?= jecho($cek_anjungan['keyboard'] == 1, true, 'kbvnumber'); ?>">
-                    <button type="button" onclick="show(this);" class="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-green-600">
+                    <button type="button" onclick="show(this);" class="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-brand-600">
                         <i class="fa fa-eye-slash" id="baru2" aria-hidden="true"></i>
                     </button>
                 </div>
@@ -88,7 +88,7 @@ defined('BASEPATH') || exit('No direct script access allowed');
                     <input type="text" readonly id="file_path1" placeholder="Unggah Scan KTP / KIA"
                         class="input-premium w-full h-12 rounded-xl pl-12 pr-12 text-xs font-bold text-slate-600 cursor-pointer overflow-hidden text-ellipsis">
                     <i class="fa-solid fa-camera absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 transition-colors"></i>
-                    <button type="button" id="file_browser1" class="absolute right-3 top-1/2 -translate-y-1/2 w-8 h-8 bg-slate-100 rounded-lg flex items-center justify-center text-slate-600 hover:bg-green-600 hover:text-white transition-all">
+                    <button type="button" id="file_browser1" class="absolute right-3 top-1/2 -translate-y-1/2 w-8 h-8 bg-slate-100 rounded-lg flex items-center justify-center text-slate-600 hover:bg-brand-600 hover:text-white transition-all">
                         <i class="fa fa-search text-xs"></i>
                     </button>
                     <input id="file1" type="file" class="hidden required" name="scan_1">
@@ -99,7 +99,7 @@ defined('BASEPATH') || exit('No direct script access allowed');
                     <input type="text" readonly id="file_path2" placeholder="Unggah Scan KK"
                         class="input-premium w-full h-12 rounded-xl pl-12 pr-12 text-xs font-bold text-slate-600 cursor-pointer overflow-hidden text-ellipsis">
                     <i class="fa-solid fa-file-invoice absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 transition-colors"></i>
-                    <button type="button" id="file_browser2" class="absolute right-3 top-1/2 -translate-y-1/2 w-8 h-8 bg-slate-100 rounded-lg flex items-center justify-center text-slate-600 hover:bg-green-600 hover:text-white transition-all">
+                    <button type="button" id="file_browser2" class="absolute right-3 top-1/2 -translate-y-1/2 w-8 h-8 bg-slate-100 rounded-lg flex items-center justify-center text-slate-600 hover:bg-brand-600 hover:text-white transition-all">
                         <i class="fa fa-search text-xs"></i>
                     </button>
                     <input id="file2" type="file" class="hidden required" name="scan_2">
@@ -110,7 +110,7 @@ defined('BASEPATH') || exit('No direct script access allowed');
                     <input type="text" readonly id="file_path3" placeholder="Foto Selfie Memegang KTP"
                         class="input-premium w-full h-12 rounded-xl pl-12 pr-12 text-xs font-bold text-slate-600 cursor-pointer overflow-hidden text-ellipsis">
                     <i class="fa-solid fa-camera-retro absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 transition-colors"></i>
-                    <button type="button" id="file_browser3" class="absolute right-3 top-1/2 -translate-y-1/2 w-8 h-8 bg-slate-100 rounded-lg flex items-center justify-center text-slate-600 hover:bg-green-600 hover:text-white transition-all">
+                    <button type="button" id="file_browser3" class="absolute right-3 top-1/2 -translate-y-1/2 w-8 h-8 bg-slate-100 rounded-lg flex items-center justify-center text-slate-600 hover:bg-brand-600 hover:text-white transition-all">
                         <i class="fa fa-search text-xs"></i>
                     </button>
                     <input id="file3" type="file" class="hidden required" name="scan_3">
@@ -125,7 +125,7 @@ defined('BASEPATH') || exit('No direct script access allowed');
                 <i class="fa-solid fa-user-check text-lg"></i>
             </button>
 
-            <a href="<?= site_url('layanan-mandiri/masuk') ?>" class="w-full h-12 flex items-center justify-center space-x-2 text-slate-400 hover:text-green-700 text-xs font-bold transition-colors">
+            <a href="<?= site_url('layanan-mandiri/masuk') ?>" class="w-full h-12 flex items-center justify-center space-x-2 text-slate-400 hover:text-brand-600 text-xs font-bold transition-colors">
                 <span>SUDAH PUNYA AKUN? MASUK</span>
             </a>
         </div>
@@ -138,7 +138,7 @@ defined('BASEPATH') || exit('No direct script access allowed');
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content overflow-hidden" style="border-radius: 2rem; border: none; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25);">
             <div class="modal-body p-10 text-center">
-                <div class="w-20 h-20 bg-green-100 text-green-600 rounded-full flex items-center justify-center mx-auto mb-6">
+                <div class="w-20 h-20 bg-green-100 text-brand-600 rounded-full flex items-center justify-center mx-auto mb-6">
                     <i class="fa-solid fa-circle-info text-4xl"></i>
                 </div>
                 <h3 class="font-display text-2xl font-black text-slate-900 mb-4 tracking-tight">Status Pendaftaran</h3>
@@ -146,7 +146,7 @@ defined('BASEPATH') || exit('No direct script access allowed');
                     <?php if ($info['status'] == 1) : ?>
                         <div class="p-4 bg-slate-50 rounded-2xl border border-slate-100 space-y-2 mb-6">
                             <p>NIK: <span class="font-bold text-slate-900"><?= $info['nik']; ?></span></p>
-                            <p>PIN BARU: <span class="font-bold text-green-600 text-lg tracking-widest"><?= $info['pin']; ?></span></p>
+                            <p>PIN BARU: <span class="font-bold text-brand-600 text-lg tracking-widest"><?= $info['pin']; ?></span></p>
                         </div>
                         <p class="mb-8"><?= $info['pesan']; ?></p>
                         <a href="<?= $info['aksi'] ?>" class="btn-mandiri block w-full py-4 rounded-xl text-white font-bold uppercase tracking-widest text-xs">

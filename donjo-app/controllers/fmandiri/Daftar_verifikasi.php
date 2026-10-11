@@ -46,6 +46,17 @@ class Daftar_verifikasi extends Web_Controller
         $this->session->daftar_verifikasi = true;
         $this->load->model(['mandiri_model', 'theme_model']);
         $this->load->library('OTP/OTP_manager', null, 'otp_library');
+        if ($this->session->mandiri == 1) {
+            $uri = $this->uri->uri_string();
+            if (strpos($uri, 'email') !== false) {
+                redirect('layanan-mandiri/verifikasi/email');
+            } elseif (strpos($uri, 'telegram') !== false) {
+                redirect('layanan-mandiri/verifikasi/telegram');
+            } else {
+                redirect('layanan-mandiri/verifikasi');
+            }
+        }
+
         if (! $this->setting->tampilkan_pendaftaran) {
             redirect('layanan-mandiri/masuk');
         }

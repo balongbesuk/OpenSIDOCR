@@ -32,12 +32,12 @@
                     },
                     colors: {
                         brand: {
-                            50: '#f0fdf4',
-                            100: '#dcfce7',
-                            500: '#22c55e',
-                            600: '#16a34a',
-                            700: '#15803d',
-                            900: '#14532d',
+                            50: '#eff6ff',
+                            100: '#dbeafe',
+                            500: '#2563eb',
+                            600: '#2563eb',
+                            700: '#1d4ed8',
+                            900: '#1e3a8a',
                         },
                     }
                 }
@@ -66,7 +66,7 @@
             background: #ffffff;
         }
         .mandiri-gradient {
-            background: linear-gradient(135deg, rgba(20, 83, 45, 0.95) 0%, rgba(22, 163, 74, 0.8) 100%);
+            background: linear-gradient(135deg, rgba(30, 58, 138, 0.95) 0%, rgba(37, 99, 235, 0.85) 100%);
         }
         .input-premium {
             background: #f8fafc;
@@ -75,18 +75,18 @@
         }
         .input-premium:focus {
             background: white;
-            border-color: #22c55e;
-            box-shadow: 0 0 0 4px rgba(34, 197, 94, 0.1);
+            border-color: #2563eb;
+            box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.15);
             outline: none;
         }
         .btn-mandiri {
-            background: linear-gradient(135deg, #16a34a 0%, #14532d 100%);
-            box-shadow: 0 10px 15px -3px rgba(22, 163, 74, 0.3);
+            background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+            box-shadow: 0 10px 15px -3px rgba(37, 99, 235, 0.3);
             transition: all 0.3s ease;
         }
         .btn-mandiri:hover {
             transform: translateY(-2px);
-            box-shadow: 0 20px 25px -5px rgba(22, 163, 74, 0.4);
+            box-shadow: 0 20px 25px -5px rgba(37, 99, 235, 0.4);
             filter: brightness(1.1);
         }
         .panel-left-bg {
@@ -316,7 +316,7 @@
         <div class="w-full lg:w-2/5 xl:w-[35%] bg-white flex items-center justify-center p-8 md:p-16 xl:p-20 relative overflow-y-auto">
             <!-- Floating Navigation -->
             <div class="absolute top-0 left-0 right-0 p-8 flex justify-between items-center z-20 pointer-events-none">
-                <a href="<?= site_url() ?>" class="pointer-events-auto group flex items-center space-x-3 text-slate-400 hover:text-green-600 transition-all duration-300">
+                <a href="<?= site_url() ?>" class="pointer-events-auto group flex items-center space-x-3 text-slate-400 hover:text-brand-600 transition-all duration-300">
                     <div class="w-10 h-10 rounded-2xl bg-slate-50 border border-slate-100 flex items-center justify-center group-hover:bg-white group-hover:border-green-400 group-hover:shadow-lg group-hover:shadow-green-500/10 transition-all duration-500">
                         <i class="fa-solid fa-arrow-left text-[10px] group-hover:-translate-x-1 transition-transform"></i>
                     </div>
@@ -381,7 +381,7 @@
                                     <div class="space-y-2">
                                         <label class="text-sm font-bold text-slate-700 ml-1">NIK (Nomor Induk Kependudukan)</label>
                                         <div class="relative group">
-                                            <i class="fa-solid fa-id-card absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-green-600 transition-colors"></i>
+                                            <i class="fa-solid fa-id-card absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-brand-600 transition-colors"></i>
                                             <input type="text" autocomplete="off" name="nik" placeholder="16 digit NIK"
                                                 class="input-premium w-full h-14 rounded-2xl pl-12 pr-4 text-sm font-semibold text-slate-900 required <?= jecho($cek_anjungan['keyboard'] == 1, true, 'kbvnumber') ?>">
                                         </div>
@@ -390,7 +390,7 @@
                                     <div class="space-y-2">
                                         <label class="text-sm font-bold text-slate-700 ml-1">PIN Layanan</label>
                                         <div class="relative group">
-                                            <i class="fa-solid fa-key absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-green-600 transition-colors"></i>
+                                            <i class="fa-solid fa-key absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-brand-600 transition-colors"></i>
                                             <input type="password" autocomplete="off" name="pin" id="pin" placeholder="Kode PIN Anda"
                                                 class="input-premium w-full h-14 rounded-2xl pl-12 pr-4 text-sm font-semibold text-slate-900 required <?= jecho($cek_anjungan['keyboard'] == 1, true, 'kbvnumber') ?>">
                                         </div>
@@ -399,13 +399,13 @@
                                     <div class="flex items-center justify-between pt-2 px-1">
                                         <label class="flex items-center cursor-pointer group select-none">
                                             <input type="checkbox" id="checkbox" class="sr-only">
-                                            <div class="w-10 h-6 bg-slate-200 rounded-full p-1 transition-colors group-hover:bg-slate-300 peer-checked:bg-green-600 toggle-bg relative">
+                                            <div class="w-10 h-6 bg-slate-200 rounded-full p-1 transition-colors group-hover:bg-slate-300 peer-checked:bg-brand-600 toggle-bg relative">
                                                 <div class="w-4 h-4 bg-white rounded-full shadow-sm transition-transform toggle-dot"></div>
                                             </div>
                                             <span class="ml-2.5 text-xs font-bold text-slate-600 group-hover:text-slate-900 transition-colors whitespace-nowrap">Lihat PIN</span>
                                         </label>
                                         
-                                        <a href="<?= site_url('layanan-mandiri/lupa-pin') ?>" class="text-xs font-bold text-green-700 hover:text-green-800 transition-all whitespace-nowrap">
+                                        <a href="<?= site_url('layanan-mandiri/lupa-pin') ?>" class="text-xs font-bold text-brand-600 hover:text-brand-700 transition-all whitespace-nowrap">
                                             Lupa PIN?
                                         </a>
                                     </div>
@@ -434,9 +434,9 @@
                                 <!-- E-KTP SCAN VIEW -->
                                 <div class="text-center py-8">
                                     <div class="mb-8 relative inline-block">
-                                        <div class="absolute inset-0 bg-green-500/10 rounded-full animate-ping"></div>
-                                        <div class="relative w-32 h-32 bg-green-50 rounded-full flex items-center justify-center border-2 border-green-100">
-                                            <i class="fa-solid fa-id-card text-5xl text-green-600"></i>
+                                        <div class="absolute inset-0 bg-brand-500/10 rounded-full animate-ping"></div>
+                                        <div class="relative w-32 h-32 bg-brand-50 rounded-full flex items-center justify-center border-2 border-brand-200">
+                                            <i class="fa-solid fa-id-card text-5xl text-brand-600"></i>
                                         </div>
                                     </div>
                                     
@@ -456,14 +456,14 @@
 
                                         <?php if (! $cek_anjungan) : ?>
                                             <div class="relative group">
-                                                <i class="fa-solid fa-lock absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-green-600 transition-colors"></i>
+                                                <i class="fa-solid fa-lock absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-brand-600 transition-colors"></i>
                                                 <input type="password" class="input-premium w-full h-14 rounded-2xl pl-12 pr-4 text-sm font-semibold text-slate-900 required number" name="pin" placeholder="Konfirmasi PIN" id="pin" autocomplete="off">
                                             </div>
                                             <button type="submit" class="btn-mandiri w-full h-16 rounded-2xl text-white font-display font-extrabold tracking-wide text-sm uppercase">Verifikasi Masuk</button>
                                         <?php endif; ?>
 
                                         <div class="pt-6 border-t border-slate-100 mt-8">
-                                            <a href="<?= site_url('layanan-mandiri/masuk') ?>" class="inline-flex items-center space-x-2 px-6 py-3 rounded-xl bg-slate-50 text-slate-500 hover:text-green-600 hover:bg-green-50 transition-all duration-300 group">
+                                            <a href="<?= site_url('layanan-mandiri/masuk') ?>" class="inline-flex items-center space-x-2 px-6 py-3 rounded-xl bg-slate-50 text-slate-500 hover:text-brand-600 hover:bg-brand-50 transition-all duration-300 group">
                                                 <i class="fa-solid fa-keyboard text-xs group-hover:-translate-y-0.5 transition-transform"></i>
                                                 <span class="text-[10px] font-black uppercase tracking-widest">Gunakan NIK & PIN</span>
                                             </a>

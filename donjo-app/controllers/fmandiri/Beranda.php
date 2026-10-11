@@ -42,18 +42,40 @@ class Beranda extends Mandiri_Controller
     public function __construct()
     {
         parent::__construct();
-        $this->load->model(['mandiri_model', 'penduduk_model', 'kelompok_model', 'web_dokumen_model', 'pendapat_model', 'mailbox_model']);
+        $this->load->model(['mandiri_model', 'penduduk_model', 'kelompok_model', 'web_dokumen_model', 'pendapat_model', 'mailbox_model', 'permohonan_surat_model']);
         $this->load->helper('download');
+        $this->load->library('OTP/OTP_manager', null, 'otp_library');
     }
 
     public function index()
     {
-        $inbox = $this->mailbox_model->count_inbox_pesan($this->is_login->nik);
-        if ($inbox) {
-            redirect('layanan-mandiri/pesan-masuk');
-        } else {
-            redirect('layanan-mandiri/permohonan-surat');
-        }
+        $id_pend = (int) $this->is_login->id_pend;
+        $nik = $this->is_login->nik;
+
+        $permohonan_list = $this->permohonan_surat_model->list_permohonan_perorangan($id_pend, 1) ?: [];
+        $pesan_list = $this->mailbox_model->get_all_pesan($nik, 2) ?: [];
+        $penduduk = $this->penduduk_model->get_penduduk($id_pend);
+
+        $tgl_tele = $this->otp_library->driver('telegram')->cek_verifikasi_otp($id_pend);
+        $tgl_email = $this->otp_library->driver('email')->cek_verifikasi_otp($id_pend);
+
+        $akun_penduduk = $this->db->select('telegram, email, telegram_tgl_verifikasi, email_tgl_verifikasi')
+            ->where('id', $id_pend)
+            ->get('tweb_penduduk')
+            ->row();
+
+        $data = [
+            'permohonan_terkini'      => array_slice($permohonan_list, 0, 5),
+            'total_permohonan'        => count($permohonan_list),
+            'pesan_terkini'           => array_slice($pesan_list, 0, 3),
+            'total_pesan'             => count($pesan_list),
+            'penduduk'                => $penduduk,
+            'tgl_verifikasi_telegram' => $tgl_tele,
+            'tgl_verifikasi_email'    => $tgl_email,
+            'akun_penduduk'           => $akun_penduduk,
+        ];
+
+        $this->render('beranda', $data);
     }
 
     public function profil()

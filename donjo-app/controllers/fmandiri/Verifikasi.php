@@ -45,31 +45,31 @@ class Verifikasi extends Mandiri_Controller
         $this->load->library('OTP/OTP_manager', null, 'otp_library');
     }
 
+    private function _prepare_data()
+    {
+        $id_pend = $this->is_login->id_pend;
+        $tgl_tele = $this->otp_library->driver('telegram')->cek_verifikasi_otp($id_pend);
+        $tgl_email = $this->otp_library->driver('email')->cek_verifikasi_otp($id_pend);
+        $akun_penduduk = $this->db->select('telegram, email, telegram_tgl_verifikasi, email_tgl_verifikasi')
+            ->where('id', $id_pend)
+            ->get('tweb_penduduk')
+            ->row();
+
+        return [
+            'tgl_verifikasi_telegram' => $tgl_tele,
+            'tgl_verifikasi_email'    => $tgl_email,
+            'sudah_verifikasi_semua'  => ($tgl_tele && $tgl_email),
+            'form_kirim_userid'       => site_url('layanan-mandiri/verifikasi/telegram/kirim-userid'),
+            'form_kirim_otp'          => site_url('layanan-mandiri/verifikasi/telegram/kirim-otp'),
+            'form_kirim_email'        => site_url('layanan-mandiri/verifikasi/email/kirim-email'),
+            'form_kirim_otp_email'    => site_url('layanan-mandiri/verifikasi/email/kirim-otp'),
+            'akun_penduduk'           => $akun_penduduk,
+        ];
+    }
+
     public function index()
     {
-        $data = [
-            'tgl_verifikasi_telegram' => $this->otp_library->driver('telegram')->cek_verifikasi_otp($this->is_login->id_pend),
-            'tgl_verifikasi_email'    => $this->otp_library->driver('email')->cek_verifikasi_otp($this->is_login->id_pend),
-            'form_kirim_userid'       => site_url('layanan-mandiri/verifikasi/telegram/kirim-userid'),
-            'form_kirim_email'        => site_url('layanan-mandiri/verifikasi/email/kirim-email'),
-        ];
-
-        if ($data['tgl_verifikasi_telegram']) {
-            $this->session->set_flashdata('sudah-diverifikasi', '#langkah-4');
-        }
-
-        if ($data['tgl_verifikasi_email']) {
-            $this->session->set_flashdata('sudah-diverifikasi-email', '#langkah-4');
-        }
-
-        if ($data['tgl_verifikasi_telegram'] && $data['tgl_verifikasi_email']) {
-            $this->session->set_flashdata('sudah-verifikasi-semua', 1);
-        }
-
-        $this->session->set_flashdata('tab-aktif', [
-            'status' => 0,
-        ]);
-
+        $data = $this->_prepare_data();
         $this->render('verifikasi', $data);
     }
 
@@ -78,25 +78,7 @@ class Verifikasi extends Mandiri_Controller
      */
     public function telegram()
     {
-        $data = [
-            'tgl_verifikasi_telegram' => $this->otp_library->driver('telegram')->cek_verifikasi_otp($this->is_login->id_pend),
-            'tgl_verifikasi_email'    => $this->otp_library->driver('email')->cek_verifikasi_otp($this->is_login->id_pend),
-            'form_kirim_userid'       => site_url('layanan-mandiri/verifikasi/telegram/kirim-userid'),
-            'form_kirim_otp'          => site_url('layanan-mandiri/verifikasi/telegram/kirim-otp'),
-        ];
-
-        if ($data['tgl_verifikasi_telegram']) {
-            $this->session->set_flashdata('sudah-diverifikasi', '#langkah4');
-        }
-
-        if ($data['tgl_verifikasi_email']) {
-            $this->session->set_flashdata('sudah-diverifikasi-email', '#langkah4');
-        }
-
-        $this->session->set_flashdata('tab-aktif', [
-            'status' => 0,
-        ]);
-
+        $data = $this->_prepare_data();
         $this->render('verifikasi', $data);
     }
 
@@ -178,7 +160,7 @@ class Verifikasi extends Mandiri_Controller
                 log_message('error', $e);
             }
 
-            redirect('layanan-mandiri/verifikasi/telegram/#langkah-4');
+            redirect('layanan-mandiri/verifikasi/telegram');
         }
 
         $this->session->set_flashdata('notif_verifikasi', [
@@ -194,24 +176,7 @@ class Verifikasi extends Mandiri_Controller
      */
     public function email()
     {
-        $data = [
-            'tgl_verifikasi_telegram' => $this->otp_library->driver('telegram')->cek_verifikasi_otp($this->is_login->id_pend),
-            'tgl_verifikasi_email'    => $this->otp_library->driver('email')->cek_verifikasi_otp($this->is_login->id_pend),
-            'form_kirim_email'        => site_url('layanan-mandiri/verifikasi/email/kirim-email'),
-            'form_kirim_otp_email'    => site_url('layanan-mandiri/verifikasi/email/kirim-otp'),
-        ];
-
-        if ($data['tgl_verifikasi_telegram']) {
-            $this->session->set_flashdata('sudah-diverifikasi', '#langkah4');
-        }
-
-        if ($data['tgl_verifikasi_email']) {
-            $this->session->set_flashdata('sudah-diverifikasi-email', '#langkah4');
-        }
-
-        $this->session->set_flashdata('tab-aktif', [
-            'status' => 1,
-        ]);
+        $data = $this->_prepare_data();
         $this->render('verifikasi', $data);
     }
 
@@ -293,7 +258,7 @@ class Verifikasi extends Mandiri_Controller
                 log_message('error', $e);
             }
 
-            redirect('layanan-mandiri/verifikasi/email/#langkah-4');
+            redirect('layanan-mandiri/verifikasi/email');
         }
 
         $this->session->set_flashdata('notif_verifikasi', [

@@ -31,12 +31,12 @@
                     },
                     colors: {
                         brand: {
-                            50: '#f0fdf4',
-                            100: '#dcfce7',
+                            50: '#eff6ff',
+                            100: '#dbeafe',
                             500: '#22c55e',
-                            600: '#16a34a',
-                            700: '#15803d',
-                            900: '#14532d',
+                            600: '#2563eb',
+                            700: '#1d4ed8',
+                            900: '#1e3a8a',
                         },
                     }
                 }
@@ -72,7 +72,7 @@
             outline: none;
         }
         .btn-mandiri {
-            background: linear-gradient(135deg, #16a34a 0%, #14532d 100%);
+            background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
             box-shadow: 0 10px 15px -3px rgba(22, 163, 74, 0.3);
             transition: all 0.3s ease;
         }
@@ -156,7 +156,7 @@
     <div class="w-full lg:w-2/5 xl:w-[35%] bg-white flex items-center justify-center p-8 md:p-16 xl:p-20 relative overflow-y-auto">
         <div class="w-full max-w-md">
             <div class="mb-10 lg:mb-12">
-                <a href="<?= site_url('layanan-mandiri/masuk') ?>" class="inline-flex items-center text-green-700 font-bold text-xs uppercase tracking-widest mb-8 hover:text-green-800 transition-colors">
+                <a href="<?= site_url('layanan-mandiri/masuk') ?>" class="inline-flex items-center text-brand-600 font-bold text-xs uppercase tracking-widest mb-8 hover:text-brand-700 transition-colors">
                     <i class="fa-solid fa-arrow-left mr-2"></i> Kembali ke Masuk
                 </a>
                 <h2 class="font-display text-3xl font-extrabold text-slate-900 mb-2">Lupa PIN?</h2>
@@ -175,15 +175,15 @@
                 <?php else : ?>
                     <?php if ($lupa_pin = $this->session->flashdata('lupa_pin')) : ?>
                         <div class="mb-8 p-6 bg-green-50 border border-green-100 rounded-[2rem] flex items-start space-x-4">
-                            <i class="fa-solid fa-circle-check text-green-600 text-xl mt-1"></i>
-                            <p class="text-green-800 text-sm font-medium leading-relaxed"><?= $lupa_pin['pesan']; ?></p>
+                            <i class="fa-solid fa-circle-check text-brand-600 text-xl mt-1"></i>
+                            <p class="text-brand-700 text-sm font-medium leading-relaxed"><?= $lupa_pin['pesan']; ?></p>
                         </div>
                     <?php else : ?>
                         <div class="space-y-6">
                             <div class="space-y-2">
                                 <label class="text-sm font-bold text-slate-700 ml-1">NIK (Nomor Induk Kependudukan)</label>
                                 <div class="relative group">
-                                    <i class="fa-solid fa-id-card absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-green-600 transition-colors"></i>
+                                    <i class="fa-solid fa-id-card absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-brand-600 transition-colors"></i>
                                     <input type="text" autocomplete="off" name="nik" placeholder="16 digit NIK" maxlength="16"
                                         class="input-premium w-full h-14 rounded-2xl pl-12 pr-4 text-sm font-semibold text-slate-900 required nik <?= jecho($cek_anjungan['keyboard'] == 1, true, 'kbvnumber'); ?>">
                                 </div>
