@@ -95,6 +95,8 @@ Terima kasih pada @ruririzal dan @syahransaputra yang terus berkontribusi.
 47. Perbaikan tata letak sidebar Layanan Mandiri: memindahkan menu Dokumen ke bawah Cetak Salinan KK, serta mengeliminasi gaya garis bawah (text underline) global agar tampilan antarmuka lebih rapi dan bersih.
 48. Perbaikan pembungkusan teks (word wrapping) judul surat dan posisi badge status pada kartu permohonan surat terkini di layar perangkat mobile agar teks tidak terpotong atau menyempit vertikal.
 49. Perbaikan tombol aksi Ganti PIN dan elemen kartu aksi pada layar mobile agar tidak terpotong (clipped) atau meluap dari batas kontainer.
+50. Perbaikan pemetaan placeholder status kawin dan pendidikan pasangan pada surat RTF Keterangan Nikah (`template-surat/surat_ket_nikah`).
+51. Penanganan token CSRF dan status indikator pengiriman pada tombol kirim permohonan surat Layanan Mandiri serta perbaikan validasi elemen penandatangan pamong.
 
 #### Perubahan Teknis
 

@@ -7,7 +7,7 @@
         <button type="reset" onclick="$('#validasi').trigger('reset');" class="btn btn-social btn-flat btn-danger btn-sm"><i class="fa fa-times"></i> Batal</button>
     <?php endif; ?>
     <?php if ($mandiri): ?>
-        <button type="button" onclick="$('#validasi').attr('action', '<?= site_url(MANDIRI . '/surat/kirim/' . $permohonan['id'])?>'); $('#validasi').submit();" class="btn btn-social btn-flat btn-success btn-sm pull-right" style="margin-right: 5px;"><i class="fa fa-file-text"></i> Kirim</button>
+        <button type="button" id="btn_kirim_mandiri" onclick="kirim_permohonan_mandiri(this);" class="btn btn-social btn-flat btn-success btn-sm pull-right" style="margin-right: 5px;"><i class="fa fa-file-text"></i> Kirim</button>
     <?php else: ?>
         <?php if (SuratExport($url) && function_exists('exec') && $this->setting->libreoffice_path) : ?>
             <button type="button" onclick="tambah_elemen_cetak('cetak_pdf');" class="btn btn-social btn-flat bg-fuchsia btn-sm pull-right" style="margin-right: 5px;"><i class="fa fa-file-pdf-o"></i> Cetak PDF</button>
@@ -23,6 +23,29 @@
             ke Permohonan Surat<i class="fa fa-arrow-circle-right"></i></a>
 </div>
 <script type="text/javascript">
+    function kirim_permohonan_mandiri(btn) {
+        var form = document.getElementById('validasi');
+        if (!form) return;
+
+        // Pastikan token CSRF selalu terisi terbaru
+        if (typeof addCsrfField === 'function') {
+            addCsrfField(form);
+        } else if (typeof getCsrfToken === 'function' && typeof csrfParam !== 'undefined') {
+            var csrfInput = form.querySelector('input[name="' + csrfParam + '"]');
+            if (!csrfInput) {
+                csrfInput = document.createElement('input');
+                csrfInput.type = 'hidden';
+                csrfInput.name = csrfParam;
+                form.appendChild(csrfInput);
+            }
+            csrfInput.value = getCsrfToken();
+        }
+
+        $(btn).prop('disabled', true).html('<i class="fa fa-spinner fa-spin"></i> Mengirim...');
+        form.action = '<?= site_url(MANDIRI . '/surat/kirim/' . ($permohonan['id'] ?? '')) ?>';
+        form.submit();
+    }
+
     function tambah_elemen_cetak($nilai) {
         $('<input>').attr({
                 type: 'hidden',

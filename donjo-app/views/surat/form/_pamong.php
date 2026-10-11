@@ -28,10 +28,16 @@
 
 <script type="text/javascript">
     $(document).ready(function() {
-        $('#atas_nama').change();
+        if ($('#atas_nama').length) {
+            $('#atas_nama').change();
+        }
     });
 
     function ganti_ttd(atas_nama) {
+        if (!atas_nama || typeof atas_nama !== 'string') {
+            return;
+        }
+
         if (atas_nama.includes('a.n')) {
             ub = $("#pamong option[data-ttd='1']").val();
 
