@@ -97,6 +97,7 @@ Terima kasih pada @ruririzal dan @syahransaputra yang terus berkontribusi.
 49. Perbaikan tombol aksi Ganti PIN dan elemen kartu aksi pada layar mobile agar tidak terpotong (clipped) atau meluap dari batas kontainer.
 50. Perbaikan pemetaan placeholder status kawin dan pendidikan pasangan pada surat RTF Keterangan Nikah (`template-surat/surat_ket_nikah`).
 51. Penanganan token CSRF dan status indikator pengiriman pada tombol kirim permohonan surat Layanan Mandiri serta perbaikan validasi elemen penandatangan pamong.
+52. Perbaikan icon favicon website desa, panel admin, dan layanan mandiri agar menampilkan logo resmi desa Balongbesuk serta penambahan tag multi-ukuran (PNG 32x32, 16x16, apple-touch-icon) dan cache-busting.
 
 #### Perubahan Teknis
 
@@ -119,4 +120,9 @@ Terima kasih pada @ruririzal dan @syahransaputra yang terus berkontribusi.
 17. [#2625](https://github.com/OpenSID/premium/issues/2625) Pembatasan akses unggah file berbahaya melalui RFM.
 18. Refaktor modul `KkScanOcrParser`: integrasi runner Python mandiri dengan multi-path site-packages (cPanel/Linux/Windows), pipeline fallback rotasi otomatis (90°, -90°, 180°), dan penanganan direct object mapping `boxes` & `txts`.
 19. Penambahan controller `fmandiri/Beranda.php` dan view `fmandiri/beranda.php` terintegrasi dengan pemuatan data real-time pemohon, status identifikasi, dan relasi log surat.
-20. Optimalisasi stylesheet dan penanganan konflik kelas utilitas Tailwind CSS dengan framework Bootstrap 3 pada layout utama `fmandiri/template.php` menggunakan helper class `.hide-on-mobile`.
+20. Optimalisasi stylesheet dan penanganan konflik kelas utilitas Tailwind CSS dengan framework Bootstrap 3 pada layout utama `fmandiri/template.php` menggunakan helper class `.hide-on-mobile`.
+21. Optimasi & perbaikan modul Scan OCR Kartu Keluarga (`KkScanOcrParser`):
+    - Penanganan `std::bad_alloc` (Out of Memory) pada shared hosting melalui auto-downscale gambar maksimal 1400px, pembatasan single-thread ONNX/BLAS, dan inisialisasi low-memory mode.
+    - Resolusi dependensi otomatis untuk `onnxruntime` dan `rapidocr[onnxruntime]`.
+    - Integrasi diagnostik server hosting real-time (PHP `exec()`, deteksi Python 3 & versinya, status modul ONNX, RapidOCR, dan OpenCV).
+    - Penambahan fitur Reinstall / Perbaiki Dependensi (1-Click) dan Uninstall Engine langsung dari modal dialog Impor Scan KK.

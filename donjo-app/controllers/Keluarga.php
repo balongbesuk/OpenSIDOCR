@@ -737,42 +737,61 @@ class Keluarga extends Admin_Controller
         if (! function_exists('exec')) {
             echo json_encode([
                 'status'  => false,
-                'message' => 'Fungsi PHP exec() dinonaktifkan di server hosting.',
+                'message' => 'Fungsi PHP exec() dinonaktifkan di server hosting. Silakan aktifkan fungsi exec() di cPanel (Select PHP Version -> Options).',
             ]);
 
             return;
         }
 
-        // Prioritas 1: Install paket baru 'rapidocr' (PP-OCRv4) + 'opencv-python-headless'
-        $cmd    = 'python3 -m pip install --user --upgrade opencv-python-headless rapidocr 2>&1';
+        $infoBefore = \App\Libraries\KkScanOcrParser::getEngineInfo();
+        if (! $infoBefore['has_python']) {
+            echo json_encode([
+                'status'  => false,
+                'message' => 'Python 3 tidak ditemukan di hosting ini. Pastikan paket Python aktif di server hosting / cPanel Anda.',
+            ]);
+
+            return;
+        }
+
+        $userHome = \App\Libraries\KkScanOcrParser::getUserHomeDir();
+        $prefix   = '';
+        if (strtoupper(substr(PHP_OS, 0, 3)) !== 'WIN') {
+            $prefix = 'export PYTHONIOENCODING=utf-8; export RAPIDOCR_HOME=/tmp/.rapidocr; export PADDLE_HOME=/tmp/.paddleocr; ';
+            if (! empty($userHome)) {
+                $prefix .= 'export REAL_USER_HOME=' . escapeshellarg($userHome) . '; ';
+            }
+        }
+
+        // Prioritas 1: Install paket 'onnxruntime', 'rapidocr[onnxruntime]', 'rapidocr', dan 'opencv-python-headless'
+        $cmd    = "{$prefix}python3 -m pip install --user --upgrade onnxruntime \"rapidocr[onnxruntime]\" rapidocr opencv-python-headless 2>&1";
         $output = [];
         @exec($cmd, $output, $code);
 
         // Fallback PEP 668 (externally managed environment di Debian 12 / Ubuntu 24+)
         if ($code !== 0) {
-            $cmdPep = 'python3 -m pip install --user --upgrade --break-system-packages opencv-python-headless rapidocr 2>&1';
+            $cmdPep = "{$prefix}python3 -m pip install --user --upgrade --break-system-packages onnxruntime \"rapidocr[onnxruntime]\" rapidocr opencv-python-headless 2>&1";
             @exec($cmdPep, $output, $code);
         }
 
         // Fallback 2: Coba via pip3 jika python3 -m pip gagal
         if (! \App\Libraries\KkScanOcrParser::isAvailable()) {
-            $cmd2 = 'pip3 install --user --upgrade opencv-python-headless rapidocr 2>&1';
+            $cmd2 = "{$prefix}pip3 install --user --upgrade onnxruntime \"rapidocr[onnxruntime]\" rapidocr opencv-python-headless 2>&1";
             @exec($cmd2, $output, $code);
         }
         if (! \App\Libraries\KkScanOcrParser::isAvailable()) {
-            $cmd2Pep = 'pip3 install --user --upgrade --break-system-packages opencv-python-headless rapidocr 2>&1';
+            $cmd2Pep = "{$prefix}pip3 install --user --upgrade --break-system-packages onnxruntime \"rapidocr[onnxruntime]\" rapidocr opencv-python-headless 2>&1";
             @exec($cmd2Pep, $output, $code);
         }
 
         // Fallback 3: Fallback ke paket lama 'rapidocr_onnxruntime' jika perlu
         if (! \App\Libraries\KkScanOcrParser::isAvailable()) {
-            $cmd3 = 'python3 -m pip install --user --upgrade opencv-python-headless rapidocr_onnxruntime 2>&1';
+            $cmd3 = "{$prefix}python3 -m pip install --user --upgrade onnxruntime opencv-python-headless rapidocr_onnxruntime 2>&1";
             @exec($cmd3, $output, $code);
         }
 
         // Fallback 4: Lingkungan Windows (python)
         if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') {
-            $cmdWin = 'python -m pip install --upgrade opencv-python-headless rapidocr 2>&1';
+            $cmdWin = 'python -m pip install --upgrade onnxruntime "rapidocr[onnxruntime]" rapidocr opencv-python-headless 2>&1';
             @exec($cmdWin, $output, $code);
         }
 
@@ -780,10 +799,10 @@ class Keluarga extends Admin_Controller
 
         if ($info['is_available']) {
             $msg = 'RapidOCR Engine berhasil terpasang dan siap digunakan!';
-            if ($info['has_new'] && $info['has_opencv']) {
-                $msg = 'Berhasil! Engine telah di-upgrade ke versi terbaru (RapidOCR PP-OCRv4 + OpenCV Preprocessing).';
-            } elseif ($info['has_new']) {
-                $msg = 'Berhasil! Engine RapidOCR PP-OCRv4 terbaru telah terpasang.';
+            if ($info['has_new'] && $info['has_onnx'] && $info['has_opencv']) {
+                $msg = 'Berhasil! Engine lengkap telah terpasang (RapidOCR PP-OCRv4 + ONNX Runtime + OpenCV Preprocessing).';
+            } elseif ($info['has_new'] && $info['has_onnx']) {
+                $msg = 'Berhasil! Engine RapidOCR PP-OCRv4 dan ONNX Runtime siap digunakan.';
             }
 
             echo json_encode([
@@ -791,9 +810,61 @@ class Keluarga extends Admin_Controller
                 'message' => $msg,
             ]);
         } else {
+            $kurang = ! empty($info['missing_packages']) ? ' (' . implode(', ', $info['missing_packages']) . ' belum terpasang)' : '';
             echo json_encode([
                 'status'  => false,
-                'message' => 'Gagal memasang RapidOCR. Pesan: ' . implode(' ', array_slice($output, -3)),
+                'message' => 'Gagal memasang dependensi OCR' . $kurang . '. Pesan: ' . implode(' ', array_slice($output, -3)),
+            ]);
+        }
+    }
+
+    public function ajax_uninstall_ocr()
+    {
+        $this->redirect_hak_akses('u');
+
+        if (! function_exists('exec')) {
+            echo json_encode([
+                'status'  => false,
+                'message' => 'Fungsi PHP exec() dinonaktifkan di server hosting.',
+            ]);
+
+            return;
+        }
+
+        $userHome = \App\Libraries\KkScanOcrParser::getUserHomeDir();
+        $prefix   = '';
+        if (strtoupper(substr(PHP_OS, 0, 3)) !== 'WIN') {
+            $prefix = 'export PYTHONIOENCODING=utf-8; ';
+            if (! empty($userHome)) {
+                $prefix .= 'export REAL_USER_HOME=' . escapeshellarg($userHome) . '; ';
+            }
+        }
+
+        $cmd    = "{$prefix}python3 -m pip uninstall -y rapidocr rapidocr_onnxruntime onnxruntime opencv-python-headless 2>&1";
+        $output = [];
+        @exec($cmd, $output, $code);
+
+        if ($code !== 0) {
+            $cmd2 = "{$prefix}pip3 uninstall -y rapidocr rapidocr_onnxruntime onnxruntime opencv-python-headless 2>&1";
+            @exec($cmd2, $output, $code);
+        }
+
+        if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') {
+            $cmdWin = 'python -m pip uninstall -y rapidocr rapidocr_onnxruntime onnxruntime opencv-python-headless 2>&1';
+            @exec($cmdWin, $output, $code);
+        }
+
+        $info = \App\Libraries\KkScanOcrParser::getEngineInfo();
+
+        if (! $info['has_new'] && ! $info['has_old'] && ! $info['has_onnx']) {
+            echo json_encode([
+                'status'  => true,
+                'message' => 'Engine RapidOCR, ONNX Runtime, dan OpenCV berhasil di-uninstall dari server hosting.',
+            ]);
+        } else {
+            echo json_encode([
+                'status'  => true,
+                'message' => 'Proses uninstall selesai. Pesan: ' . implode(' ', array_slice($output, -3)),
             ]);
         }
     }

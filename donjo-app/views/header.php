@@ -9,6 +9,8 @@
     </title>
     <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
     <link rel="shortcut icon" href="<?= favico_desa() ?>" />
+    <link rel="icon" type="image/png" sizes="32x32" href="<?= is_file(FCPATH . 'desa/logo/favicon-32x32.png') ? base_url('desa/logo/favicon-32x32.png?v=' . md5_file(FCPATH . 'desa/logo/favicon-32x32.png')) : favico_desa() ?>">
+    <link rel="icon" type="image/png" sizes="16x16" href="<?= is_file(FCPATH . 'desa/logo/favicon-16x16.png') ? base_url('desa/logo/favicon-16x16.png?v=' . md5_file(FCPATH . 'desa/logo/favicon-16x16.png')) : favico_desa() ?>">
     <link rel="alternate" type="application/rss+xml" title="RSS 2.0" href="<?= base_url('rss.xml') ?>" />
 
 

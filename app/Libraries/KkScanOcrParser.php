@@ -18,6 +18,33 @@ use Exception;
 
 class KkScanOcrParser
 {
+    public static function getUserHomeDir(): string
+    {
+        $home = getenv('HOME') ?: ($_SERVER['HOME'] ?? '');
+        if (! empty($home) && is_dir($home)) {
+            return rtrim($home, '/\\');
+        }
+
+        if (function_exists('posix_getpwuid') && function_exists('posix_geteuid')) {
+            $pw = @posix_getpwuid(posix_geteuid());
+            if (! empty($pw['dir']) && is_dir($pw['dir'])) {
+                return rtrim($pw['dir'], '/\\');
+            }
+        }
+
+        $docRoot = $_SERVER['DOCUMENT_ROOT'] ?? FCPATH;
+        if (preg_match('#^(/home[^/]*/[^/]+)#', $docRoot, $m) && is_dir($m[1])) {
+            return $m[1];
+        }
+
+        $user = get_current_user();
+        if (! empty($user) && is_dir("/home/{$user}")) {
+            return "/home/{$user}";
+        }
+
+        return '';
+    }
+
     public static function getRapidOcrBinary(): string
     {
         if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') {
@@ -34,7 +61,7 @@ class KkScanOcrParser
             return $localLinux;
         }
 
-        $home = getenv('HOME') ?: ($_SERVER['HOME'] ?? '');
+        $home = self::getUserHomeDir();
         if (! empty($home) && file_exists($home . '/.local/bin/rapidocr')) {
             return $home . '/.local/bin/rapidocr';
         }
@@ -53,39 +80,180 @@ class KkScanOcrParser
     {
         $bin         = self::getRapidOcrBinary();
         $hasLocalBin = file_exists($bin);
+        $hasExec     = function_exists('exec');
 
         $isWin        = (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN');
-        $pyCandidates = $isWin ? ['python', 'python3'] : ['python3', 'python'];
+        $pyCandidates = $isWin ? ['python', 'python3'] : ['python3', '/usr/bin/python3', '/usr/local/bin/python3', 'python'];
 
-        $hasNew    = false;
-        $hasOld    = false;
-        $hasOpencv = false;
+        $hasPython     = false;
+        $pythonBinary  = null;
+        $pythonVersion = null;
 
-        $checkPy = "r=0; o=0; c=0\ntry:\n import rapidocr; r=1\nexcept: pass\ntry:\n import rapidocr_onnxruntime; o=1\nexcept: pass\ntry:\n import cv2; c=1\nexcept: pass\nprint(f'{r},{o},{c}')";
-
-        foreach ($pyCandidates as $py) {
-            $cmd  = "{$py} -c " . escapeshellarg($checkPy) . ' 2>&1';
-            $out  = [];
-            $code = 1;
-            @exec($cmd, $out, $code);
-            $last  = trim(end($out) ?: '');
-            $parts = explode(',', $last);
-            if (count($parts) === 3) {
-                $hasNew    = ($parts[0] === '1');
-                $hasOld    = ($parts[1] === '1');
-                $hasOpencv = ($parts[2] === '1');
-                break;
+        if ($hasExec) {
+            foreach ($pyCandidates as $py) {
+                $vOut  = [];
+                $vCode = 1;
+                @exec("{$py} --version 2>&1", $vOut, $vCode);
+                if ($vCode === 0 && ! empty($vOut)) {
+                    $hasPython     = true;
+                    $pythonBinary  = $py;
+                    $pythonVersion = trim(implode(' ', $vOut));
+                    break;
+                }
             }
         }
 
-        $isAvailable = $hasNew || $hasOld || $hasLocalBin || self::isAvailable();
+        $hasNew      = false;
+        $hasOld      = false;
+        $hasOnnx     = false;
+        $hasOpencv   = false;
+        $engineWorks = false;
+
+        if ($hasPython && $hasExec) {
+            $userHome = self::getUserHomeDir();
+            $prefix   = '';
+            if (! $isWin) {
+                $prefix = 'export PYTHONIOENCODING=utf-8; export RAPIDOCR_HOME=/tmp/.rapidocr; export PADDLE_HOME=/tmp/.paddleocr; ';
+                if (! empty($userHome)) {
+                    $prefix .= 'export REAL_USER_HOME=' . escapeshellarg($userHome) . '; ';
+                }
+            }
+
+            $checkPy = <<<'PYTHON'
+import os, sys, glob
+
+candidate_homes = []
+if os.environ.get('REAL_USER_HOME'):
+    candidate_homes.append(os.environ['REAL_USER_HOME'])
+if os.environ.get('HOME') and os.environ.get('HOME') != '/tmp':
+    candidate_homes.append(os.environ['HOME'])
+try:
+    import pwd
+    candidate_homes.append(pwd.getpwuid(os.getuid()).pw_dir)
+except Exception:
+    pass
+try:
+    h = os.path.expanduser('~')
+    if h and h != '/tmp':
+        candidate_homes.append(h)
+except Exception:
+    pass
+
+patterns = []
+for h in set(candidate_homes):
+    if h and os.path.isdir(h):
+        patterns.append(os.path.join(h, '.local/lib/python*/site-packages'))
+        patterns.append(os.path.join(h, 'virtualenv/*/lib/python*/site-packages'))
+        patterns.append(os.path.join(h, '.local/share/virtualenvs/*/lib/python*/site-packages'))
+
+patterns.extend([
+    '/root/.local/lib/python*/site-packages',
+    '/var/www/.local/lib/python*/site-packages',
+])
+
+for pat in patterns:
+    try:
+        for sp in glob.glob(pat):
+            if sp not in sys.path and os.path.isdir(sp):
+                sys.path.insert(0, sp)
+    except Exception:
+        pass
+
+r = 0
+o = 0
+ort = 0
+c = 0
+works = 0
+
+try:
+    import rapidocr
+    r = 1
+except Exception:
+    pass
+
+try:
+    import rapidocr_onnxruntime
+    o = 1
+except Exception:
+    pass
+
+try:
+    import onnxruntime
+    ort = 1
+except Exception:
+    pass
+
+try:
+    import cv2
+    c = 1
+except Exception:
+    pass
+
+try:
+    if r and ort:
+        from rapidocr import RapidOCR
+        engine = RapidOCR()
+        works = 1
+    elif o:
+        from rapidocr_onnxruntime import RapidOCR
+        engine = RapidOCR()
+        works = 1
+except Exception:
+    pass
+
+print(f"{r},{o},{ort},{c},{works}")
+PYTHON;
+
+            $scriptCheckPath = sys_get_temp_dir() . '/ocr_check_' . md5(uniqid((string) mt_rand(), true)) . '.py';
+            @file_put_contents($scriptCheckPath, $checkPy);
+
+            $cmd  = "{$prefix}{$pythonBinary} " . escapeshellarg($scriptCheckPath) . ' 2>&1';
+            $out  = [];
+            $code = 1;
+            @exec($cmd, $out, $code);
+            @unlink($scriptCheckPath);
+
+            $last  = trim(end($out) ?: '');
+            $parts = explode(',', $last);
+            if (count($parts) === 5) {
+                $hasNew      = ($parts[0] === '1');
+                $hasOld      = ($parts[1] === '1');
+                $hasOnnx     = ($parts[2] === '1');
+                $hasOpencv   = ($parts[3] === '1');
+                $engineWorks = ($parts[4] === '1');
+            }
+        }
+
+        // Hitung dependensi yang kurang
+        $missingPackages = [];
+        if ($hasNew && ! $hasOnnx) {
+            $missingPackages[] = 'onnxruntime';
+        }
+        if (! $hasNew && ! $hasOld) {
+            $missingPackages[] = 'rapidocr';
+            if (! $hasOnnx) {
+                $missingPackages[] = 'onnxruntime';
+            }
+        }
+        if (! $hasOpencv) {
+            $missingPackages[] = 'opencv-python-headless';
+        }
+
+        $isAvailable = $hasLocalBin || $engineWorks;
 
         return [
-            'is_available' => $isAvailable,
-            'has_new'      => $hasNew,
-            'has_old'      => $hasOld,
-            'has_opencv'   => $hasOpencv,
-            'is_latest'    => ($hasNew && $hasOpencv),
+            'is_available'     => $isAvailable,
+            'has_exec'         => $hasExec,
+            'has_python'       => $hasPython,
+            'python_binary'    => $pythonBinary,
+            'python_version'   => $pythonVersion,
+            'has_new'          => $hasNew,
+            'has_old'          => $hasOld,
+            'has_onnx'         => $hasOnnx,
+            'has_opencv'       => $hasOpencv,
+            'engine_works'     => $engineWorks,
+            'is_latest'        => ($hasNew && $hasOnnx && $hasOpencv && $engineWorks),
+            'missing_packages' => $missingPackages,
         ];
     }
 
@@ -96,57 +264,9 @@ class KkScanOcrParser
             return true;
         }
 
-        $isWin = (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN');
+        $info = self::getEngineInfo();
 
-        if ($isWin) {
-            @exec('where rapidocr', $out, $code);
-            if ($code === 0 && ! empty($out)) {
-                return true;
-            }
-
-            // Cek paket Python di Windows
-            @exec('python -c "import rapidocr" 2>&1', $outPyWin, $codePyWin);
-            if ($codePyWin === 0) {
-                return true;
-            }
-
-            @exec('python -c "import rapidocr_onnxruntime" 2>&1', $outPyOldWin, $codePyOldWin);
-            if ($codePyOldWin === 0) {
-                return true;
-            }
-
-            return false;
-        }
-
-        // Cek lokasi .local/bin/rapidocr di Linux cPanel
-        $home = getenv('HOME') ?: ($_SERVER['HOME'] ?? '');
-        if (! empty($home) && file_exists($home . '/.local/bin/rapidocr')) {
-            return true;
-        }
-
-        $userHomeBin = '/home/' . get_current_user() . '/.local/bin/rapidocr';
-        if (file_exists($userHomeBin)) {
-            return true;
-        }
-
-        // Cek via modul python3: prioritas paket baru 'rapidocr'
-        $outPy = [];
-        @exec('python3 -c "import rapidocr" 2>&1', $outPy, $codePy);
-        if ($codePy === 0) {
-            return true;
-        }
-
-        // Fallback: cek paket lama 'rapidocr_onnxruntime' (deprecated)
-        $outPyOld = [];
-        @exec('python3 -m rapidocr_onnxruntime -h 2>&1', $outPyOld, $codePyOld);
-        $outPyStr = implode(' ', $outPyOld);
-        if ($codePyOld === 0 || strpos($outPyStr, 'rapidocr') !== false || strpos($outPyStr, 'usage') !== false || strpos($outPyStr, 'options') !== false) {
-            return true;
-        }
-
-        @exec('which rapidocr 2>&1', $outWhich, $codeWhich);
-
-        return $codeWhich === 0 && ! empty($outWhich);
+        return ! empty($info['is_available']);
     }
 
     /**
@@ -233,16 +353,39 @@ class KkScanOcrParser
         $pyScript = <<<'PYTHON'
 import os, sys, tempfile, glob
 
-patterns = [
-    os.path.expanduser('~/.local/lib/python*/site-packages'),
-    '/home/*/.local/lib/python*/site-packages',
+candidate_homes = []
+if os.environ.get('REAL_USER_HOME'):
+    candidate_homes.append(os.environ['REAL_USER_HOME'])
+if os.environ.get('HOME') and os.environ.get('HOME') != '/tmp':
+    candidate_homes.append(os.environ['HOME'])
+try:
+    import pwd
+    candidate_homes.append(pwd.getpwuid(os.getuid()).pw_dir)
+except Exception:
+    pass
+try:
+    h = os.path.expanduser('~')
+    if h and h != '/tmp':
+        candidate_homes.append(h)
+except Exception:
+    pass
+
+patterns = []
+for h in set(candidate_homes):
+    if h and os.path.isdir(h):
+        patterns.append(os.path.join(h, '.local/lib/python*/site-packages'))
+        patterns.append(os.path.join(h, 'virtualenv/*/lib/python*/site-packages'))
+        patterns.append(os.path.join(h, '.local/share/virtualenvs/*/lib/python*/site-packages'))
+
+patterns.extend([
     '/root/.local/lib/python*/site-packages',
     '/var/www/.local/lib/python*/site-packages',
-]
+])
+
 for pat in patterns:
     try:
         for sp in glob.glob(pat):
-            if sp not in sys.path:
+            if sp not in sys.path and os.path.isdir(sp):
                 sys.path.insert(0, sp)
     except Exception:
         pass
@@ -253,6 +396,13 @@ try:
     img = cv2.imread(sys.argv[1])
     if img is None:
         sys.exit(1)
+
+    # 0. Downscale resolusi maksimal 1400px agar tidak melebihi kuota RAM shared hosting (std::bad_alloc)
+    ih, iw = img.shape[:2]
+    max_d = 1400
+    if max(ih, iw) > max_d:
+        scale = max_d / float(max(ih, iw))
+        img = cv2.resize(img, (int(iw * scale), int(ih * scale)), interpolation=cv2.INTER_AREA)
 
     # 1. Grayscale
     gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
@@ -275,12 +425,22 @@ PYTHON;
         $scriptPath = sys_get_temp_dir() . '/ocr_preprocess_script.py';
         file_put_contents($scriptPath, $pyScript);
 
-        $cmd = "python3 " . escapeshellarg($scriptPath) . " {$escapedInput} {$escapedOutput} 2>&1";
+        $isWin    = (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN');
+        $userHome = self::getUserHomeDir();
+        $prefix   = '';
+        if (! $isWin) {
+            $prefix = 'export PYTHONIOENCODING=utf-8; ';
+            if (! empty($userHome)) {
+                $prefix .= 'export REAL_USER_HOME=' . escapeshellarg($userHome) . '; ';
+            }
+        }
+
+        $cmd = "{$prefix}python3 " . escapeshellarg($scriptPath) . " {$escapedInput} {$escapedOutput} 2>&1";
         $output = [];
         @exec($cmd, $output, $code);
 
         // Fallback Windows: coba 'python' jika 'python3' tidak ditemukan
-        if ($code !== 0 && strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') {
+        if ($code !== 0 && $isWin) {
             $cmd = "python " . escapeshellarg($scriptPath) . " {$escapedInput} {$escapedOutput} 2>&1";
             @exec($cmd, $output, $code);
         }
@@ -347,40 +507,98 @@ PYTHON;
         $pyScript = <<<'PYTHON'
 import os, sys, tempfile, glob, json
 
-# 1. Pastikan HOME & RAPIDOCR_HOME mengarah ke direktori yang writable (/tmp)
+# 1. Kumpulkan kemungkinan direktori home pengguna hosting untuk sys.path
+candidate_homes = []
+if os.environ.get('REAL_USER_HOME'):
+    candidate_homes.append(os.environ['REAL_USER_HOME'])
+if os.environ.get('HOME') and os.environ.get('HOME') != '/tmp':
+    candidate_homes.append(os.environ['HOME'])
+try:
+    import pwd
+    candidate_homes.append(pwd.getpwuid(os.getuid()).pw_dir)
+except Exception:
+    pass
+try:
+    h = os.path.expanduser('~')
+    if h and h != '/tmp':
+        candidate_homes.append(h)
+except Exception:
+    pass
+
+# 2. Sisipkan direktori site-packages lokal jika paket diinstall via pip --user atau virtualenv
+patterns = []
+for h in set(candidate_homes):
+    if h and os.path.isdir(h):
+        patterns.append(os.path.join(h, '.local/lib/python*/site-packages'))
+        patterns.append(os.path.join(h, 'virtualenv/*/lib/python*/site-packages'))
+        patterns.append(os.path.join(h, '.local/share/virtualenvs/*/lib/python*/site-packages'))
+
+patterns.extend([
+    '/root/.local/lib/python*/site-packages',
+    '/var/www/.local/lib/python*/site-packages',
+])
+
+for pat in patterns:
+    try:
+        for sp in glob.glob(pat):
+            if sp not in sys.path and os.path.isdir(sp):
+                sys.path.insert(0, sp)
+    except Exception:
+        pass
+
+# 3. Pastikan folder cache model RapidOCR/PaddleOCR writable (/tmp)
 tmp_dir = tempfile.gettempdir()
+os.environ['RAPIDOCR_HOME'] = os.environ.get('RAPIDOCR_HOME') or os.path.join(tmp_dir, '.rapidocr')
+os.environ['PADDLE_HOME'] = os.environ.get('PADDLE_HOME') or os.path.join(tmp_dir, '.paddleocr')
+os.environ['PYTHONIOENCODING'] = 'utf-8'
+
+# Batasi alokasi thread & memori ONNX Runtime / BLAS agar hemat RAM di shared hosting
+os.environ['OMP_NUM_THREADS'] = '1'
+os.environ['OPENBLAS_NUM_THREADS'] = '1'
+os.environ['MKL_NUM_THREADS'] = '1'
+os.environ['VECLIB_MAXIMUM_THREADS'] = '1'
+os.environ['NUMEXPR_NUM_THREADS'] = '1'
+
 try:
     if 'HOME' not in os.environ or not os.access(os.environ.get('HOME', '/'), os.W_OK):
         os.environ['HOME'] = tmp_dir
 except Exception:
     os.environ['HOME'] = tmp_dir
-os.environ['RAPIDOCR_HOME'] = os.path.join(tmp_dir, '.rapidocr')
-os.environ['PYTHONIOENCODING'] = 'utf-8'
 
-# 2. Sisipkan direktori site-packages lokal jika paket diinstall via pip --user
-patterns = [
-    os.path.expanduser('~/.local/lib/python*/site-packages'),
-    '/home/*/.local/lib/python*/site-packages',
-    '/root/.local/lib/python*/site-packages',
-    '/var/www/.local/lib/python*/site-packages',
-]
-for pat in patterns:
-    try:
-        for sp in glob.glob(pat):
-            if sp not in sys.path:
-                sys.path.insert(0, sp)
-    except Exception:
-        pass
-
-# 3. Jalankan Engine RapidOCR
+# 4. Jalankan Engine RapidOCR (Low-Memory Mode untuk Shared Hosting)
 try:
     try:
         from rapidocr import RapidOCR
     except ImportError:
         from rapidocr_onnxruntime import RapidOCR
 
-    engine = RapidOCR()
-    res = engine(sys.argv[1])
+    # Inisialisasi engine dengan mode hemat memori
+    try:
+        engine = RapidOCR(rec_batch_num=1, intra_op_num_threads=1)
+    except Exception:
+        try:
+            engine = RapidOCR()
+            if hasattr(engine, 'cfg') and hasattr(engine.cfg, 'Rec'):
+                engine.cfg.Rec.rec_batch_num = 1
+        except Exception:
+            engine = RapidOCR()
+
+    # Pastikan ukuran gambar tidak melebihi 1400px untuk mencegah std::bad_alloc (Out of Memory)
+    target_input = sys.argv[1]
+    try:
+        import cv2
+        raw_img = cv2.imread(sys.argv[1])
+        if raw_img is not None:
+            ih, iw = raw_img.shape[:2]
+            max_d = 1400
+            if max(ih, iw) > max_d:
+                scale = max_d / float(max(ih, iw))
+                raw_img = cv2.resize(raw_img, (int(iw * scale), int(ih * scale)), interpolation=cv2.INTER_AREA)
+            target_input = raw_img
+    except Exception:
+        target_input = sys.argv[1]
+
+    res = engine(target_input)
     def to_clean_box(b):
         try:
             if hasattr(b, 'tolist'):
@@ -502,13 +720,17 @@ try:
 except Exception as e:
     import traceback
     err_tb = traceback.format_exc()
-    print('__OCR_ERROR_START__' + str(e) + '\n' + err_tb + '__OCR_ERROR_END__')
+    err_str = str(e)
+    if 'bad_alloc' in err_tb or 'bad_alloc' in err_str:
+        err_str = 'Server hosting kehabisan memori RAM (Out of Memory / std::bad_alloc). Batas RAM akun shared hosting tidak mencukupi untuk memproses foto resolusi ini.'
+    print('__OCR_ERROR_START__' + err_str + '\n' + err_tb + '__OCR_ERROR_END__')
     print('__OCR_JSON_START__[]__OCR_JSON_END__')
 PYTHON;
 
         $scriptPath = sys_get_temp_dir() . '/rapidocr_run_' . md5(uniqid((string) mt_rand(), true)) . '.py';
         file_put_contents($scriptPath, $pyScript);
 
+        $userHome     = self::getUserHomeDir();
         $isWin        = (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN');
         $pyCandidates = $isWin 
             ? ['python', 'python3'] 
@@ -518,8 +740,14 @@ PYTHON;
         $lastErrorMsg  = '';
 
         foreach ($pyCandidates as $pyCmd) {
-            $prefix = $isWin ? '' : 'export HOME=/tmp; export PYTHONIOENCODING=utf-8; ';
-            $cmd    = "{$prefix}{$pyCmd} " . escapeshellarg($scriptPath) . " {$escapedImage} 2>&1";
+            $prefix = '';
+            if (! $isWin) {
+                $prefix = 'export PYTHONIOENCODING=utf-8; export RAPIDOCR_HOME=/tmp/.rapidocr; export PADDLE_HOME=/tmp/.paddleocr; export OMP_NUM_THREADS=1; export OPENBLAS_NUM_THREADS=1; ';
+                if (! empty($userHome)) {
+                    $prefix .= 'export REAL_USER_HOME=' . escapeshellarg($userHome) . '; ';
+                }
+            }
+            $cmd = "{$prefix}{$pyCmd} " . escapeshellarg($scriptPath) . " {$escapedImage} 2>&1";
             $outputArray = [];
             @exec($cmd, $outputArray, $returnVar);
 
@@ -620,6 +848,59 @@ PYTHON;
         return $imagePath;
     }
 
+    /**
+     * Perkecil resolusi gambar (Downscale) maksimal 1400px untuk menghemat RAM shared hosting
+     * Mencegah crash error std::bad_alloc (Out of Memory) pada ONNX Runtime
+     */
+    public static function resizeForOcr(string $imagePath, int $maxDimension = 1400): string
+    {
+        $size = @getimagesize($imagePath);
+        if (! $size) {
+            return $imagePath;
+        }
+
+        $w = $size[0];
+        $h = $size[1];
+
+        // Jika ukuran gambar sudah hemat RAM (<= maxDimension), tidak perlu resize
+        if ($w <= $maxDimension && $h <= $maxDimension) {
+            return $imagePath;
+        }
+
+        if (! function_exists('imagecreatefromjpeg') || ! function_exists('imagecreatetruecolor')) {
+            return $imagePath;
+        }
+
+        if ($w >= $h) {
+            $newW = $maxDimension;
+            $newH = (int) round(($h / $w) * $maxDimension);
+        } else {
+            $newH = $maxDimension;
+            $newW = (int) round(($w / $h) * $maxDimension);
+        }
+
+        $data = @file_get_contents($imagePath);
+        if (! $data) {
+            return $imagePath;
+        }
+
+        $src = @imagecreatefromstring($data);
+        if (! $src) {
+            return $imagePath;
+        }
+
+        $dst = imagecreatetruecolor($newW, $newH);
+        imagecopyresampled($dst, $src, 0, 0, 0, 0, $newW, $newH, $w, $h);
+
+        $resizedPath = sys_get_temp_dir() . '/ocr_res_' . md5($imagePath . @filemtime($imagePath)) . '.jpg';
+        imagejpeg($dst, $resizedPath, 90);
+
+        imagedestroy($src);
+        imagedestroy($dst);
+
+        return $resizedPath;
+    }
+
     public static function parseImage(string $imagePath, string $originalFilename = ''): array
     {
         $targetImage = $imagePath;
@@ -632,15 +913,21 @@ PYTHON;
             }
         }
 
-        // Pastikan posisi gambar Landscape
-        $fixedImage = self::autoEnsureLandscape($targetImage);
+        // Pastikan posisi gambar Landscape dan ukuran aman untuk memori hosting
+        $landscapeImage = self::autoEnsureLandscape($targetImage);
+        $fixedImage     = self::resizeForOcr($landscapeImage, 1400);
 
-        // Tahap 1: Jalankan OCR langsung pada gambar asli (Landscape-normalized)
-        // Paling cepat (< 2-3 detik) dan paling optimal untuk deep learning RapidOCR
+        // Tahap 1: Jalankan OCR langsung pada gambar asli (Landscape & Downscaled)
         $items  = self::executeOcr($fixedImage);
         $result = self::parseRapidOcrData($items);
 
         if (! empty($result['members']) || ! empty($result['header']['no_kk'])) {
+            return $result;
+        }
+
+        // Jika errornya adalah kehabisan memori (std::bad_alloc / OOM), hentikan proses retry agar tidak membebani server
+        if (strpos(self::$lastError, 'bad_alloc') !== false || strpos(self::$lastError, 'Out of Memory') !== false) {
+            self::$lastError = 'Server hosting kehabisan RAM (Out of Memory / std::bad_alloc). Batas RAM akun shared hosting ini terlalu kecil untuk memproses foto Kartu Keluarga. Silakan gunakan menu Impor PDF KK atau kompres resolusi foto menjadi lebih kecil.';
             return $result;
         }
 

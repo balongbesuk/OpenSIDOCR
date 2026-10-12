@@ -174,7 +174,11 @@ $current_url = html_escape($current_url);
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <meta name="apple-mobile-web-app-title" content="Desa Balongbesuk">
-    <link rel="apple-touch-icon" href="<?= base_url('apple-touch-icon.png') ?>">
+    <!-- Favicon & App Icons -->
+    <link rel="shortcut icon" href="<?= favico_desa() ?>">
+    <link rel="icon" type="image/png" sizes="32x32" href="<?= is_file(FCPATH . 'desa/logo/favicon-32x32.png') ? base_url('desa/logo/favicon-32x32.png?v=' . md5_file(FCPATH . 'desa/logo/favicon-32x32.png')) : favico_desa() ?>">
+    <link rel="icon" type="image/png" sizes="16x16" href="<?= is_file(FCPATH . 'desa/logo/favicon-16x16.png') ? base_url('desa/logo/favicon-16x16.png?v=' . md5_file(FCPATH . 'desa/logo/favicon-16x16.png')) : favico_desa() ?>">
+    <link rel="apple-touch-icon" sizes="180x180" href="<?= is_file(FCPATH . 'desa/logo/apple-touch-icon.png') ? base_url('desa/logo/apple-touch-icon.png?v=' . md5_file(FCPATH . 'desa/logo/apple-touch-icon.png')) : base_url('apple-touch-icon.png') ?>">
 
     <!-- OneSignal Push Notification SDK -->
     <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>

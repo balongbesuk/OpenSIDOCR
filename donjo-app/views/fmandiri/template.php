@@ -63,6 +63,8 @@ if ($id_pend_login) {
 
 	<!-- Favicon -->
 	<link rel="shortcut icon" href="<?= favico_desa() ?>" />
+	<link rel="icon" type="image/png" sizes="32x32" href="<?= is_file(FCPATH . 'desa/logo/favicon-32x32.png') ? base_url('desa/logo/favicon-32x32.png?v=' . md5_file(FCPATH . 'desa/logo/favicon-32x32.png')) : favico_desa() ?>">
+	<link rel="icon" type="image/png" sizes="16x16" href="<?= is_file(FCPATH . 'desa/logo/favicon-16x16.png') ? base_url('desa/logo/favicon-16x16.png?v=' . md5_file(FCPATH . 'desa/logo/favicon-16x16.png')) : favico_desa() ?>">
 
 	<!-- Google Fonts: Inter & Outfit -->
 	<link rel="preconnect" href="https://fonts.googleapis.com">
