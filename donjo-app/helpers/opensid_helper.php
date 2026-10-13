@@ -1932,3 +1932,36 @@ if (! function_exists('daftar_statistik')) {
         return $data;
     }
 }
+
+if (! function_exists('cek_pembaruan_aplikasi')) {
+    function cek_pembaruan_aplikasi()
+    {
+        static $info = null;
+        if ($info !== null) {
+            return $info;
+        }
+
+        $info = ['update_available' => false];
+        if (cek_koneksi_internet() && ! config_item('demo_mode')) {
+            try {
+                $url_rilis = config_item('rilis_umum');
+                $release   = new \App\Libraries\Release();
+                $release->setApiUrl($url_rilis)->setCurrentVersion();
+
+                if ($release->isAvailable()) {
+                    $info['update_available'] = true;
+                    $info['current_version']  = 'v' . AmbilVersi();
+                    $info['latest_version']   = $release->getLatestVersion() . (PREMIUM ? '-premium' : '');
+                    $info['release_name']     = $release->getReleaseName();
+                    $info['release_body']     = $release->getReleaseBody();
+                    $info['url_download']     = $release->getReleaseDownload();
+                }
+            } catch (\Throwable $e) {
+                log_message('error', 'Cek pembaruan rilis error: ' . $e->getMessage());
+            }
+        }
+
+        return $info;
+    }
+}
+

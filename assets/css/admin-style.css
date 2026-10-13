@@ -809,3 +809,101 @@ div.form-surat .content-header {
     align-items: center;
     height: auto;
 }
+
+/* Navbar 1 Bar di Tampilan Mobile */
+@media (max-width: 767px) {
+    .main-header {
+        position: relative;
+        height: 50px !important;
+        max-height: 50px !important;
+    }
+
+    .main-header .navbar {
+        width: 100% !important;
+        float: none !important;
+        margin: 0 !important;
+        min-height: 50px !important;
+        height: 50px !important;
+        position: relative;
+    }
+
+    .main-header .sidebar-toggle {
+        float: left !important;
+        position: relative;
+        z-index: 1002;
+        height: 50px;
+        line-height: 20px;
+        padding: 15px !important;
+    }
+
+    .mobile-navbar-title {
+        position: absolute !important;
+        left: 50% !important;
+        top: 0 !important;
+        transform: translateX(-50%) !important;
+        height: 50px !important;
+        line-height: 50px !important;
+        color: #ffffff !important;
+        font-size: 18px !important;
+        font-weight: bold !important;
+        text-align: center !important;
+        white-space: nowrap !important;
+        text-decoration: none !important;
+        z-index: 1000 !important;
+        max-width: calc(100% - 130px);
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    .mobile-navbar-title:hover,
+    .mobile-navbar-title:focus {
+        color: #ffffff !important;
+        text-decoration: none !important;
+    }
+
+    .main-header .navbar-custom-menu {
+        float: right !important;
+        position: relative;
+        z-index: 1002;
+    }
+
+    .main-header .navbar-custom-menu .navbar-nav > li > a {
+        padding: 7px 12px !important;
+        height: 50px !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+    }
+
+    .main-header .navbar-custom-menu .user-image {
+        width: 36px !important;
+        height: 36px !important;
+        border-radius: 50% !important;
+        border: 2px solid rgba(255, 255, 255, 0.85) !important;
+        object-fit: cover !important;
+        margin: 0 !important;
+        float: none !important;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25);
+    }
+
+    .main-header .navbar-custom-menu .avatar-badge {
+        position: absolute !important;
+        top: 5px !important;
+        right: 5px !important;
+        margin: 0 !important;
+        padding: 2px 5px !important;
+        font-size: 10px !important;
+        line-height: 1 !important;
+        border-radius: 10px !important;
+        background-color: #dd4b39 !important;
+        color: #ffffff !important;
+        border: 1.5px solid #ffffff !important;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3) !important;
+    }
+
+    .main-sidebar,
+    .control-sidebar,
+    .fixed .content-wrapper,
+    .fixed .right-side {
+        padding-top: 50px !important;
+    }
+}

@@ -1,6 +1,41 @@
 <aside class="control-sidebar control-sidebar-light">
+    @php
+        $rilis_info = $rilis ?? cek_pembaruan_aplikasi();
+    @endphp
     <div class="box-body">
         <div class="box-group" id="accordion">
+            @if (!empty($rilis_info['update_available']))
+                <div class="panel box box-success">
+                    <div class="box-header with-border" style="background-color: #00a65a; color: #fff;">
+                        <h4 class="box-title" style="width: 100%;">
+                            <a data-toggle="collapse" data-parent="#accordion" href="#collapse-pembaruan" style="color: #fff; font-weight: bold; display: flex; align-items: center; justify-content: space-between;">
+                                <span><i class="fa fa-bullhorn"></i>&nbsp; Pembaruan Tersedia!</span>
+                                <span class="label label-warning" style="font-size: 11px;">{{ $rilis_info['latest_version'] }}</span>
+                            </a>
+                        </h4>
+                    </div>
+                    <div id="collapse-pembaruan" class="panel-collapse collapse in">
+                        <div class="box-body">
+                            <p align="justify">
+                                {{ config_item('nama_aplikasi') }} <code>{{ $rilis_info['latest_version'] }}</code> telah tersedia.
+                                Periksa catatan rilis untuk melihat daftar perubahan di versi ini. Sangat dianjurkan untuk melakukan
+                                pembaruan ke versi terkini, karena setiap rilis berisi perbaikan termasuk peningkatan keamanan data
+                                sejak versi yang anda gunakan saat ini <code>{{ $rilis_info['current_version'] }}</code>.
+                                Petunjuk melakukan pembaruan dapat dilihat di <a href="https://github.com/{{ config_item('nama_aplikasi') }}/{{ config_item('nama_aplikasi') }}/wiki/Panduan-Update-{{ config_item('nama_aplikasi') }}" target="_blank">sini</a>.
+                            </p>
+                            <div style="margin-top: 10px; display: flex; gap: 8px;">
+                                <button class="btn btn-social btn-info btn-sm" data-toggle="modal" data-target="#modal-catatan-rilis">
+                                    <i class="fa fa-book"></i> Catatan Rilis
+                                </button>
+                                <a href="{{ $rilis_info['url_download'] }}" class="btn btn-social bg-navy btn-sm" style="text-decoration: none" target="_blank">
+                                    <i class="fa fa-download"></i> Unduh
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            @endif
+
             <div class="panel box box-default">
                 <div class="box-header with-border">
                     <h4 class="box-title">
@@ -8,7 +43,7 @@
                             <?= config_item('nama_aplikasi') ?></a>
                     </h4>
                 </div>
-                <div id="collapse1" class="panel-collapse collapse in">
+                <div id="collapse1" class="panel-collapse collapse {{ empty($rilis_info['update_available']) ? 'in' : '' }}">
                     <div class="box-body">
                         <p align="justify"><?= config_item('nama_aplikasi') ?> adalah aplikasi Sistem Informasi Desa
                             (SID) yang dikembangkan sejak Mei 2016. <?= config_item('nama_aplikasi') ?> dirancang dan
@@ -250,4 +285,29 @@
             </div>
         </div>
     </div>
+
+    @if (!empty($rilis_info['update_available']))
+        <div id="modal-catatan-rilis" class="modal fade" role="dialog" style="color: #333;">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                        <h4 class="modal-title"><i class="fa fa-book"></i>&nbsp;&nbsp;Catatan Rilis
+                            {{ config_item('nama_aplikasi') }} <small class="label label-success">{{ $rilis_info['latest_version'] }}</small></h4>
+                    </div>
+                    <div class="modal-body rilis" style="max-height: 450px; overflow-y: auto;">
+                        {!! nl2br($rilis_info['release_body']) !!}
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-social btn-danger btn-sm pull-left" data-dismiss="modal"><i class='fa fa-sign-out'></i> Tutup</button>
+                        <a href="{{ $rilis_info['url_download'] }}" class="btn btn-social bg-navy btn-sm pull-right" target="_blank">
+                            <i class="fa fa-download"></i> Unduh
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    @endif
 </aside>
