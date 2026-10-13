@@ -978,13 +978,31 @@ div.form-surat .content-header {
     word-break: break-word !important;
 }
 
-/* Penyesuaian saat sidebar di-collapse (desktop mini) */
+/* Penyesuaian saat sidebar di-collapse (desktop mini lebar 50px) */
+.sidebar-collapse .main-sidebar .user-panel,
 .sidebar-mini.sidebar-collapse .main-sidebar .user-panel {
-    padding: 10px 0 !important;
+    padding: 12px 0 !important;
     justify-content: center !important;
     gap: 0 !important;
 }
 
+.sidebar-collapse .main-sidebar .user-panel > .image,
+.sidebar-mini.sidebar-collapse .main-sidebar .user-panel > .image {
+    width: 100% !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    margin: 0 auto !important;
+}
+
+.sidebar-collapse .main-sidebar .user-panel > .image > img,
+.sidebar-mini.sidebar-collapse .main-sidebar .user-panel > .image > img {
+    max-width: 30px !important;
+    width: 30px !important;
+    height: 30px !important;
+}
+
+.sidebar-collapse .main-sidebar .user-panel > .info,
 .sidebar-mini.sidebar-collapse .main-sidebar .user-panel > .info {
     display: none !important;
 }
