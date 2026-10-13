@@ -102,6 +102,7 @@ Terima kasih pada @ruririzal dan @syahransaputra yang terus berkontribusi.
 51. Penanganan token CSRF dan status indikator pengiriman pada tombol kirim permohonan surat Layanan Mandiri serta perbaikan validasi elemen penandatangan pamong.
 52. Perbaikan icon favicon website desa, panel admin, dan layanan mandiri agar menampilkan logo resmi desa Balongbesuk serta penambahan tag multi-ukuran (PNG 32x32, 16x16, apple-touch-icon) dan cache-busting.
 53. Perbaikan penanganan blokir login admin (/siteman) agar status pemblokiran (lockout) tetap persisten dan hitung mundur tetap berjalan saat halaman di-refresh setelah salah kata sandi 3 kali.
+54. Perbaikan pencegahan duplikasi nomor dan arsip surat ganda pada pencetakan surat (RTF/PDF): penambahan proteksi anti-double submit pada tombol cetak, umpan balik proses unduh, serta validasi backend cerdas agar tidak menaikkan nomor surat dan tidak membuat arsip duplikat saat terjadi pengunduhan ulang untuk pemohon yang sama pada hari yang sama.
 
 #### Perubahan Teknis
 
