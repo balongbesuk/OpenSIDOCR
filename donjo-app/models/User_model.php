@@ -100,10 +100,11 @@ class User_model extends MY_Model
             return $this->setLogin($user);
         }
 
-        if ($this->is_max_login_attempts_exceeded($this->_username, $ip_address)) {
+        if ($this->is_max_login_attempts_exceeded($this->_username, $ip_address) || $this->is_ip_blocked($ip_address)) {
             $this->session->siteman = -1;
 
-            $this->session->set_flashdata('time_block', $this->get_last_attempt_time($this->_username, $ip_address));
+            $block_time = $this->get_active_block_time($ip_address, $this->_username) ?: $this->get_last_attempt_time($this->_username, $ip_address);
+            $this->session->set_flashdata('time_block', $block_time);
 
             return false;
         }
@@ -908,8 +909,9 @@ class User_model extends MY_Model
             $count   = $this->get_attempts_num($identity, $ip_address);
             $message = 'LOGIN GAGAL.<br>NAMA PENGGUNA ATAU KATA SANDI YANG ANDA MASUKKAN SALAH!<br>KESEMPATAN MENCOBA ' . (config_item('maximum_login_attempts') - $count) . ' KALI LAGI';
 
-            if ($this->is_max_login_attempts_exceeded($identity, $ip_address)) {
-                $this->session->set_flashdata('time_block', $this->get_last_attempt_time($this->_username, $ip_address));
+            if ($this->is_max_login_attempts_exceeded($identity, $ip_address) || $this->is_ip_blocked($ip_address)) {
+                $block_time = $this->get_active_block_time($ip_address, $identity) ?: $this->get_last_attempt_time($identity, $ip_address);
+                $this->session->set_flashdata('time_block', $block_time);
                 $message = 'LOGIN GAGAL.<br>NAMA PENGGUNA ATAU KATA SANDI YANG ANDA MASUKKAN SALAH!';
             }
             $this->session->set_flashdata('attempts_error', $message);
@@ -924,16 +926,82 @@ class User_model extends MY_Model
                 ->orderBy('id', 'DESC')
                 ->first();
 
-            return $last_try->time;
+            return $last_try ? $last_try->time : (time() - config_item('lockout_time'));
         }
 
         return time() - config_item('lockout_time');
     }
 
-    public function clear_login_attempts($identity, $ip_address)
+    public function get_active_block_time($ip_address, $identity = null)
+    {
+        if (! $this->db->table_exists('login_attempts')) {
+            return null;
+        }
+
+        $max_attempts = (int) config_item('maximum_login_attempts');
+        $lockout_time = (int) config_item('lockout_time');
+
+        if ($max_attempts <= 0) {
+            return null;
+        }
+
+        $query = LoginAttempts::where('ip_address', $ip_address);
+        if ($identity) {
+            $query->where('username', $identity);
+        }
+
+        $last_try = (clone $query)->orderBy('time', 'DESC')->first();
+        if (! $last_try) {
+            return null;
+        }
+
+        // Jika waktu lockout sudah habis, bersihkan record lama
+        if (($last_try->time + $lockout_time) <= time()) {
+            if ($identity) {
+                $this->clear_login_attempts($identity, $ip_address);
+            } else {
+                LoginAttempts::where('ip_address', $ip_address)
+                    ->where('time', '<=', time() - $lockout_time)
+                    ->delete();
+            }
+
+            return null;
+        }
+
+        if ($identity) {
+            $attempts = $query->count();
+            if ($attempts >= $max_attempts) {
+                return $last_try->time;
+            }
+        } else {
+            $has_blocked_user = (clone $query)
+                ->selectRaw('username, count(*) as total')
+                ->groupBy('username')
+                ->havingRaw('count(*) >= ?', [$max_attempts])
+                ->exists();
+
+            if ($has_blocked_user || $query->count() >= $max_attempts) {
+                return $last_try->time;
+            }
+        }
+
+        return null;
+    }
+
+    public function is_ip_blocked($ip_address)
+    {
+        return ! empty($this->get_active_block_time($ip_address));
+    }
+
+    public function clear_login_attempts($identity, $ip_address = null)
     {
         if ($this->db->table_exists('login_attempts')) {
-            return LoginAttempts::where('username', $identity)->where('ip_address', $ip_address)->delete();
+            $query = LoginAttempts::where('username', $identity);
+            if ($ip_address) {
+                $query->where('ip_address', $ip_address);
+            }
+
+            return $query->delete();
         }
     }
 

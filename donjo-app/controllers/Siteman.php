@@ -72,6 +72,10 @@ class Siteman extends MY_Controller
         $data['form_action'] = site_url('siteman/auth');
         $data['logo_bsre']   = default_file(LOGO_BSRE, false);
         $data['latar_login'] = $this->latar_login;
+
+        // Cek status blokir login (dari flashdata redirect atau dari pengecekan IP di database)
+        $data['time_block'] = $this->session->flashdata('time_block') ?: $this->user_model->get_active_block_time($this->input->ip_address());
+
         //Initialize Session ------------
         if (! isset($_SESSION['siteman'])) {
             // Belum ada session variable

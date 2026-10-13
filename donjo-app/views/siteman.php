@@ -203,7 +203,7 @@
                     <input type="hidden" name="<?= $this->security->get_csrf_token_name() ?>" value="<?= $this->security->get_csrf_hash() ?>" />
                 <?php endif ?>
 
-                <?php if ($this->session->flashdata('time_block')): ?>
+                <?php if (! empty($time_block)): ?>
                     <div class="text-center py-10 bg-red-50 rounded-[2.5rem] border border-red-100">
                         <div class="inline-flex items-center justify-center w-16 h-16 bg-red-100 text-red-600 rounded-full mb-4">
                             <i class="fa-solid fa-user-lock text-3xl"></i>
@@ -276,7 +276,11 @@
 
     <script>
         function start_countdown() {
-            var times = eval(<?= json_encode($this->session->flashdata('time_block') + config_item('lockout_time'), JSON_THROW_ON_ERROR) ?>) - eval(<?= json_encode(time(), JSON_THROW_ON_ERROR) ?>);
+            var times = eval(<?= json_encode(((int) ($time_block ?? 0)) + config_item('lockout_time'), JSON_THROW_ON_ERROR) ?>) - eval(<?= json_encode(time(), JSON_THROW_ON_ERROR) ?>);
+            if (times <= 0) {
+                location.reload();
+                return;
+            }
             var menit = Math.floor(times / 60);
             var detik = times % 60;
             timer = setInterval(function() {
