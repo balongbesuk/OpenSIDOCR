@@ -2,6 +2,15 @@
     @php
         $rilis_info = $rilis ?? cek_pembaruan_aplikasi();
     @endphp
+    {{-- Header Khusus Tampilan Mobile dengan Tombol Tutup --}}
+    <div class="visible-xs-block" style="padding: 10px 15px; background: #f9f9f9; border-bottom: 1px solid #e1e1e1; display: flex; align-items: center; justify-content: space-between;">
+        <span style="font-size: 15px; font-weight: bold; color: #333;">
+            <i class="fa fa-info-circle text-aqua"></i> Informasi
+        </span>
+        <button type="button" class="btn btn-default btn-xs" data-toggle="control-sidebar" style="font-weight: bold; padding: 4px 10px;">
+            <i class="fa fa-times"></i> Tutup
+        </button>
+    </div>
     <div class="box-body">
         <div class="box-group" id="accordion">
             @if (!empty($rilis_info['update_available']))

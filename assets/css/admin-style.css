@@ -906,4 +906,18 @@ div.form-surat .content-header {
     .fixed .right-side {
         padding-top: 50px !important;
     }
+
+    .main-sidebar {
+        z-index: 1025 !important;
+    }
+
+    .control-sidebar {
+        z-index: 1020 !important;
+    }
+
+    /* Jika sidebar navigasi terbuka di mobile, pastikan control-sidebar tertutup */
+    .sidebar-open .control-sidebar {
+        right: -100% !important;
+        display: none !important;
+    }
 }
