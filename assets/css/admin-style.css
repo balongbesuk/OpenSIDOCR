@@ -920,4 +920,71 @@ div.form-surat .content-header {
         right: -100% !important;
         display: none !important;
     }
+}
+
+/* Penataan User Panel Sidebar: Model Minimalis Penuh Rata Kiri Proporsional */
+.main-sidebar .user-panel {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: flex-start !important;
+    padding: 12px 12px !important;
+    gap: 12px !important;
+    width: 100% !important;
+    white-space: normal !important;
+}
+
+.main-sidebar .user-panel > .image {
+    float: none !important;
+    flex-shrink: 0 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+}
+
+.main-sidebar .user-panel > .image > img {
+    max-width: 52px !important;
+    width: 52px !important;
+    height: 52px !important;
+    object-fit: contain !important;
+    border-radius: 4px !important;
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.25));
+}
+
+.main-sidebar .user-panel > .info {
+    position: static !important;
+    float: none !important;
+    left: auto !important;
+    top: auto !important;
+    padding: 0 !important;
+    line-height: 1.35 !important;
+    white-space: normal !important;
+    flex: 1 !important;
+    min-width: 0 !important;
+}
+
+.main-sidebar .user-panel > .info strong {
+    font-size: 13px !important;
+    color: #ffffff !important;
+    display: block !important;
+    margin-bottom: 2px !important;
+    line-height: 1.25 !important;
+    word-break: break-word !important;
+}
+
+.main-sidebar .user-panel > .info .wilayah-info {
+    font-size: 11px !important;
+    color: #b8c7ce !important;
+    line-height: 1.25 !important;
+    word-break: break-word !important;
+}
+
+/* Penyesuaian saat sidebar di-collapse (desktop mini) */
+.sidebar-mini.sidebar-collapse .main-sidebar .user-panel {
+    padding: 10px 0 !important;
+    justify-content: center !important;
+    gap: 0 !important;
+}
+
+.sidebar-mini.sidebar-collapse .main-sidebar .user-panel > .info {
+    display: none !important;
 }

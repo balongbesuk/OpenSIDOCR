@@ -43,7 +43,8 @@ Terima kasih pada @ruririzal dan @syahransaputra yang terus berkontribusi.
 37. Redesain modern UI/UX Layanan Mandiri berbasis sistem antarmuka responsif (mobile & desktop), kartu aksi cepat (Quick Actions), penataan formulir permohonan surat, pratinjau dokumen, profil kependudukan, dan fitur ganti PIN yang lebih interaktif.
 38. Penambahan sistem notifikasi otomatis ke kotak pesan Layanan Mandiri warga ketika status permohonan surat diperbarui oleh petugas desa (sedang diperiksa, menunggu tandatangan, siap diambil, selesai, atau perlu dilengkapi).
 39. Optimasi antarmuka navbar admin pada tampilan mobile menjadi 1 bar terpadu (50px) dengan logo/judul OpenSID di tengah, menu hamburger di sebelah kiri, penyesuaian ukuran foto profil pengguna lebih proporsional, penggabungan menu notifikasi/layanan cepat dan informasi ke dalam dropdown profil, serta koordinasi otomatis peralihan antara menu hamburger dan sidebar informasi (ketika sidebar informasi terbuka dan pengguna menekan menu hamburger, sidebar informasi menutup dan menu navigasi utama langsung tampil).
-40. Pemindahan banner pemberitahuan pembaruan versi rilis dari halaman depan dashboard admin ke panel popup Informasi (Control Sidebar) lengkap dengan badge indikator notifikasi pembaruan pada tombol Informasi.
+40. Redesain panel Informasi aplikasi OpenSID dari sidebar geser (Control Sidebar) menjadi dialog Modal Popup modern berbasis sistem navigasi multi-tab (Pembaruan & Rilis, Tentang Aplikasi, Catatan Rilis, Hak Akses & Tahapan, Komunitas & Donasi) yang responsif dan elegan.
+41. Perbaikan tata letak profil wilayah desa pada sidebar admin (user-panel): penyesuaian ukuran logo daerah menjadi lebih proporsional (52px) dengan bayangan lembut tanpa terpotong lingkaran paksa, serta penataan teks nama desa, kecamatan, dan kabupaten yang sejajar rapi secara vertikal.
 
 
 #### Perbaikan BUG

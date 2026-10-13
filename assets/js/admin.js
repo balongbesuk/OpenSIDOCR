@@ -22,70 +22,16 @@ $(".sidebar-toggle").on("click", function () {
   );
 });
 
-// Koordinasi Sidebar Navigasi dan Sidebar Informasi (Control Sidebar) di tampilan mobile
-document.addEventListener(
-  "click",
-  function (e) {
-    var togglePushMenu = e.target.closest(
-      ".sidebar-toggle, [data-toggle='push-menu']"
-    );
-    var toggleControlSidebar = e.target.closest(
-      "[data-toggle='control-sidebar']"
-    );
+// Tutup dropdown profil saat modal informasi dibuka
+$(document).on("show.bs.modal", "#modal-informasi", function () {
+  $(".navbar-custom-menu .dropdown.user.user-menu").removeClass("open");
+});
 
-    if (togglePushMenu) {
-      var isControlOpen =
-        document.querySelector(".control-sidebar.control-sidebar-open") ||
-        document.body.classList.contains("control-sidebar-open");
-
-      if (isControlOpen) {
-        // Hentikan propagasi toggle default agar tidak terjadi desinkronisasi
-        e.stopPropagation();
-        e.preventDefault();
-
-        // 1. Tutup sidebar informasi
-        document.querySelectorAll(".control-sidebar").forEach(function (el) {
-          el.classList.remove("control-sidebar-open");
-        });
-        document.body.classList.remove("control-sidebar-open");
-        if (window.jQuery && window.jQuery.fn.controlSidebar) {
-          window.jQuery('[data-toggle="control-sidebar"]').controlSidebar("collapse");
-        }
-
-        // 2. Pastikan sidebar navigasi utama tampil
-        if (window.innerWidth <= 767) {
-          document.body.classList.add("sidebar-open");
-          document.body.classList.remove("sidebar-collapse");
-        } else {
-          document.body.classList.remove("sidebar-collapse");
-        }
-
-        if (typeof Storage !== "undefined") {
-          localStorage.setItem("sidebar", "false");
-        }
-        return;
-      }
-    }
-
-    if (toggleControlSidebar && window.innerWidth <= 767) {
-      // Jika di mobile dan sidebar navigasi utama sedang terbuka, tutup sidebar navigasi
-      if (document.body.classList.contains("sidebar-open")) {
-        document.body.classList.remove("sidebar-open");
-        if (window.jQuery && window.jQuery.fn.pushMenu) {
-          window.jQuery('[data-toggle="push-menu"]').pushMenu("close");
-        }
-      }
-      // Tutup dropdown profil jika menu informasi dibuka dari dalam dropdown
-      var userDropdown = document.querySelector(
-        ".navbar-custom-menu .dropdown.user.user-menu"
-      );
-      if (userDropdown) {
-        userDropdown.classList.remove("open");
-      }
-    }
-  },
-  true
-);
+// Fallback jika masih ada elemen yang memanggil data-toggle="control-sidebar"
+$(document).on("click", '[data-toggle="control-sidebar"]', function (e) {
+  e.preventDefault();
+  $("#modal-informasi").modal("show");
+});
 
 // Select2 default
 $(".select2").select2();

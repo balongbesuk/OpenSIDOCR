@@ -1,322 +1,449 @@
-<aside class="control-sidebar control-sidebar-light">
-    @php
-        $rilis_info = $rilis ?? cek_pembaruan_aplikasi();
-    @endphp
-    {{-- Header Khusus Tampilan Mobile dengan Tombol Tutup --}}
-    <div class="visible-xs-block" style="padding: 10px 15px; background: #f9f9f9; border-bottom: 1px solid #e1e1e1; display: flex; align-items: center; justify-content: space-between;">
-        <span style="font-size: 15px; font-weight: bold; color: #333;">
-            <i class="fa fa-info-circle text-aqua"></i> Informasi
-        </span>
-        <button type="button" class="btn btn-default btn-xs" data-toggle="control-sidebar" style="font-weight: bold; padding: 4px 10px;">
-            <i class="fa fa-times"></i> Tutup
-        </button>
-    </div>
-    <div class="box-body">
-        <div class="box-group" id="accordion">
-            @if (!empty($rilis_info['update_available']))
-                <div class="panel box box-success">
-                    <div class="box-header with-border" style="background-color: #00a65a; color: #fff;">
-                        <h4 class="box-title" style="width: 100%;">
-                            <a data-toggle="collapse" data-parent="#accordion" href="#collapse-pembaruan" style="color: #fff; font-weight: bold; display: flex; align-items: center; justify-content: space-between;">
-                                <span><i class="fa fa-bullhorn"></i>&nbsp; Pembaruan Tersedia!</span>
-                                <span class="label label-warning" style="font-size: 11px;">{{ $rilis_info['latest_version'] }}</span>
-                            </a>
-                        </h4>
+@php
+    $rilis_info = $rilis ?? cek_pembaruan_aplikasi();
+    $ada_update = !empty($rilis_info['update_available']);
+@endphp
+
+<div id="modal-informasi" class="modal fade" role="dialog" aria-labelledby="modalInformasiLabel" aria-hidden="true" style="color: #333;">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content" style="border-radius: 8px; overflow: hidden; border: none; box-shadow: 0 10px 30px rgba(0,0,0,0.25);">
+            {{-- Modal Header --}}
+            <div class="modal-header" style="background: #ffffff; border-bottom: 1px solid #eef2f6; padding: 16px 20px; position: relative;">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close" style="position: absolute; top: 18px; right: 20px; font-size: 26px; line-height: 1; margin: 0; color: #94a3b8; opacity: 1; transition: color 0.2s; cursor: pointer;">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <div style="display: flex; align-items: center; gap: 12px; padding-right: 40px;">
+                    <div style="width: 38px; height: 38px; border-radius: 8px; background: linear-gradient(135deg, #00a65a, #008d4c); color: #fff; display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; box-shadow: 0 3px 8px rgba(0,166,90,0.3);">
+                        <i class="fa fa-info"></i>
                     </div>
-                    <div id="collapse-pembaruan" class="panel-collapse collapse in">
-                        <div class="box-body">
-                            <p align="justify">
-                                {{ config_item('nama_aplikasi') }} <code>{{ $rilis_info['latest_version'] }}</code> telah tersedia.
-                                Periksa catatan rilis untuk melihat daftar perubahan di versi ini. Sangat dianjurkan untuk melakukan
-                                pembaruan ke versi terkini, karena setiap rilis berisi perbaikan termasuk peningkatan keamanan data
-                                sejak versi yang anda gunakan saat ini <code>{{ $rilis_info['current_version'] }}</code>.
-                                Petunjuk melakukan pembaruan dapat dilihat di <a href="https://github.com/{{ config_item('nama_aplikasi') }}/{{ config_item('nama_aplikasi') }}/wiki/Panduan-Update-{{ config_item('nama_aplikasi') }}" target="_blank">sini</a>.
+                    <div>
+                        <h4 class="modal-title" id="modalInformasiLabel" style="font-weight: 700; color: #1e293b; margin: 0; font-size: 17px; line-height: 1.2;">
+                            Informasi & Tentang <?= config_item('nama_aplikasi') ?>
+                        </h4>
+                        <div style="margin-top: 4px; display: flex; align-items: center; gap: 6px; flex-wrap: wrap;">
+                            <span class="label" style="background: #e2e8f0; color: #475569; font-size: 11px; padding: 2px 7px; border-radius: 4px; font-weight: 600;">
+                                Versi <?= AmbilVersi() ?>
+                            </span>
+                            @if ($ada_update)
+                                <span class="label label-success" style="font-size: 11px; padding: 2px 7px; border-radius: 4px; font-weight: 600;">
+                                    <i class="fa fa-arrow-circle-up"></i> Update Tersedia: {{ $rilis_info['latest_version'] }}
+                                </span>
+                            @else
+                                <span class="label label-info" style="font-size: 11px; padding: 2px 7px; border-radius: 4px; font-weight: 600;">
+                                    <i class="fa fa-check-circle"></i> Versi Terkini
+                                </span>
+                            @endif
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {{-- Navigasi Tab Modern --}}
+            <div style="background: #f8fafc; border-bottom: 1px solid #e2e8f0; padding: 8px 16px;">
+                <ul class="nav nav-pills modern-info-tabs" role="tablist" style="margin: 0; display: flex; gap: 6px; flex-wrap: wrap;">
+                    <li role="presentation" class="<?= $ada_update ? 'active' : '' ?>">
+                        <a href="#tab-pembaruan" aria-controls="tab-pembaruan" role="tab" data-toggle="tab">
+                            <i class="fa fa-bullhorn text-green"></i> Pembaruan
+                            @if ($ada_update)
+                                <span class="badge bg-green" style="font-size: 9px; padding: 2px 5px; margin-left: 2px;">Baru</span>
+                            @endif
+                        </a>
+                    </li>
+                    <li role="presentation" class="<?= !$ada_update ? 'active' : '' ?>">
+                        <a href="#tab-tentang" aria-controls="tab-tentang" role="tab" data-toggle="tab">
+                            <i class="fa fa-cube text-aqua"></i> Tentang Aplikasi
+                        </a>
+                    </li>
+                    <li role="presentation">
+                        <a href="#tab-catatan" aria-controls="tab-catatan" role="tab" data-toggle="tab">
+                            <i class="fa fa-book text-yellow"></i> Catatan Rilis
+                        </a>
+                    </li>
+                    <li role="presentation">
+                        <a href="#tab-panduan" aria-controls="tab-panduan" role="tab" data-toggle="tab">
+                            <i class="fa fa-shield text-purple"></i> Hak Akses & Tahapan
+                        </a>
+                    </li>
+                    <li role="presentation">
+                        <a href="#tab-komunitas" aria-controls="tab-komunitas" role="tab" data-toggle="tab">
+                            <i class="fa fa-heart text-red"></i> Bantuan & Donasi
+                        </a>
+                    </li>
+                </ul>
+            </div>
+
+            {{-- Konten Tab --}}
+            <div class="modal-body" style="max-height: 65vh; overflow-y: auto; padding: 20px; background: #ffffff;">
+                <div class="tab-content">
+                    {{-- TAB 1: PEMBARUAN --}}
+                    <div role="tabpanel" class="tab-pane <?= $ada_update ? 'active' : '' ?>" id="tab-pembaruan">
+                        @if ($ada_update)
+                            <div style="background: linear-gradient(135deg, #00a65a, #008d4c); border-radius: 8px; padding: 20px; color: #ffffff; box-shadow: 0 4px 15px rgba(0,166,90,0.25); margin-bottom: 20px;">
+                                <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;">
+                                    <div style="width: 36px; height: 36px; border-radius: 50%; background: rgba(255,255,255,0.2); display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0;">
+                                        <i class="fa fa-rocket"></i>
+                                    </div>
+                                    <h4 style="margin: 0; font-weight: bold; font-size: 18px; color: #ffffff;">
+                                        Pembaruan Tersedia: {{ $rilis_info['latest_version'] }}
+                                    </h4>
+                                </div>
+                                <p style="margin: 0 0 15px 0; font-size: 13px; line-height: 1.6; opacity: 0.95;" align="justify">
+                                    {{ config_item('nama_aplikasi') }} <code>{{ $rilis_info['latest_version'] }}</code> telah tersedia.
+                                    Sangat dianjurkan untuk melakukan pembaruan ke versi terkini guna memperoleh fitur terbaru, perbaikan *bug*, serta peningkatan keamanan data desa sejak versi saat ini <code>{{ $rilis_info['current_version'] }}</code>.
+                                </p>
+                                <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                                    <button class="btn btn-default btn-sm" data-toggle="modal" data-target="#modal-catatan-rilis" style="font-weight: 600; color: #008d4c;">
+                                        <i class="fa fa-file-text-o"></i> Catatan Rilis {{ $rilis_info['latest_version'] }}
+                                    </button>
+                                    <a href="{{ $rilis_info['url_download'] }}" class="btn btn-warning btn-sm" style="font-weight: 600;" target="_blank">
+                                        <i class="fa fa-download"></i> Unduh Berkas Rilis
+                                    </a>
+                                    <a href="https://github.com/{{ config_item('nama_aplikasi') }}/{{ config_item('nama_aplikasi') }}/wiki/Panduan-Update-{{ config_item('nama_aplikasi') }}" class="btn btn-default btn-sm" style="background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.4); color: #fff; font-weight: 600;" target="_blank">
+                                        <i class="fa fa-book"></i> Panduan Update
+                                    </a>
+                                </div>
+                            </div>
+                        @else
+                            <div style="background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 8px; padding: 20px; color: #166534; display: flex; align-items: center; gap: 15px; margin-bottom: 20px;">
+                                <div style="width: 44px; height: 44px; border-radius: 50%; background: #dcfce7; display: flex; align-items: center; justify-content: center; font-size: 22px; color: #16a34a; flex-shrink: 0;">
+                                    <i class="fa fa-check"></i>
+                                </div>
+                                <div>
+                                    <h4 style="margin: 0 0 4px 0; font-weight: bold; font-size: 16px;">
+                                        Aplikasi Anda Menggunakan Versi Terkini
+                                    </h4>
+                                    <p style="margin: 0; font-size: 13px; color: #15803d;">
+                                        Versi saat ini: <strong>v<?= AmbilVersi() ?></strong>. Belum ada pembaruan versi baru yang dirilis.
+                                    </p>
+                                </div>
+                            </div>
+                        @endif
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="info-card-box">
+                                    <h5 class="info-card-title"><i class="fa fa-shield text-primary"></i> Keamanan & Stabilitas</h5>
+                                    <p class="info-card-text">Setiap rilis berkala memuat peningkatan keamanan basis data penduduk desa dan optimasi performa modul pelayanan.</p>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="info-card-box">
+                                    <h5 class="info-card-title"><i class="fa fa-history text-success"></i> Siklus Pembaruan</h5>
+                                    <p class="info-card-text">Pembaruan OpenSID dikelola terbuka di GitHub dan dapat diunduh secara bebas oleh seluruh komunitas SID Indonesia.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {{-- TAB 2: TENTANG APLIKASI --}}
+                    <div role="tabpanel" class="tab-pane <?= !$ada_update ? 'active' : '' ?>" id="tab-tentang">
+                        <div class="info-card-box" style="margin-bottom: 16px;">
+                            <h4 style="font-weight: bold; color: #0f172a; margin-top: 0; margin-bottom: 10px; font-size: 16px;">
+                                <?= config_item('nama_aplikasi') ?> (Sistem Informasi Desa)
+                            </h4>
+                            <p align="justify" style="color: #475569; line-height: 1.6; margin-bottom: 12px;">
+                                <?= config_item('nama_aplikasi') ?> adalah aplikasi Sistem Informasi Desa (SID) yang dikembangkan sejak Mei 2016. Aplikasi ini dirancang dan dikelola supaya terbuka dan dapat dikembangkan bersama-sama oleh komunitas peduli SID.
                             </p>
-                            <div style="margin-top: 10px; display: flex; gap: 8px;">
-                                <button class="btn btn-social btn-info btn-sm" data-toggle="modal" data-target="#modal-catatan-rilis">
-                                    <i class="fa fa-book"></i> Catatan Rilis
-                                </button>
-                                <a href="{{ $rilis_info['url_download'] }}" class="btn btn-social bg-navy btn-sm" style="text-decoration: none" target="_blank">
-                                    <i class="fa fa-download"></i> Unduh
+                            <p style="margin-bottom: 0;">
+                                <a href="<?= config_item('github') ?>" target="_blank" class="btn btn-default btn-sm" style="font-weight: 600;">
+                                    <i class="fa fa-github"></i> Repositori GitHub
                                 </a>
+                                <a href="<?= config_item('website') ?>" target="_blank" class="btn btn-default btn-sm" style="font-weight: 600; margin-left: 6px;">
+                                    <i class="fa fa-globe text-primary"></i> Website OpenDesa
+                                </a>
+                            </p>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="info-card-box">
+                                    <h5 class="info-card-title"><i class="fa fa-server text-aqua"></i> Mode Offline</h5>
+                                    <p class="info-card-text" align="justify">
+                                        Dioperasikan pada komputer server lokal kantor desa tanpa internet. Sangat aman untuk operasional administrasi kependudukan harian desa.
+                                    </p>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="info-card-box">
+                                    <h5 class="info-card-title"><i class="fa fa-cloud text-green"></i> Mode Online</h5>
+                                    <p class="info-card-text" align="justify">
+                                        Terhubung ke internet dan berfungsi ganda sebagai website resmi desa dan portal Layanan Mandiri warga secara daring.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="info-card-box" style="margin-top: 16px;">
+                            <h5 class="info-card-title"><i class="fa fa-balance-scale text-yellow"></i> Hak Cipta & Lisensi GPL v3</h5>
+                            <p class="info-card-text" align="justify" style="margin-bottom: 0;">
+                                <?= config_item('nama_aplikasi') ?> berlisensi <strong>GNU General Public License Version 3 (GPL v3)</strong> — bersifat sumber terbuka (*Open Source*), bebas digunakan dan disesuaikan oleh seluruh desa di Indonesia. Dikelola oleh Perkumpulan Desa Digital Terbuka (OpenDesa).
+                            </p>
+                        </div>
+                    </div>
+
+                    {{-- TAB 3: CATATAN RILIS --}}
+                    <div role="tabpanel" class="tab-pane" id="tab-catatan">
+                        <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; padding: 12px 16px; margin-bottom: 12px; display: flex; align-items: center; justify-content: space-between;">
+                            <div>
+                                <h5 style="margin: 0; font-weight: bold; color: #1e293b;">Riwayat Catatan Rilis</h5>
+                                <small class="text-muted">Daftar pembaruan fitur, optimasi, dan perbaikan bug</small>
+                            </div>
+                            <span class="label label-primary">catatan_rilis.md</span>
+                        </div>
+                        <div class="catatan-scroll" style="height: 380px; overflow-y: auto; background: #ffffff; border: 1px solid #e2e8f0; border-radius: 6px; padding: 18px; font-size: 13px; line-height: 1.6;">
+                            <?= parsedown('catatan_rilis.md') ?>
+                        </div>
+                    </div>
+
+                    {{-- TAB 4: PANDUAN & AKSES --}}
+                    <div role="tabpanel" class="tab-pane" id="tab-panduan">
+                        <h5 style="font-weight: bold; color: #1e293b; margin-top: 0; margin-bottom: 12px;">
+                            <i class="fa fa-users text-primary"></i> Tingkat Hak Akses Pengguna (Role User)
+                        </h5>
+                        <div class="row" style="margin-bottom: 20px;">
+                            <div class="col-sm-6" style="margin-bottom: 10px;">
+                                <div style="border-left: 3px solid #dd4b39; background: #fff5f5; padding: 12px 14px; border-radius: 0 6px 6px 0;">
+                                    <strong style="color: #c53030; font-size: 14px;">1. Administrator</strong>
+                                    <p style="margin: 4px 0 0 0; font-size: 12px; color: #4a5568;" align="justify">
+                                        Bertanggung jawab penuh atas entri, edit, dan hapus data dasar kependudukan serta pengaturan sistem aplikasi.
+                                    </p>
+                                </div>
+                            </div>
+                            <div class="col-sm-6" style="margin-bottom: 10px;">
+                                <div style="border-left: 3px solid #f39c12; background: #fffaf0; padding: 12px 14px; border-radius: 0 6px 6px 0;">
+                                    <strong style="color: #dd6b20; font-size: 14px;">2. Operator</strong>
+                                    <p style="margin: 4px 0 0 0; font-size: 12px; color: #4a5568;" align="justify">
+                                        Membantu administrator dalam entri data kependudukan harian dan pengelolaan informasi desa dengan hak terbatas.
+                                    </p>
+                                </div>
+                            </div>
+                            <div class="col-sm-6" style="margin-bottom: 10px;">
+                                <div style="border-left: 3px solid #00a65a; background: #f0fdf4; padding: 12px 14px; border-radius: 0 6px 6px 0;">
+                                    <strong style="color: #16a34a; font-size: 14px;">3. Redaksi</strong>
+                                    <p style="margin: 4px 0 0 0; font-size: 12px; color: #4a5568;" align="justify">
+                                        Mengelola artikel berita website desa, menyetujui kiriman tulisan, menentukan berita utama, dan slider website.
+                                    </p>
+                                </div>
+                            </div>
+                            <div class="col-sm-6" style="margin-bottom: 10px;">
+                                <div style="border-left: 3px solid #00c0ef; background: #f0f9ff; padding: 12px 14px; border-radius: 0 6px 6px 0;">
+                                    <strong style="color: #0284c7; font-size: 14px;">4. Kontributor</strong>
+                                    <p style="margin: 4px 0 0 0; font-size: 12px; color: #4a5568;" align="justify">
+                                        Penulis artikel berita warga. Tulisan yang dibuat memerlukan persetujuan redaksi sebelum tayang ke publik.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <h5 style="font-weight: bold; color: #1e293b; margin-top: 10px; margin-bottom: 12px;">
+                            <i class="fa fa-road text-success"></i> Tahapan Membangun SID di Desa
+                        </h5>
+                        <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; padding: 15px;">
+                            <ol style="margin-bottom: 0; padding-left: 20px; line-height: 1.8; color: #334155;">
+                                <li>Bentuk tim kerja bersama pemerintah desa.</li>
+                                <li>Diskusikan basis data kependudukan dan statistik yang diperlukan warga.</li>
+                                <li>Himpun data kependudukan warga dari Kartu Keluarga (KK).</li>
+                                <li>Dapatkan dan pasang aplikasi SID di komputer kantor desa.</li>
+                                <li>Input data penduduk ke sistem dan mulai manfaatkan untuk layanan surat menyurat.</li>
+                                <li>Sebarluaskan informasi desa melalui beragam media publik untuk warga.</li>
+                            </ol>
+                        </div>
+                    </div>
+
+                    {{-- TAB 5: KOMUNITAS & DONASI --}}
+                    <div role="tabpanel" class="tab-pane" id="tab-komunitas">
+                        <h5 style="font-weight: bold; color: #1e293b; margin-top: 0; margin-bottom: 14px;">
+                            <i class="fa fa-comments-o text-aqua"></i> Pusat Bantuan & Komunitas Pengguna
+                        </h5>
+                        <div class="row" style="margin-bottom: 20px;">
+                            <div class="col-sm-4 col-xs-6" style="margin-bottom: 10px;">
+                                <a href="<?= config_item('website') ?>" target="_blank" class="community-link-btn">
+                                    <i class="fa fa-globe text-primary"></i>
+                                    <span>Website OpenDesa</span>
+                                </a>
+                            </div>
+                            <div class="col-sm-4 col-xs-6" style="margin-bottom: 10px;">
+                                <a href="<?= config_item('fb_opendesa') ?>" target="_blank" class="community-link-btn">
+                                    <i class="fa fa-facebook-square text-blue"></i>
+                                    <span>Grup Facebook</span>
+                                </a>
+                            </div>
+                            <div class="col-sm-4 col-xs-6" style="margin-bottom: 10px;">
+                                <a href="<?= config_item('youtube') ?>" target="_blank" class="community-link-btn">
+                                    <i class="fa fa-youtube-play text-red"></i>
+                                    <span>Tutorial YouTube</span>
+                                </a>
+                            </div>
+                            <div class="col-sm-4 col-xs-6" style="margin-bottom: 10px;">
+                                <a href="<?= config_item('github') ?>/wiki" target="_blank" class="community-link-btn">
+                                    <i class="fa fa-book text-warning"></i>
+                                    <span>Panduan Wiki</span>
+                                </a>
+                            </div>
+                            <div class="col-sm-4 col-xs-6" style="margin-bottom: 10px;">
+                                <a href="<?= config_item('forum') ?>" target="_blank" class="community-link-btn">
+                                    <i class="fa fa-commenting text-purple"></i>
+                                    <span>Forum OpenDesa</span>
+                                </a>
+                            </div>
+                            <div class="col-sm-4 col-xs-6" style="margin-bottom: 10px;">
+                                <a href="<?= config_item('github') ?>/issues" target="_blank" class="community-link-btn">
+                                    <i class="fa fa-bug text-danger"></i>
+                                    <span>Lapor Masalah (Issues)</span>
+                                </a>
+                            </div>
+                        </div>
+
+                        {{-- Card Donasi --}}
+                        <div style="background: #fff8f8; border: 1px solid #ffd6d6; border-radius: 8px; padding: 18px;">
+                            <div style="display: flex; align-items: flex-start; gap: 14px;">
+                                <div style="font-size: 32px; color: #e11d48; line-height: 1;">
+                                    <i class="fa fa-heart"></i>
+                                </div>
+                                <div style="flex: 1;">
+                                    <h5 style="margin: 0 0 6px 0; font-weight: bold; color: #9f1239; font-size: 15px;">
+                                        Dukung Pengembangan OpenSID
+                                    </h5>
+                                    <p style="margin: 0 0 12px 0; font-size: 12px; color: #4c0519; line-height: 1.6;" align="justify">
+                                        OpenSID selalu gratis dan dikembangkan oleh relawan komunitas secara sukarela. Dukungan dan donasi Anda memungkinkan OpenSID dikembangkan terus secara berkesinambungan bagi ribuan desa di seluruh Indonesia.
+                                    </p>
+                                    <a href="<?= config_item('website') ?>/donasi" target="_blank" class="btn btn-sm" style="background: #e11d48; color: #ffffff; font-weight: 600; border-radius: 4px;">
+                                        <i class="fa fa-heart"></i> Donasi Pengembangan
+                                    </a>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
-            @endif
+            </div>
 
-            <div class="panel box box-default">
-                <div class="box-header with-border">
-                    <h4 class="box-title">
-                        <a data-toggle="collapse" data-parent="#accordion" href="#collapse1">Aplikasi
-                            <?= config_item('nama_aplikasi') ?></a>
-                    </h4>
+            {{-- Modal Footer --}}
+            <div class="modal-footer" style="background-color: #f8fafc; border-top: 1px solid #eef2f6; padding: 12px 20px;">
+                <div class="pull-left text-muted" style="line-height: 32px; font-size: 12px; margin: 0;">
+                    <i class="fa fa-code"></i> Open Source Software (GPL v3)
                 </div>
-                <div id="collapse1" class="panel-collapse collapse {{ empty($rilis_info['update_available']) ? 'in' : '' }}">
-                    <div class="box-body">
-                        <p align="justify"><?= config_item('nama_aplikasi') ?> adalah aplikasi Sistem Informasi Desa
-                            (SID) yang dikembangkan sejak Mei 2016. <?= config_item('nama_aplikasi') ?> dirancang dan
-                            dikelola supaya terbuka dan dapat dikembangkan bersama-sama oleh komunitas peduli SID.
-                            Informasi lebih lanjut dapat dilihat di <a href="<?= config_item('github') ?>"><?= config_item('github') ?></a>.</p>
-                    </div>
+                <div class="pull-right">
+                    <button type="button" class="btn btn-default btn-sm" data-dismiss="modal" style="font-weight: 600; padding: 6px 18px; border-radius: 4px;">
+                        <i class="fa fa-times"></i> Tutup
+                    </button>
                 </div>
+                <div class="clearfix"></div>
             </div>
-            <div class="panel box box-default">
-                <div class="box-header with-border">
-                    <h4 class="box-title">
-                        <a data-toggle="collapse" data-parent="#accordion" href="#catatan-rilis">Catatan Rilis</a>
+        </div>
+    </div>
+</div>
+
+<style>
+    /* Reset pseudo-elements Bootstrap 3 pada header dan footer modal informasi */
+    #modal-informasi .modal-header:before,
+    #modal-informasi .modal-header:after,
+    #modal-informasi .modal-footer:before,
+    #modal-informasi .modal-footer:after {
+        display: none !important;
+    }
+
+    /* Styling Nav Tabs Modern untuk Modal Informasi */
+    .modern-info-tabs > li > a {
+        border-radius: 6px !important;
+        padding: 7px 12px !important;
+        font-weight: 600 !important;
+        font-size: 13px !important;
+        color: #64748b !important;
+        border: 1px solid transparent !important;
+        background: transparent !important;
+        transition: all 0.2s ease !important;
+    }
+    .modern-info-tabs > li > a:hover {
+        background: #f1f5f9 !important;
+        color: #1e293b !important;
+    }
+    .modern-info-tabs > li.active > a,
+    .modern-info-tabs > li.active > a:focus,
+    .modern-info-tabs > li.active > a:hover {
+        background: #ffffff !important;
+        color: #0f172a !important;
+        border: 1px solid #cbd5e1 !important;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08) !important;
+    }
+
+    /* Info Cards */
+    .info-card-box {
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+        border-radius: 6px;
+        padding: 14px 16px;
+    }
+    .info-card-title {
+        font-weight: 700;
+        color: #1e293b;
+        margin-top: 0;
+        margin-bottom: 8px;
+        font-size: 14px;
+    }
+    .info-card-text {
+        font-size: 12.5px;
+        color: #475569;
+        line-height: 1.55;
+        margin-bottom: 0;
+    }
+
+    /* Community Links Grid */
+    .community-link-btn {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+        border-radius: 6px;
+        padding: 10px 12px;
+        color: #1e293b;
+        font-size: 12.5px;
+        font-weight: 600;
+        text-decoration: none !important;
+        transition: all 0.2s ease;
+    }
+    .community-link-btn:hover {
+        background: #f1f5f9;
+        border-color: #cbd5e1;
+        color: #0284c7;
+        transform: translateY(-1px);
+        box-shadow: 0 2px 4px rgba(0,0,0,0.04);
+    }
+    .community-link-btn i {
+        font-size: 16px;
+        width: 18px;
+        text-align: center;
+    }
+
+    #modal-catatan-rilis {
+        z-index: 1060 !important;
+    }
+</style>
+
+@if ($ada_update)
+    <div id="modal-catatan-rilis" class="modal fade" role="dialog" style="color: #333;">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content" style="border-radius: 6px; overflow: hidden;">
+                <div class="modal-header" style="background: #f8fafc; border-bottom: 1px solid #e2e8f0;">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                    <h4 class="modal-title" style="font-weight: 700;">
+                        <i class="fa fa-book text-primary"></i>&nbsp;&nbsp;Catatan Rilis
+                        {{ config_item('nama_aplikasi') }} <span class="label label-success">{{ $rilis_info['latest_version'] }}</span>
                     </h4>
                 </div>
-                <div id="catatan-rilis" class="panel-collapse collapse">
-                    <div class="box-body">
-                        <div class="catatan-scroll">
-                            <?= parsedown('catatan_rilis.md') ?>
-                        </div>
-                    </div>
+                <div class="modal-body rilis" style="max-height: 480px; overflow-y: auto; padding: 20px; font-size: 13px; line-height: 1.6;">
+                    {!! nl2br($rilis_info['release_body']) !!}
                 </div>
-            </div>
-            <div class="panel box box-default">
-                <div class="box-header with-border">
-                    <h4 class="box-title">
-                        <a data-toggle="collapse" data-parent="#accordion" href="#collapse2">Apakah SID ?</a>
-                    </h4>
-                </div>
-                <div id="collapse2" class="panel-collapse collapse">
-                    <div class="box-body">
-                        <p align="justify">Aplikasi Sistem Informasi Desa (SID) adalah sistem olah data dan informasi
-                            berbasis komputer yang dapat dikelola oleh pemerintah dan komunitas desa dalam dua ranah:
-                        </p>
-                        <dl>
-                            <dt>1. Offline</dt>
-                            <dd align="justify">Aplikasi diinstall dalam komputer server di kantor desa dan dioperasikan
-                                sebagai server (pusat data) yang bersifat lokal. Karena tidak terhubung ke internet, SID
-                                offline hanya bisa diakses dalam jaringan lokal. Sistem offline ini direkomendasikan
-                                untuk diterapkan dalam penggunaan aplikasi SID harian. Database dari hasil proses olah
-                                data secara offline itu dapat diunggah ke sistem online secara berkala.</dd>
-                            <dt>2. Online</dt>
-                            <dd align="justify">SID akan optimal jika terhubung ke internet sebagai sistem online
-                                berbasis web. SID online akan otomatis berfungsi juga sebagai website desa. Website desa
-                                ini memiliki fungsi yang terbagi dalam dua bagian, yakni bagian depan yang bisa diakses
-                                oleh publik dan bagian dalam yang hanya bisa diakses oleh administrator sistem.</dd>
-                        </dl>
-                    </div>
-                </div>
-            </div>
-            <div class="panel box box-default">
-                <div class="box-header with-border">
-                    <h4 class="box-title">
-                        <a data-toggle="collapse" data-parent="#accordion" href="#collapse3">Manajemen Akses SID</a>
-                    </h4>
-                </div>
-                <div id="collapse3" class="panel-collapse collapse">
-                    <div class="box-body">
-                        <p align="justify">Aplikasi SID dirancang untuk mengelola data dasar desa dan informasi desa.
-                            Data dasar yang dikelola meliputi data dasar kependudukan dan data dasar aset/sumber daya
-                            desa. Data dasar ini menjadi tanggung jawab pemerintah desa dalam pengelolaannya. Hanya
-                            pengguna (user) dari pemerintah desa dan tim yang dikoordinasikan oleh pemerintah desa saja
-                            yang akan memiliki kewenangan dan hak akses ke dalam sistem. Sementara, user di luar
-                            pemerintah desa hanya akan memiliki akses terbatas pada fungsi olah informasi untuk website
-                            desa.</p>
-                        <p align="justify">Tingkat user (pengguna) dalam SID:</p>
-                        <p align="justify">
-                        <ol>
-                            <li align="justify">
-                                Administrator : adalah orang/tim yang bertanggung jawab penuh atas olah data dan
-                                informasi dalam SID dan website desa. Orang/tim ini ditunjuk oleh pemerintah desa
-                                disahkan dengan surat keputusan kepala desa.
-                                <ol>
-                                    <li align="justify">Peran olah data : entry, edit, delete data dasar</li>
-                                    <li align="justify">Peran olah informasi : tulis, edit, publish artikel website</li>
-                                </ol>
-                            </li>
-                            <li align="justify">
-                                Operator: adalah orang/tim yang bertugas membantu administrator mengelola data dan
-                                informasi, tetapi dengan kewenangan yang lebih terbatas.
-                                <ol>
-                                    <li align="justify">Peran olah data : entry, edit data dasar</li>
-                                    <li align="justify">Peran olah informasi : tulis, edit artikel website.</li>
-                                </ol>
-                            </li>
-                            <li align="justify">
-                                Redaksi: adalah orang/tim yang bertugas sebagai redaksi media website desa dan hanya
-                                dapat melakukan olah informasi berupa artikel website.
-                                <ol>
-                                    <li align="justify">Peran olah informasi : tulis, edit artikel. Redaksi boleh
-                                        mengubah semua artikel, termasuk menjadikan berita utama, aktif/non-aktifkan,
-                                        masukkan ke slider, dsbnya</li>
-                                </ol>
-                            </li>
-                            <li align="justify">
-                                Kontributor: adalah orang/tim yang bertugas menulis artikel untuk disetujui redaksi
-                                untuk ditampilkan di website desa.
-                                <ol>
-                                    <li align="justify">Peran olah informasi : tulis, edit artikel yang dibuatnya
-                                        sendiri. Kontributor tidak dapat menjadikan artikel manapun menjadi berita utama,
-                                        aktif/non-aktifkan atau memasukkan ke slider.</li>
-                                </ol>
-                            </li>
-                        </ol>
-                        </p>
-                    </div>
-                </div>
-            </div>
-            <div class="panel box box-default">
-                <div class="box-header with-border">
-                    <h4 class="box-title">
-                        <a data-toggle="collapse" data-parent="#accordion" href="#collapse4">Tahapan Membangun SID</a>
-                    </h4>
-                </div>
-                <div id="collapse4" class="panel-collapse collapse">
-                    <div class="box-body">
-                        <P align="justify">Bagaimana memulai membangun Sistem Informasi Desa (SID) di desa kita? Caranya
-                            sangat mudah, tetapi pasti perlu proses yang harus sabar dan cermat untuk dijalani. Siapa
-                            pun Anda, baik perorangan maupun mewakili organisasi/lembaga, dapat mencoba mulai membangun
-                            SID di desa masing-masing mengikuti langkah-langkah berikut.</P>
-                        <ol>
-                            <li align="justify">Bentuk tim kerja bersama pemerintah desa</li>
-                            <li align="justify">Diskusikan basis data apa saja yang diperlukan untuk warga</li>
-                            <li align="justify">Himpun data kependudukan warga dari Kartu Keluarga (KK)</li>
-                            <li align="justify">Dapatkan aplikasi SID di <a href="<?= config_item('github') ?>/releases"><?= config_item('github') ?>/releases</a>
-                            </li>
-                            <li align="justify">Pasang aplikasi SID di komputer desa</li>
-                            <li align="justify">Masukkan data penduduk ke SID</li>
-                            <li align="justify">Basis data kependudukan sudah bisa dimanfaatkan</li>
-                            <li align="justify">Diskusikan rencana pengembangan SID sesuai kebutuhan desa</li>
-                            <li align="justify">Sebarluaskan informasi desa melalui beragam media untuk warga</li>
-                        </ol>
-                    </div>
-                </div>
-            </div>
-            <div class="panel box box-default">
-                <div class="box-header with-border">
-                    <h4 class="box-title">
-                        <a data-toggle="collapse" data-parent="#accordion" href="#collapse5">Hak Cipta, Syarat, Dan
-                            Ketentuan</a>
-                    </h4>
-                </div>
-                <div id="collapse5" class="panel-collapse collapse">
-                    <div class="box-body">
-                        <p align="justify">Aplikasi Sistem Informasi Desa (SID) dibangun dan dikembangkan pada awalnya
-                            oleh COMBINE Resource Institution sejak tahun 2009. Sistem ini dikelola dengan merujuk pada
-                            lisensi GNU General Public License Version 3.</p>
-                        <p align="justify">Dengan lisensi GPL v3, semua ubahan <?= config_item('nama_aplikasi') ?> juga
-                            berlisensi GPL v3, yaitu
-                            bersifat sumber terbuka.
-                        <p align="justify">
-                        <p align="justify"><?= config_item('nama_aplikasi') ?> dikembangkan sejak Mei 2016, dan bebas
-                            untuk dimanfaatkan dan
-                            dikembangkan oleh semua desa.</p>
-                        <p align="justify">Sejak Januari 2019, <?= config_item('nama_aplikasi') ?> dikelola oleh
-                            Perkumpulan Desa Digital Terbuka
-                            (OpenDesa). OpenDesa adalah pemegang hak cipta utama <?= config_item('nama_aplikasi') ?>.
-                    </div>
-                </div>
-            </div>
-            <div class="panel box box-default">
-                <div class="box-header with-border">
-                    <h4 class="box-title">
-                        <a data-toggle="collapse" data-parent="#accordion" href="#collapse6">Kontak Dan Informasi</a>
-                    </h4>
-                </div>
-                <div id="collapse6" class="panel-collapse collapse">
-                    <div class="box-body">
-                        <ol>
-                            <li align="justify">Website Resmi OpenDesa, pengelola <?= config_item('nama_aplikasi') ?>:
-                            </li>
-                            <a href="<?= config_item('website') ?>" target="_blank"><?= config_item('website') ?> </a>
-                            <li align="justify">Website Resmi <?= config_item('nama_aplikasi') ?>: </li>
-                            <a href="<?= config_item('website') ?>/opensid" target="_blank">Website Resmi
-                                <?= config_item('nama_aplikasi') ?></a>
-                            <li align="justify">Grup Facebook, tempat mendapatkan bantuan dan berbagi pengalaman: </li>
-                            <a href="<?= config_item('fb_opendesa') ?>" target="_blank">Forum Pengguna dan
-                                Pegiat <?= config_item('nama_aplikasi') ?></a>
-                            <li align="justify">Tempat mengunduh rilis <?= config_item('nama_aplikasi') ?>:</li>
-                            <a href="<?= config_item('github') ?>/releases" target="_blank"><?= config_item('github') ?>/releases</a>
-                            <li align="justify">Panduan <?= config_item('nama_aplikasi') ?>:</li>
-                            <a href="<?= config_item('github') ?>/wiki" target="_blank"><?= config_item('github') ?>/wiki</a>
-                            <li align="justify">Channel Youtube <?= config_item('nama_aplikasi') ?>: </li>
-                            <a href="<?= config_item('youtube') ?>" target="_blank">Kumpulan tutorial video <?= config_item('nama_aplikasi') ?></a>
-                            <li align="justify">Forum OpenDesa:</li>
-                            <a href="<?= config_item('forum') ?> " target="_blank"><?= config_item('forum') ?> </a>
-                            <li align="justify">Tempat mendaftarkan masalah dan usulan fitur:</li>
-                            <a href="<?= config_item('github') ?>/issues" target="_blank" sclass="text-green"><?= config_item('github') ?>/issues</a>
-                            <li align="justify">Forum diskusi teknis pengembangan <?= config_item('nama_aplikasi') ?>:
-                            </li>
-                            <a href="<?= config_item('tg_kontributor') ?>" target="_blank">Kontributor Teknis OpenDesa</a>
-                        </ol>
-                    </div>
-                </div>
-            </div>
-            <div class="panel box box-default">
-                <div class="box-header with-border">
-                    <h4 class="box-title">
-                        <a data-toggle="collapse" data-parent="#accordion" href="#donasi">Donasi</a>
-                    </h4>
-                </div>
-                <div id="donasi" class="panel-collapse collapse">
-                    <div class="box-body">
-                        <h4><?= config_item('nama_aplikasi') ?> SELALU GRATIS</h4>
-                        <div>
-                            <p align="justify"><?= config_item('nama_aplikasi') ?> selalu gratis dan bebas digunakan
-                                dan dikembangkan desa. <?= config_item('nama_aplikasi') ?>
-                                berlisensi GNU General Public License Version 3, yaitu Open Source, di mana scriptnya
-                                selalu bebas diperoleh dan disesuaikan desa.</p>
-                        </div>
-                        <h4><?= config_item('nama_aplikasi') ?> DIKEMBANGKAN KOMUNITAS</h4>
-                        <div>
-                            <p align="justify"><?= config_item('nama_aplikasi') ?> dikembangkan oleh komunitas relawan
-                                yang peduli dan meluangkan
-                                waktu dan keahlian mereka secara sukarela untuk terus mengembangkan
-                                <?= config_item('nama_aplikasi') ?>.</p>
-                            <p align="justify">Selain menyumbangkan waktu mereka, ada kalanya relawan
-                                <?= config_item('nama_aplikasi') ?> juga
-                                mengeluarkan dana pribadi untuk mendukung kegiatan <?= config_item('nama_aplikasi') ?>.
-                            </p>
-                        </div>
-                        <h4>OpenSID MEMERLUKAN BANTUAN</h4>
-                        <div>
-                            <p align="justify">Untuk terus berkembang, <?= config_item('nama_aplikasi') ?> memerlukan
-                                bantuan komunitas SID,
-                                termasuk donasi. Semua donasi bersifat sukarela dan sama sekali tidak ada keharusan.
-                            </p>
-                            <p align="justify">Donasi anda akan memungkinkan <?= config_item('nama_aplikasi') ?>
-                                dikembangkan terus secara
-                                berkesinambungan, supaya bisa terus disempurnakan dan bisa dimanfaatkan oleh sebanyak
-                                mungkin desa di seluruh Nusantara. </p>
-                            <p align="justify">
-                                Cara mengirimkan donasi dan informasi lebih lanjut ada di:
-                            </p>
-                            <a href="<?= config_item('website') ?>/donasi" class="btn btn-social btn-primary btn-sm visible-xs-block visible-sm-inline-block visible-md-inline-block visible-lg-inline-block" title="Kembali Ke Daftar Suplemen"><i class="fa fa-heart"></i> Donasi Pengembangan
-                                <?= config_item('nama_aplikasi') ?></a>
-                        </div>
-                    </div>
+                <div class="modal-footer" style="background: #f8fafc; border-top: 1px solid #e2e8f0;">
+                    <button type="button" class="btn btn-default btn-sm pull-left" data-dismiss="modal">
+                        <i class='fa fa-times'></i> Tutup
+                    </button>
+                    <a href="{{ $rilis_info['url_download'] }}" class="btn btn-warning btn-sm pull-right" target="_blank" style="font-weight: 600;">
+                        <i class="fa fa-download"></i> Unduh Berkas Rilis
+                    </a>
                 </div>
             </div>
         </div>
     </div>
-
-    @if (!empty($rilis_info['update_available']))
-        <div id="modal-catatan-rilis" class="modal fade" role="dialog" style="color: #333;">
-            <div class="modal-dialog modal-lg">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                            <span aria-hidden="true">&times;</span>
-                        </button>
-                        <h4 class="modal-title"><i class="fa fa-book"></i>&nbsp;&nbsp;Catatan Rilis
-                            {{ config_item('nama_aplikasi') }} <small class="label label-success">{{ $rilis_info['latest_version'] }}</small></h4>
-                    </div>
-                    <div class="modal-body rilis" style="max-height: 450px; overflow-y: auto;">
-                        {!! nl2br($rilis_info['release_body']) !!}
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-social btn-danger btn-sm pull-left" data-dismiss="modal"><i class='fa fa-sign-out'></i> Tutup</button>
-                        <a href="{{ $rilis_info['url_download'] }}" class="btn btn-social bg-navy btn-sm pull-right" target="_blank">
-                            <i class="fa fa-download"></i> Unduh
-                        </a>
-                    </div>
-                </div>
-            </div>
-        </div>
-    @endif
-</aside>
+@endif
