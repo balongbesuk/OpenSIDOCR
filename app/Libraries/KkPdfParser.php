@@ -114,9 +114,6 @@ class KkPdfParser
         }
 
         // Extract Members Table 2
-        $shdk_list  = ['KEPALA KELUARGA', 'SUAMI', 'ISTRI', 'ANAK', 'MENANTU', 'CUCU', 'ORANG TUA', 'MERTUA', 'FAMILI LAIN', 'PEMBANTU', 'LAINNYA'];
-        $kawin_list = ['KAWIN TERCATAT', 'KAWIN', 'BELUM KAWIN', 'CERAI HIDUP', 'CERAI MATI', 'KAWIN BELUM TERCATAT', 'CERAI TERCATAT', 'CERAI BELUM TERCATAT'];
-
         $t2_start = -1;
         for ($i = 0; $i < count($lines); $i++) {
             if (preg_match('/^\(17\)$/', $lines[$i]) || strpos($lines[$i], 'Nama Orang Tua') !== false) {
@@ -126,7 +123,7 @@ class KkPdfParser
         }
         if ($t2_start === -1) {
             for ($i = 0; $i < count($lines); $i++) {
-                if (in_array($lines[$i], $kawin_list)) {
+                if (self::matchKawin($lines, $i) !== null) {
                     $t2_start = $i - 1;
                     break;
                 }
@@ -141,7 +138,7 @@ class KkPdfParser
                 for ($i = 0; $i < count($t2_lines); $i++) {
                     if ($t2_lines[$i] === (string) $no) {
                         for ($j = 1; $j <= 4; $j++) {
-                            if (isset($t2_lines[$i + $j]) && (in_array($t2_lines[$i + $j], $kawin_list) || in_array($t2_lines[$i + $j], $shdk_list))) {
+                            if (isset($t2_lines[$i + $j]) && (self::matchKawin($t2_lines, $i + $j) !== null || self::matchShdk($t2_lines, $i + $j) !== null)) {
                                 $rowIdx = $i;
                                 break 2;
                             }
@@ -171,22 +168,22 @@ class KkPdfParser
                     $kewarganegaraan = '';
 
                     $idx = 0;
-                    if (isset($rowTokens[$idx]) && in_array($rowTokens[$idx], $kawin_list)) {
-                        $status_kawin = $rowTokens[$idx];
-                        $idx++;
+                    if ($km = self::matchKawin($rowTokens, $idx)) {
+                        $status_kawin = $km['kawin'];
+                        $idx += $km['consumed'];
                     }
                     if (isset($rowTokens[$idx]) && preg_match('/^\d{2}-\d{2}-\d{4}$/', $rowTokens[$idx])) {
                         $tgl_perkawinan = self::formatDate($rowTokens[$idx]);
                         $idx++;
-                    } elseif (isset($rowTokens[$idx]) && $rowTokens[$idx] === '-' && isset($rowTokens[$idx + 1]) && in_array($rowTokens[$idx + 1], $shdk_list)) {
+                    } elseif (isset($rowTokens[$idx]) && $rowTokens[$idx] === '-' && self::matchShdk($rowTokens, $idx + 1) !== null) {
                         $idx++;
                     }
-                    if (isset($rowTokens[$idx]) && in_array($rowTokens[$idx], $shdk_list)) {
-                        $shdk = $rowTokens[$idx];
-                        $idx++;
+                    if ($sm = self::matchShdk($rowTokens, $idx)) {
+                        $shdk = $sm['shdk'];
+                        $idx += $sm['consumed'];
                     }
-                    if (isset($rowTokens[$idx]) && in_array($rowTokens[$idx], ['WNI', 'WNA', 'DUA KEWARGANEGARAAN'])) {
-                        $kewarganegaraan = $rowTokens[$idx];
+                    if (isset($rowTokens[$idx]) && in_array(strtoupper(trim($rowTokens[$idx])), ['WNI', 'WNA', 'DUA KEWARGANEGARAAN'])) {
+                        $kewarganegaraan = strtoupper(trim($rowTokens[$idx]));
                         $idx++;
                     }
 
@@ -225,6 +222,31 @@ class KkPdfParser
             }
         }
 
+        $hasIstri = false;
+        $sharedTglKawin = '';
+        foreach ($members as $mem) {
+            $hClean = strtoupper(preg_replace('/[^A-Z]/', '', (string) ($mem['hubungan'] ?? '')));
+            if ($hClean === 'ISTRI') {
+                $hasIstri = true;
+            }
+            if (in_array($hClean, ['SUAMI', 'ISTRI', 'KEPALAKELUARGA']) && ! empty($mem['tanggalperkawinan'])) {
+                $sharedTglKawin = $mem['tanggalperkawinan'];
+            }
+        }
+
+        foreach ($members as &$mem) {
+            $hClean = strtoupper(preg_replace('/[^A-Z]/', '', (string) ($mem['hubungan'] ?? '')));
+            if (in_array($hClean, ['SUAMI', 'ISTRI']) || ($hClean === 'KEPALAKELUARGA' && $hasIstri)) {
+                if (empty($mem['status_kawin']) || $mem['status_kawin'] === '-' || $mem['status_kawin'] === 'BELUM KAWIN') {
+                    $mem['status_kawin'] = 'KAWIN TERCATAT';
+                }
+                if (empty($mem['tanggalperkawinan']) && ! empty($sharedTglKawin)) {
+                    $mem['tanggalperkawinan'] = $sharedTglKawin;
+                }
+            }
+        }
+        unset($mem);
+
         if (empty($header['no_kk']) || empty($members)) {
             $ocrResult = KkScanOcrParser::parseImage($filePath, basename($filePath));
             if (! empty($ocrResult['header']['no_kk']) || ! empty($ocrResult['members'])) {
@@ -241,6 +263,144 @@ class KkPdfParser
             'header'  => $header,
             'members' => array_values($members),
         ];
+    }
+
+    public static function matchShdk(array $tokens, int $idx): ?array
+    {
+        if (! isset($tokens[$idx])) {
+            return null;
+        }
+
+        $t1 = strtoupper(trim((string) $tokens[$idx]));
+        $oneClean = preg_replace('/[^A-Z]/', '', $t1);
+
+        // Periksa gabungan 2 token (jika baris terpotong/dibungkus, contoh: "FAMILY" + "LAIN", "KEPALA" + "KELUARGA")
+        if (isset($tokens[$idx + 1])) {
+            $t2 = strtoupper(trim((string) $tokens[$idx + 1]));
+            $twoClean = preg_replace('/[^A-Z]/', '', $t2);
+
+            if (($oneClean === 'FAMILY' || $oneClean === 'FAMILI') && ($twoClean === 'LAIN' || $twoClean === 'LAINNYA')) {
+                return ['shdk' => 'FAMILI LAIN', 'consumed' => 2];
+            }
+            if ($oneClean === 'KEPALA' && $twoClean === 'KELUARGA') {
+                return ['shdk' => 'KEPALA KELUARGA', 'consumed' => 2];
+            }
+            if ($oneClean === 'ORANG' && $twoClean === 'TUA') {
+                return ['shdk' => 'ORANG TUA', 'consumed' => 2];
+            }
+        }
+
+        // Periksa token tunggal (termasuk yang tertulis FAMILY, FAMILI, FAMILY LAIN, FAMILI LAIN, dll)
+        if (in_array($oneClean, ['FAMILILAIN', 'FAMILYLAIN', 'FAMILILAINNYA', 'FAMILYLAINNYA', 'FAMILY', 'FAMILI'])) {
+            return ['shdk' => 'FAMILI LAIN', 'consumed' => 1];
+        }
+        if ($oneClean === 'KEPALAKELUARGA') {
+            return ['shdk' => 'KEPALA KELUARGA', 'consumed' => 1];
+        }
+        if ($oneClean === 'SUAMI') {
+            return ['shdk' => 'SUAMI', 'consumed' => 1];
+        }
+        if ($oneClean === 'ISTRI') {
+            return ['shdk' => 'ISTRI', 'consumed' => 1];
+        }
+        if ($oneClean === 'ANAK') {
+            return ['shdk' => 'ANAK', 'consumed' => 1];
+        }
+        if ($oneClean === 'MENANTU') {
+            return ['shdk' => 'MENANTU', 'consumed' => 1];
+        }
+        if ($oneClean === 'CUCU') {
+            return ['shdk' => 'CUCU', 'consumed' => 1];
+        }
+        if ($oneClean === 'ORANGTUA') {
+            return ['shdk' => 'ORANG TUA', 'consumed' => 1];
+        }
+        if ($oneClean === 'MERTUA') {
+            return ['shdk' => 'MERTUA', 'consumed' => 1];
+        }
+        if ($oneClean === 'PEMBANTU' || $oneClean === 'MEMBANTU') {
+            return ['shdk' => 'PEMBANTU', 'consumed' => 1];
+        }
+        if ($oneClean === 'LAINNYA') {
+            return ['shdk' => 'LAINNYA', 'consumed' => 1];
+        }
+
+        return null;
+    }
+
+    public static function matchKawin(array $tokens, int $idx): ?array
+    {
+        if (! isset($tokens[$idx])) {
+            return null;
+        }
+
+        $t1 = strtoupper(trim((string) $tokens[$idx]));
+        $oneClean = preg_replace('/[^A-Z]/', '', $t1);
+
+        if (in_array($oneClean, ['KAWINTERCATAT', 'KAWINBELUMTERCATAT', 'BELUMKAWIN', 'CERAIHIDUP', 'CERAIMATI', 'CERAITERCATAT', 'CERAIBELUMTERCATAT'])) {
+            $map = [
+                'KAWINTERCATAT'      => 'KAWIN TERCATAT',
+                'KAWINBELUMTERCATAT' => 'KAWIN BELUM TERCATAT',
+                'BELUMKAWIN'         => 'BELUM KAWIN',
+                'CERAIHIDUP'         => 'CERAI HIDUP',
+                'CERAIMATI'          => 'CERAI MATI',
+                'CERAITERCATAT'      => 'CERAI TERCATAT',
+                'CERAIBELUMTERCATAT' => 'CERAI BELUM TERCATAT',
+            ];
+
+            return ['kawin' => $map[$oneClean], 'consumed' => 1];
+        }
+
+        if (isset($tokens[$idx + 2])) {
+            $t2 = strtoupper(trim((string) $tokens[$idx + 1]));
+            $t3 = strtoupper(trim((string) $tokens[$idx + 2]));
+            $t2Clean = preg_replace('/[^A-Z]/', '', $t2);
+            $t3Clean = preg_replace('/[^A-Z]/', '', $t3);
+            if ($t2Clean !== '' && $t3Clean !== '') {
+                $threeClean = $oneClean . $t2Clean . $t3Clean;
+                if ($threeClean === 'KAWINBELUMTERCATAT') {
+                    return ['kawin' => 'KAWIN BELUM TERCATAT', 'consumed' => 3];
+                }
+                if ($threeClean === 'CERAIBELUMTERCATAT') {
+                    return ['kawin' => 'CERAI BELUM TERCATAT', 'consumed' => 3];
+                }
+            }
+        }
+
+        if (isset($tokens[$idx + 1])) {
+            $t2 = strtoupper(trim((string) $tokens[$idx + 1]));
+            $t2Clean = preg_replace('/[^A-Z]/', '', $t2);
+            if ($t2Clean !== '') {
+                $twoClean = $oneClean . $t2Clean;
+                if ($twoClean === 'KAWINTERCATAT') {
+                    return ['kawin' => 'KAWIN TERCATAT', 'consumed' => 2];
+                }
+                if ($twoClean === 'KAWINBELUMTERCATAT') {
+                    return ['kawin' => 'KAWIN BELUM TERCATAT', 'consumed' => 2];
+                }
+                if ($twoClean === 'BELUMKAWIN') {
+                    return ['kawin' => 'BELUM KAWIN', 'consumed' => 2];
+                }
+                if ($twoClean === 'CERAIHIDUP') {
+                    return ['kawin' => 'CERAI HIDUP', 'consumed' => 2];
+                }
+                if ($twoClean === 'CERAIMATI') {
+                    return ['kawin' => 'CERAI MATI', 'consumed' => 2];
+                }
+                if ($twoClean === 'CERAITERCATAT') {
+                    return ['kawin' => 'CERAI TERCATAT', 'consumed' => 2];
+                }
+                if ($twoClean === 'CERAIBELUMTERCATAT') {
+                    return ['kawin' => 'CERAI BELUM TERCATAT', 'consumed' => 2];
+                }
+            }
+        }
+
+        if ($oneClean === 'KAWIN') {
+            return ['kawin' => 'KAWIN TERCATAT', 'consumed' => 1];
+        }
+
+        return null;
     }
 
     private static function formatDate($dateStr)

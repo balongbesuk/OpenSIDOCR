@@ -173,6 +173,7 @@ class Penduduk extends Admin_Controller
                 $_SESSION['nik_lama'] = $data['penduduk']['nik'];
             }
             $data['form_action'] = site_url("{$this->controller}/update/1/{$o}/{$id}");
+            $this->session->unset_userdata('jenis_peristiwa');
         } else {
             // Validasi dilakukan di penduduk_model sewaktu insert dan update
             if (isset($_SESSION['validation_error']) && $_SESSION['validation_error']) {
@@ -220,7 +221,7 @@ class Penduduk extends Admin_Controller
         } else {
             $data['status_penduduk'] = $this->referensi_model->list_data('tweb_penduduk_status');
         }
-        $data['jenis_peristiwa'] = $this->session->jenis_peristiwa;
+        $data['jenis_peristiwa'] = $id ? null : $this->session->jenis_peristiwa;
 
         $this->session->unset_userdata(['dari_internal']);
 

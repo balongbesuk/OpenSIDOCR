@@ -1175,7 +1175,42 @@ class Keluarga extends Admin_Controller
             $parsed['header']['alamat'] = $this->bersihkan_alamat_dusun($parsed['header']['alamat'], $cluster_cek['dusun'] ?? '');
         }
 
+        $has_istri_prev = false;
+        $shared_tgl_kawin_prev = '';
+        foreach ($parsed['members'] as $mem) {
+            $hClean = strtoupper(preg_replace('/[^A-Z]/', '', (string) ($mem['hubungan'] ?? '')));
+            if ($hClean === 'ISTRI') {
+                $has_istri_prev = true;
+            }
+            if (in_array($hClean, ['SUAMI', 'ISTRI', 'KEPALAKELUARGA']) && ! empty($mem['tanggalperkawinan'])) {
+                $shared_tgl_kawin_prev = $mem['tanggalperkawinan'];
+            }
+        }
+        foreach ($parsed['members'] as &$mem) {
+            $hClean = strtoupper(preg_replace('/[^A-Z]/', '', (string) ($mem['hubungan'] ?? '')));
+            if (in_array($hClean, ['SUAMI', 'ISTRI']) || ($hClean === 'KEPALAKELUARGA' && $has_istri_prev)) {
+                if (empty($mem['status_kawin']) || $mem['status_kawin'] === '-' || $mem['status_kawin'] === 'BELUM KAWIN') {
+                    $mem['status_kawin'] = 'KAWIN TERCATAT';
+                }
+                if (empty($mem['tanggalperkawinan']) && ! empty($shared_tgl_kawin_prev)) {
+                    $mem['tanggalperkawinan'] = $shared_tgl_kawin_prev;
+                }
+            }
+        }
+        unset($mem);
+
         foreach ($parsed['members'] as &$m) {
+            if (! empty($m['hubungan'])) {
+                $clean_hub = strtoupper(preg_replace('/[^A-Z]/', '', (string) $m['hubungan']));
+                if (in_array($clean_hub, ['FAMILY', 'FAMILI', 'FAMILILAIN', 'FAMILYLAIN', 'FAMILILAINNYA', 'FAMILYLAINNYA'])) {
+                    $m['hubungan'] = 'FAMILI LAIN';
+                } elseif ($clean_hub === 'ORANGTUA') {
+                    $m['hubungan'] = 'ORANG TUA';
+                } elseif ($clean_hub === 'MEMBANTU') {
+                    $m['hubungan'] = 'PEMBANTU';
+                }
+            }
+
             $nik                    = $m['nik'];
             $p                      = null;
             $is_nik_sementara_match = false;
@@ -1360,7 +1395,17 @@ class Keluarga extends Admin_Controller
             $norm_clean('KEPALA KELUARGA') => 1, $norm_clean('SUAMI') => 2, $norm_clean('ISTRI') => 3,
             $norm_clean('ANAK')            => 4, $norm_clean('MENANTU') => 5, $norm_clean('CUCU') => 6,
             $norm_clean('ORANG TUA')       => 7, $norm_clean('ORANGTUA') => 7, $norm_clean('MERTUA') => 8,
-            $norm_clean('FAMILI LAIN')     => 9, $norm_clean('PEMBANTU') => 10, $norm_clean('LAINNYA') => 11,
+            $norm_clean('FAMILI LAIN')     => 9,
+            $norm_clean('FAMILILAIN')      => 9,
+            $norm_clean('FAMILY LAIN')     => 9,
+            $norm_clean('FAMILYLAIN')      => 9,
+            $norm_clean('FAMILI')          => 9,
+            $norm_clean('FAMILY')          => 9,
+            $norm_clean('FAMILI LAINNYA')  => 9,
+            $norm_clean('FAMILY LAINNYA')  => 9,
+            $norm_clean('PEMBANTU')        => 10,
+            $norm_clean('MEMBANTU')        => 10,
+            $norm_clean('LAINNYA')         => 11,
         ];
         $ref_wni = [$norm_clean('WNI') => 1, $norm_clean('WNA') => 2, $norm_clean('DUA KEWARGANEGARAAN') => 3];
 
@@ -1525,6 +1570,18 @@ class Keluarga extends Admin_Controller
         $edited_niks        = $this->input->post('edited_nik') ?: [];
 
         // 2. Simpan/Update tweb_penduduk
+        $has_istri_save = false;
+        $shared_tgl_kawin_save = '';
+        foreach ($members as $mem) {
+            $hClean = $norm_clean($mem['hubungan'] ?? '');
+            if ($hClean === 'ISTRI') {
+                $has_istri_save = true;
+            }
+            if (in_array($hClean, ['SUAMI', 'ISTRI', 'KEPALAKELUARGA']) && ! empty($mem['tanggalperkawinan'])) {
+                $shared_tgl_kawin_save = $mem['tanggalperkawinan'];
+            }
+        }
+
         foreach ($members as $idx => $m) {
             $nik = ! empty($edited_niks[$idx]) ? preg_replace('/[^0-9]/', '', (string) $edited_niks[$idx]) : preg_replace('/[^0-9]/', '', (string) $m['nik']);
             if (empty($nik)) {
@@ -1537,6 +1594,15 @@ class Keluarga extends Admin_Controller
             $pekerjaan_id    = $ref_pekerjaan[$norm_clean($m['pekerjaan'])] ?? 1;
             $status_kawin_id = $ref_kawin[$norm_clean($m['status_kawin'])] ?? 1;
             $shdk_id         = $ref_shdk[$norm_clean($m['hubungan'])] ?? 4;
+
+            if (in_array($shdk_id, [2, 3]) || ($shdk_id == 1 && $has_istri_save)) {
+                if ($status_kawin_id == 1) {
+                    $status_kawin_id = 2;
+                }
+                if (empty($m['tanggalperkawinan']) && ! empty($shared_tgl_kawin_save)) {
+                    $m['tanggalperkawinan'] = $shared_tgl_kawin_save;
+                }
+            }
             $wni_id          = $ref_wni[$norm_clean($m['kewarganegaraan'])] ?? 1;
             $clean_goldarah  = strtoupper(trim(preg_replace('/\s+/', '', (string) $m['golongan_darah'])));
             $goldarah_id     = $ref_goldarah[$clean_goldarah] ?? ($ref_goldarah[strtoupper(trim($m['golongan_darah']))] ?? 13);

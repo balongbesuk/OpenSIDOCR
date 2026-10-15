@@ -1408,7 +1408,7 @@ PYTHON;
             }
 
             // Deteksi baris Tabel 2 (Status Hubungan & Nama Orang Tua: Ayah/Ibu)
-            if ($inTable2Section && preg_match('/(\bKAW[I|N]\b|\bBELUMKAWIN\b|KEPALA\s*KELUARGA|\bISTRI\b|\bANAK\b|\bWNI\b)/i', $upperLine)) {
+            if ($inTable2Section && preg_match('/(\bKAW[I|N]\b|\bBELUMKAWIN\b|KEPALA\s*KELUARGA|\bISTRI\b|\bANAK\b|\bMENANTU\b|\bCUCU\b|\bMERTUA\b|\bFAMIL[I|Y]\b|\bWNI\b)/i', $upperLine)) {
                 if (strpos($upperLine, 'PERKAWINAN') !== false || strpos($upperLine, 'KEWARGANEGARAAN') !== false || (strpos($upperLine, 'AYAH') !== false && strpos($upperLine, 'IBU') !== false) || strpos($upperLine, 'PASPOR') !== false || strpos($upperLine, 'KITAS') !== false || strpos($upperLine, 'KITAP') !== false || strpos($upperLine, 'IMIGRASI') !== false) {
                     continue;
                 }
@@ -1451,7 +1451,7 @@ PYTHON;
                     $words      = preg_split('/\s+/', trim($line));
                     foreach ($words as $w) {
                         $wClean = trim(preg_replace('/[^a-zA-Z\s\,\.\']/', '', $w));
-                        if (strlen($wClean) >= 2 && ! in_array(strtoupper($wClean), ['KAWIN', 'TERCATAT', 'KAWINTERCATAT', 'BELUMKAWIN', 'BELUM', 'CERAI', 'HIDUP', 'MATI', 'KEPALAKELUARGA', 'KEPALA', 'KELUARGA', 'ISTRI', 'ANAK', 'WNI', 'WNA', 'NO', 'PASPOR', 'KITAS', 'KITAP', 'STATUS', 'PERKAWINAN', 'DALAM', 'KEWARGANEGARAAN', 'IMIGRASI', 'NAMA', 'ORANG', 'TUA', 'AYAH', 'IBU'])) {
+                        if (strlen($wClean) >= 2 && ! in_array(strtoupper($wClean), ['KAWIN', 'TERCATAT', 'KAWINTERCATAT', 'BELUMKAWIN', 'BELUM', 'CERAI', 'HIDUP', 'MATI', 'KEPALAKELUARGA', 'KEPALA', 'KELUARGA', 'ISTRI', 'ANAK', 'MENANTU', 'CUCU', 'MERTUA', 'FAMILI', 'FAMILY', 'LAIN', 'LAINNYA', 'PEMBANTU', 'MEMBANTU', 'WNI', 'WNA', 'NO', 'PASPOR', 'KITAS', 'KITAP', 'STATUS', 'PERKAWINAN', 'DALAM', 'KEWARGANEGARAAN', 'IMIGRASI', 'NAMA', 'ORANG', 'TUA', 'AYAH', 'IBU'])) {
                             $cleanWords[] = strtoupper($wClean);
                         }
                     }
@@ -1491,9 +1491,35 @@ PYTHON;
                     $statusKawin = 'KAWIN';
                 }
 
-                if ($namaAyah !== '-' || $namaIbu !== '-' || ! empty($statusKawin)) {
+                $statusHub = '';
+                if (preg_match('/\b(FAMILI\s*LAIN(?:NYA)?|FAMILY\s*LAIN(?:NYA)?|FAMILI|FAMILY)\b/i', $upperCleanLine)) {
+                    $statusHub = 'FAMILI LAIN';
+                } elseif (preg_match('/\b(KEPALA\s*KELUARGA)\b/i', $upperCleanLine)) {
+                    $statusHub = 'KEPALA KELUARGA';
+                } elseif (preg_match('/\b(SUAMI)\b/i', $upperCleanLine)) {
+                    $statusHub = 'SUAMI';
+                } elseif (preg_match('/\b(ISTRI)\b/i', $upperCleanLine)) {
+                    $statusHub = 'ISTRI';
+                } elseif (preg_match('/\b(ANAK)\b/i', $upperCleanLine)) {
+                    $statusHub = 'ANAK';
+                } elseif (preg_match('/\b(MENANTU)\b/i', $upperCleanLine)) {
+                    $statusHub = 'MENANTU';
+                } elseif (preg_match('/\b(CUCU)\b/i', $upperCleanLine)) {
+                    $statusHub = 'CUCU';
+                } elseif (preg_match('/\b(ORANG\s*TUA|ORANGTUA)\b/i', $upperCleanLine)) {
+                    $statusHub = 'ORANG TUA';
+                } elseif (preg_match('/\b(MERTUA)\b/i', $upperCleanLine)) {
+                    $statusHub = 'MERTUA';
+                } elseif (preg_match('/\b(PEMBANTU|MEMBANTU)\b/i', $upperCleanLine)) {
+                    $statusHub = 'PEMBANTU';
+                } elseif (preg_match('/\b(LAINNYA)\b/i', $upperCleanLine)) {
+                    $statusHub = 'LAINNYA';
+                }
+
+                if ($namaAyah !== '-' || $namaIbu !== '-' || ! empty($statusKawin) || ! empty($statusHub)) {
                     $table2Rows[] = [
                         'status_kawin'      => $statusKawin,
+                        'hubungan'          => $statusHub,
                         'nama_ayah'         => self::splitConcatenatedName($namaAyah),
                         'nama_ibu'          => self::splitConcatenatedName($namaIbu),
                         'tanggalperkawinan' => $tglKawin,
@@ -1507,7 +1533,10 @@ PYTHON;
         foreach ($table1Rows as $idx => $t1) {
             $t2 = $table2Rows[$idx] ?? [];
 
-            if ($idx === 0) {
+            if (! empty($t2['hubungan'])) {
+                $finalHub   = $t2['hubungan'];
+                $finalKawin = ! empty($t2['status_kawin']) ? $t2['status_kawin'] : ($idx === 0 ? 'KAWIN' : 'BELUM KAWIN');
+            } elseif ($idx === 0) {
                 $finalHub   = 'KEPALA KELUARGA';
                 $finalKawin = ! empty($t2['status_kawin']) ? $t2['status_kawin'] : 'KAWIN';
             } elseif ($idx === 1 && $t1['sex'] === 'PEREMPUAN') {

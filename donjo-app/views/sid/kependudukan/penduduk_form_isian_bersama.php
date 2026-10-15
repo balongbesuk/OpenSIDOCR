@@ -518,7 +518,7 @@
 			<select class="form-control input-sm required" name="status_kawin" <?php if ($jenis_peristiwa == '1') : ?> onload="disable_kawin_cerai($(this).find(':selected').val())" <?php endif; ?> onchange="disable_kawin_cerai($(this).find(':selected').val())" id="status_perkawinan">
 				<option value="">Pilih Status Perkawinan</option>
 				<?php foreach ($kawin as $data) : ?>
-					<option value="<?= $data['id'] ?>" <?php selected($penduduk['status_kawin'], $data['id']); ?> <?php $jenis_peristiwa == '1' ? selected(1, $data['id']) : ''; ?>><?= strtoupper($data['nama']) ?></option>
+					<option value="<?= $data['id'] ?>" <?php selected($penduduk['status_kawin'], $data['id']); ?> <?php (empty($penduduk['id']) && $jenis_peristiwa == '1') ? selected(1, $data['id']) : ''; ?>><?= strtoupper($data['nama']) ?></option>
 				<?php endforeach; ?>
 			</select>
 		</div>
@@ -713,8 +713,10 @@
 
 			if (selected == 2 || selected == 3) {
 				$("#status_perkawinan").val("2").change();
-			} else {
-				$("#status_perkawinan").val("").change();
+			} else if (selected == 4 || selected == 6) {
+				if (!$("#status_perkawinan").val() && !"<?= !empty($penduduk['id']) ?>") {
+					$("#status_perkawinan").val("1").change();
+				}
 			}
 		});
 
@@ -771,6 +773,7 @@
 		show_hide_penduduk_tidak_tetap($('#status_penduduk').val());
 		show_hide_status_warga_negara($('#warganegara_id').val());
 		show_hide_ktp_el($('#ktp_el').val());
+		disable_kawin_cerai($('#status_perkawinan').val());
 
 	});
 
