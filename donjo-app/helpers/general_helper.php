@@ -161,6 +161,23 @@ if (! function_exists('can')) {
     }
 }
 
+if (! function_exists('is_admin')) {
+    function is_admin()
+    {
+        $CI = &get_instance();
+        $grup = $CI->grup ?? $CI->session->grup ?? null;
+
+        if (empty($grup)) {
+            return false;
+        }
+
+        $CI->load->model('user_model');
+        $adminGrupId = $CI->user_model->id_grup(UserGrup::ADMINISTRATOR);
+
+        return (int) $grup === (int) $adminGrupId;
+    }
+}
+
 // response()->json(array_data);
 if (! function_exists('json')) {
     function json($content = [], $header = 200)

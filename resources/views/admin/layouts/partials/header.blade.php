@@ -325,18 +325,20 @@
                                     </li>
                                 @endif
 
-                                {{-- Menu Informasi / Bantuan (popup modal di mobile) --}}
-                                <li style="border-bottom: 1px solid #f4f4f4;">
-                                    <a href="#" data-toggle="modal" data-target="#modal-informasi" style="display: flex; align-items: center; justify-content: space-between; padding: 10px 15px; color: #444; text-decoration: none;">
-                                        <span>
-                                            <i class="fa fa-question-circle fa-lg text-aqua" style="width: 25px;"></i>
-                                            Informasi
-                                        </span>
-                                        @if (!empty($rilis_info['update_available']))
-                                            <span class="label label-success pull-right" style="font-size: 10px;">Update</span>
-                                        @endif
-                                    </a>
-                                </li>
+                                {{-- Menu Informasi / Bantuan (hanya untuk admin) --}}
+                                @if (is_admin())
+                                    <li style="border-bottom: 1px solid #f4f4f4;">
+                                        <a href="#" data-toggle="modal" data-target="#modal-informasi" style="display: flex; align-items: center; justify-content: space-between; padding: 10px 15px; color: #444; text-decoration: none;">
+                                            <span>
+                                                <i class="fa fa-question-circle fa-lg text-aqua" style="width: 25px;"></i>
+                                                Informasi
+                                            </span>
+                                            @if (!empty($rilis_info['update_available']))
+                                                <span class="label label-success pull-right" style="font-size: 10px;">Update</span>
+                                            @endif
+                                        </a>
+                                    </li>
+                                @endif
 
                                 {{-- Menu Pengaturan jika tersedia --}}
                                 @if ($kategori && can('u', $controller))
@@ -373,15 +375,17 @@
                     </ul>
                 </li>
 
-                {{-- Ikon Informasi untuk tampilan desktop (popup modal) --}}
-                <li class="hidden-xs">
-                    <a href="#" data-toggle="modal" data-target="#modal-informasi" title="Informasi" style="position: relative;">
-                        <i class="fa fa-question-circle fa-lg"></i>
-                        @if (!empty($rilis_info['update_available']))
-                            <span class="badge" style="position: absolute; top: 7px; right: 2px; margin: 0; padding: 2px 4px; font-size: 8px; line-height: 1; border-radius: 50%; background-color: #00a65a; color: #fff;" title="Pembaruan Tersedia">!</span>
-                        @endif
-                    </a>
-                </li>
+                {{-- Ikon Informasi untuk tampilan desktop (hanya untuk admin) --}}
+                @if (is_admin())
+                    <li class="hidden-xs">
+                        <a href="#" data-toggle="modal" data-target="#modal-informasi" title="Informasi" style="position: relative;">
+                            <i class="fa fa-question-circle fa-lg"></i>
+                            @if (!empty($rilis_info['update_available']))
+                                <span class="badge" style="position: absolute; top: 7px; right: 2px; margin: 0; padding: 2px 4px; font-size: 8px; line-height: 1; border-radius: 50%; background-color: #00a65a; color: #fff;" title="Pembaruan Tersedia">!</span>
+                            @endif
+                        </a>
+                    </li>
+                @endif
                 {{-- Ikon Pengaturan untuk tampilan desktop --}}
                 @if ($kategori && can('u', $controller))
                     <li class="hidden-xs">

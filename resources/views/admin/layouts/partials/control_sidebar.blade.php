@@ -1,6 +1,8 @@
+@if (is_admin())
 @php
     $rilis_info = $rilis ?? cek_pembaruan_aplikasi();
     $ada_update = !empty($rilis_info['update_available']);
+    $git_local  = \App\Libraries\GitHubUpdater::getLocalCommit();
 @endphp
 
 <div id="modal-informasi" class="modal fade" role="dialog" aria-labelledby="modalInformasiLabel" aria-hidden="true" style="color: #333;">
@@ -76,6 +78,74 @@
                 <div class="tab-content">
                     {{-- TAB 1: PEMBARUAN --}}
                     <div role="tabpanel" class="tab-pane <?= $ada_update ? 'active' : '' ?>" id="tab-pembaruan">
+                        {{-- KARTU PEMBARUAN GITHUB LANGSUNG (PURE PHP - TANPA TERMINAL) --}}
+                        <div style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 8px; padding: 20px; margin-bottom: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.04);">
+                            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 15px; border-bottom: 1px solid #f1f5f9; padding-bottom: 12px; flex-wrap: wrap; gap: 10px;">
+                                <div style="display: flex; align-items: center; gap: 10px;">
+                                    <div style="width: 36px; height: 36px; border-radius: 8px; background: #1e293b; color: #fff; display: flex; align-items: center; justify-content: center; font-size: 18px;">
+                                        <i class="fa fa-github"></i>
+                                    </div>
+                                    <div>
+                                        <h4 style="margin: 0; font-size: 15px; font-weight: 700; color: #0f172a;">
+                                            Pembaruan Otomatis dari GitHub
+                                        </h4>
+                                        <span style="font-size: 11px; color: #64748b;">
+                                            Repositori: <strong>balongbesuk/OpenSIDOCR</strong> (Branch: <code>main</code>)
+                                        </span>
+                                    </div>
+                                </div>
+                                <span id="badge-status-update" class="label label-default" style="font-size: 11px; padding: 4px 8px; border-radius: 4px;">
+                                    <i class="fa fa-circle-o-notch fa-spin"></i> Memeriksa status...
+                                </span>
+                            </div>
+
+                            <div class="row" style="margin-bottom: 15px;">
+                                <div class="col-sm-6" style="margin-bottom: 10px;">
+                                    <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; padding: 12px; min-height: 100px;">
+                                        <div style="font-size: 11px; font-weight: 600; color: #64748b; margin-bottom: 4px; text-transform: uppercase;"><i class="fa fa-laptop"></i> Versi Server Terpasang</div>
+                                        <div style="display: flex; align-items: center; gap: 8px;">
+                                            <span class="label label-default" id="label-local-commit" style="font-family: monospace; font-size: 12px;">
+                                                <?= !empty($git_local['short_sha']) ? $git_local['short_sha'] : '47fe0e5' ?>
+                                            </span>
+                                            <span style="font-size: 11px; color: #64748b;" id="label-local-date">
+                                                <?= !empty($git_local['date']) ? $git_local['date'] : '-' ?>
+                                            </span>
+                                        </div>
+                                        <div style="font-size: 11px; color: #475569; margin-top: 6px; line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;" id="label-local-message">
+                                            <?= htmlspecialchars(!empty($git_local['message']) ? $git_local['message'] : 'Versi dasar aplikasi') ?>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-sm-6" style="margin-bottom: 10px;">
+                                    <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; padding: 12px; min-height: 100px;">
+                                        <div style="font-size: 11px; font-weight: 600; color: #64748b; margin-bottom: 4px; text-transform: uppercase;"><i class="fa fa-cloud"></i> Versi Terkini di GitHub</div>
+                                        <div style="display: flex; align-items: center; gap: 8px;">
+                                            <span class="label label-primary" id="label-remote-commit" style="font-family: monospace; font-size: 12px;">
+                                                <i class="fa fa-spinner fa-spin"></i>
+                                            </span>
+                                            <span style="font-size: 11px; color: #64748b;" id="label-remote-date">-</span>
+                                        </div>
+                                        <div style="font-size: 11px; color: #475569; margin-top: 6px; line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;" id="label-remote-message">
+                                            Memeriksa commit terbaru repositori...
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; background: #fafafa; border: 1px solid #f1f5f9; border-radius: 6px; padding: 10px 14px;">
+                                <div style="font-size: 11px; color: #64748b;">
+                                    <i class="fa fa-check-shield text-green"></i> <strong>Aman untuk Hosting cPanel:</strong> Menggunakan Pure PHP tanpa terminal. Berkas konfigurasi & data warga di folder <code>desa/</code> 100% terlindungi.
+                                </div>
+                                <div style="display: flex; gap: 8px;">
+                                    <button type="button" class="btn btn-default btn-sm" id="btn-cek-update-github" style="font-weight: 600;">
+                                        <i class="fa fa-refresh"></i> Periksa Pembaruan
+                                    </button>
+                                    <button type="button" class="btn btn-success btn-sm" id="btn-proses-update-github" style="font-weight: 600; display: none;">
+                                        <i class="fa fa-cloud-download"></i> Perbarui Aplikasi Sekarang
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
                         @if ($ada_update)
                             <div style="background: linear-gradient(135deg, #00a65a, #008d4c); border-radius: 8px; padding: 20px; color: #ffffff; box-shadow: 0 4px 15px rgba(0,166,90,0.25); margin-bottom: 20px;">
                                 <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;">
@@ -447,3 +517,160 @@
         </div>
     </div>
 @endif
+<script type="text/javascript">
+    $(document).ready(function() {
+        var updateUrlCek = '<?= site_url("pembaruan_aplikasi/cek") ?>';
+        var updateUrlProses = '<?= site_url("pembaruan_aplikasi/proses") ?>';
+        var csrfName = '<?= $this->security->get_csrf_token_name() ?>';
+        var isChecking = false;
+
+        function getCsrfHash() {
+            return '<?= $this->security->get_csrf_hash() ?>';
+        }
+
+        function cekUpdateGitHub(showFeedback) {
+            if (isChecking) return;
+            isChecking = true;
+            $('#btn-cek-update-github').prop('disabled', true).html('<i class="fa fa-spin fa-refresh"></i> Memeriksa...');
+            $('#badge-status-update').attr('class', 'label label-default').html('<i class="fa fa-circle-o-notch fa-spin"></i> Memeriksa...');
+
+            $.ajax({
+                url: updateUrlCek,
+                type: 'GET',
+                dataType: 'json',
+                timeout: 30000,
+                success: function(resp) {
+                    isChecking = false;
+                    $('#btn-cek-update-github').prop('disabled', false).html('<i class="fa fa-refresh"></i> Periksa Pembaruan');
+
+                    if (resp.status && resp.data) {
+                        var d = resp.data;
+                        if (d.local && d.local.short_sha) {
+                            $('#label-local-commit').text(d.local.short_sha);
+                            $('#label-local-date').text(d.local.date || '-');
+                            $('#label-local-message').text(d.local.message || '');
+                        }
+                        if (d.remote && d.remote.short_sha) {
+                            $('#label-remote-commit').text(d.remote.short_sha);
+                            $('#label-remote-date').text(d.remote.date || '-');
+                            $('#label-remote-message').text(d.remote.message || '');
+                        }
+
+                        if (d.has_update) {
+                            $('#badge-status-update').attr('class', 'label label-success').html('<i class="fa fa-arrow-circle-up"></i> Pembaruan Tersedia');
+                            $('#btn-proses-update-github').fadeIn();
+                            if (showFeedback) {
+                                Swal.fire({
+                                    title: 'Pembaruan Tersedia!',
+                                    html: 'Ditemukan commit terbaru di GitHub: <code>' + d.remote.short_sha + '</code><br><small>' + (d.remote.message ? d.remote.message.replace(/\n/g, '<br>') : '') + '</small>',
+                                    icon: 'info',
+                                    confirmButtonText: 'Tutup'
+                                });
+                            }
+                        } else {
+                            $('#badge-status-update').attr('class', 'label label-info').html('<i class="fa fa-check-circle"></i> Versi Terkini');
+                            $('#btn-proses-update-github').hide();
+                            if (showFeedback) {
+                                Swal.fire({
+                                    title: 'Aplikasi Terkini',
+                                    text: 'Aplikasi Anda sudah menggunakan commit terbaru (' + (d.local.short_sha || '') + ').',
+                                    icon: 'success',
+                                    confirmButtonText: 'Tutup'
+                                });
+                            }
+                        }
+                    } else {
+                        $('#badge-status-update').attr('class', 'label label-warning').html('<i class="fa fa-exclamation-triangle"></i> Gagal Cek');
+                    }
+                },
+                error: function(xhr) {
+                    isChecking = false;
+                    $('#btn-cek-update-github').prop('disabled', false).html('<i class="fa fa-refresh"></i> Periksa Pembaruan');
+                    $('#badge-status-update').attr('class', 'label label-warning').html('<i class="fa fa-exclamation-triangle"></i> Gagal Cek');
+                    if (showFeedback) {
+                        Swal.fire({
+                            title: 'Gagal Memeriksa Pembaruan',
+                            text: (xhr.responseJSON && xhr.responseJSON.message) ? xhr.responseJSON.message : 'Koneksi ke GitHub API gagal.',
+                            icon: 'error'
+                        });
+                    }
+                }
+            });
+        }
+
+        $('#modal-informasi').on('shown.bs.modal', function() {
+            cekUpdateGitHub(false);
+        });
+
+        $('#btn-cek-update-github').on('click', function(e) {
+            e.preventDefault();
+            cekUpdateGitHub(true);
+        });
+
+        $('#btn-proses-update-github').on('click', function(e) {
+            e.preventDefault();
+            Swal.fire({
+                title: 'Perbarui Aplikasi Sekarang?',
+                html: 'Aplikasi akan mengunduh pembaruan terbaru dari repositori GitHub <b>balongbesuk/OpenSIDOCR</b>.<br><br><small class="text-success"><i class="fa fa-shield"></i> Berkas konfigurasi & data warga di folder <code>desa/</code> 100% aman.</small>',
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#00a65a',
+                cancelButtonColor: '#94a3b8',
+                confirmButtonText: '<i class="fa fa-cloud-download"></i> Ya, Perbarui Sekarang',
+                cancelButtonText: 'Batal'
+            }).then(function(result) {
+                if (result.isConfirmed) {
+                    Swal.fire({
+                        title: 'Sedang Memperbarui Aplikasi...',
+                        html: '<div style="margin: 15px 0;"><i class="fa fa-cog fa-spin fa-3x text-green"></i></div>Mengunduh paket pembaruan dari GitHub, mengekstrak berkas, dan memigrasi database.<br><br><b>Mohon tidak menutup atau menyegarkan halaman ini.</b>',
+                        allowOutsideClick: false,
+                        allowEscapeKey: false,
+                        showConfirmButton: false
+                    });
+
+                    var postData = {};
+                    postData[csrfName] = getCsrfHash();
+
+                    $.ajax({
+                        url: updateUrlProses,
+                        type: 'POST',
+                        data: postData,
+                        dataType: 'json',
+                        timeout: 600000,
+                        success: function(resp) {
+                            if (resp.status) {
+                                Swal.fire({
+                                    title: 'Pembaruan Berhasil!',
+                                    text: resp.message || 'Aplikasi berhasil diperbarui ke commit terbaru GitHub.',
+                                    icon: 'success',
+                                    confirmButtonText: 'Muat Ulang Halaman'
+                                }).then(function() {
+                                    location.reload();
+                                });
+                            } else {
+                                Swal.fire({
+                                    title: 'Pembaruan Gagal',
+                                    text: resp.message || 'Terjadi kesalahan saat menerapkan pembaruan.',
+                                    icon: 'error'
+                                });
+                            }
+                        },
+                        error: function(xhr) {
+                            var errMsg = 'Terjadi kesalahan pada server atau waktu proses habis.';
+                            if (xhr.responseJSON && xhr.responseJSON.message) {
+                                errMsg = xhr.responseJSON.message;
+                            }
+                            Swal.fire({
+                                title: 'Pembaruan Gagal',
+                                text: errMsg,
+                                icon: 'error'
+                            });
+                        }
+                    });
+                }
+            });
+        });
+    });
+</script>
+@endif
+
