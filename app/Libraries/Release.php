@@ -150,7 +150,15 @@ class Release
      */
     public function isAvailable()
     {
-        return $this->fixVersioning($this->getCurrentVersion()) < $this->fixVersioning($this->getLatestVersion());
+        $res = $this->resync();
+        if (! $res || empty($res->tag_name)) {
+            return false;
+        }
+
+        $latestVer = $this->fixVersioning($res->tag_name);
+        $currVer   = $this->fixVersioning($this->getCurrentVersion());
+
+        return $latestVer > 0 && $currVer < $latestVer;
     }
 
     /**
@@ -184,7 +192,9 @@ class Release
      */
     public function getLatestVersion()
     {
-        return $this->resync()->tag_name;
+        $res = $this->resync();
+
+        return ($res && ! empty($res->tag_name)) ? $res->tag_name : '';
     }
 
     /**
@@ -196,7 +206,9 @@ class Release
      */
     public function getReleaseName()
     {
-        return $this->resync()->name;
+        $res = $this->resync();
+
+        return ($res && ! empty($res->name)) ? $res->name : '';
     }
 
     /**
@@ -206,10 +218,12 @@ class Release
      */
     public function getReleaseDownload()
     {
-        // Bisa menggunakan zipball_url, tapi penamaan file dan foldernya tidak sesuai rilis.
-        // Jadi digunakan html_url dengan penyesuaian.
+        $res = $this->resync();
+        if (! $res || empty($res->html_url)) {
+            return '';
+        }
 
-        return str_replace('releases/tag', 'archive/refs/tags', $this->resync()->html_url) . '.zip';
+        return str_replace('releases/tag', 'archive/refs/tags', $res->html_url) . '.zip';
     }
 
     /**
@@ -222,7 +236,12 @@ class Release
      */
     public function getReleaseBody()
     {
-        return $this->convertMarkdownLink($this->resync()->body);
+        $res = $this->resync();
+        if (! $res || empty($res->body)) {
+            return '';
+        }
+
+        return $this->convertMarkdownLink($res->body);
     }
 
     /**
@@ -253,25 +272,41 @@ class Release
                 $client   = new Client();
                 $response = $client->get($this->api, [
                     'headers' => [
-                        'Accept' => 'application/vnd.github.v3+json',
+                        'Accept'     => 'application/vnd.github.v3+json',
+                        'User-Agent' => 'OpenSIDOCR',
                     ],
                     'verify' => false,
                 ]);
 
                 if ($response->getStatusCode() == 200) {
-                    $this->write($response->getBody()->getContents());
-                }
+                    $contents = $response->getBody()->getContents();
+                    $this->write($contents);
 
-                return json_decode($this->read(), null, 512, JSON_THROW_ON_ERROR);
+                    return json_decode($contents, null, 512, JSON_THROW_ON_ERROR);
+                }
             } catch (ClientException $cx) {
-                log_message('error', $cx->getMessage());
+                log_message('error', 'Release client exception: ' . $cx->getMessage());
+
+                return false;
             } catch (Exception $e) {
-                log_message('error', $e->getMessage());
+                log_message('error', 'Release exception: ' . $e->getMessage());
+
+                return false;
             }
         }
 
         try {
-            return json_decode($this->read(), null, 512, JSON_THROW_ON_ERROR);
+            $cachedContent = $this->read();
+            if (! $cachedContent) {
+                return false;
+            }
+
+            $data = json_decode($cachedContent, null, 512, JSON_THROW_ON_ERROR);
+            if (! empty($data->url) && strpos($this->api, 'balongbesuk/OpenSIDOCR') !== false && strpos($data->url, 'balongbesuk/OpenSIDOCR') === false) {
+                return false;
+            }
+
+            return $data;
         } catch (Exception $e) {
             log_message('error', $e->getMessage());
 

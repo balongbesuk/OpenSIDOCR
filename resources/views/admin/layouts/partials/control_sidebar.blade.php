@@ -564,6 +564,8 @@
                                 $('#badge-status-update').attr('class', 'label label-success').html('<i class="fa fa-arrow-circle-up"></i> Pembaruan Tersedia');
                                 $('#badge-header-update').show();
                                 $('#badge-tab-update').show();
+                                $('#badge-menu-update').show();
+                                $('#badge-icon-update').show();
                                 $('#btn-proses-update-github').fadeIn();
                                 if (showFeedback && typeof Swal !== 'undefined') {
                                     Swal.fire({
@@ -577,6 +579,8 @@
                                 $('#badge-status-update').attr('class', 'label label-info').html('<i class="fa fa-check-circle"></i> Versi Terkini');
                                 $('#badge-header-update').hide();
                                 $('#badge-tab-update').hide();
+                                $('#badge-menu-update').hide();
+                                $('#badge-icon-update').hide();
                                 $('#btn-proses-update-github').hide();
                                 if (showFeedback && typeof Swal !== 'undefined') {
                                     Swal.fire({
@@ -593,6 +597,8 @@
                             $('#label-remote-message').text((resp && resp.message) ? resp.message : 'Gagal memperoleh data pembaruan.');
                             $('#badge-header-update').hide();
                             $('#badge-tab-update').hide();
+                            $('#badge-menu-update').hide();
+                            $('#badge-icon-update').hide();
                         }
                     },
                     error: function(xhr) {

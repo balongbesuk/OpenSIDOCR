@@ -40,6 +40,7 @@ Aplikasi **OpenSIDOCR** merupakan pengembangan lanjutan dari **OpenSID versi 240
 18. Perbaikan inisialisasi skrip pemeriksa pembaruan GitHub pada modal informasi admin: pemindahan ke `@push('scripts')`, penundaan eksekusi aman (*deferred initializer*) menunggu `jQuery` dan DOM siap, serta penyegaran status tampilan awal untuk mencegah indikator berputar (*spinner*) tanpa henti (*stuck* memeriksa).
 19. Perbaikan otorisasi controller pembaruan aplikasi (`Pembaruan_aplikasi`): beralih ke `MY_Controller` dan penanganan respons JSON 403 khusus administrator agar tidak terkena pengalihan (*redirect*) modul tidak terdaftar.
 20. Sinkronisasi repositori dan rilis resmi ke `balongbesuk/OpenSIDOCR` pada konfigurasi aplikasi serta penambahan *fallback stream context* untuk cURL.
+21. Perbaikan *false positive* badge notifikasi "Update" pada menu dropdown admin dan navbar: penanganan validasi cache rilis repositori agar tidak membaca cache usang OpenSID bawaan (`v2607.0.1`), sinkronisasi status keterbaruan antarmuka secara dinamis dengan status rilis `balongbesuk/OpenSIDOCR`, serta pembersihan berkas cache `desa/cache/version.json`.
 
 #### Perubahan Teknis
 

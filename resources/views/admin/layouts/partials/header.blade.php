@@ -333,9 +333,7 @@
                                                 <i class="fa fa-question-circle fa-lg text-aqua" style="width: 25px;"></i>
                                                 Informasi
                                             </span>
-                                            @if (!empty($rilis_info['update_available']))
-                                                <span class="label label-success pull-right" style="font-size: 10px;">Update</span>
-                                            @endif
+                                            <span id="badge-menu-update" class="label label-success pull-right" style="font-size: 10px; <?= empty($rilis_info['update_available']) ? 'display: none;' : '' ?>">Update</span>
                                         </a>
                                     </li>
                                 @endif
@@ -380,9 +378,7 @@
                     <li class="hidden-xs">
                         <a href="#" data-toggle="modal" data-target="#modal-informasi" title="Informasi" style="position: relative;">
                             <i class="fa fa-question-circle fa-lg"></i>
-                            @if (!empty($rilis_info['update_available']))
-                                <span class="badge" style="position: absolute; top: 7px; right: 2px; margin: 0; padding: 2px 4px; font-size: 8px; line-height: 1; border-radius: 50%; background-color: #00a65a; color: #fff;" title="Pembaruan Tersedia">!</span>
-                            @endif
+                            <span id="badge-icon-update" class="badge" style="position: absolute; top: 7px; right: 2px; margin: 0; padding: 2px 4px; font-size: 8px; line-height: 1; border-radius: 50%; background-color: #00a65a; color: #fff; <?= empty($rilis_info['update_available']) ? 'display: none;' : '' ?>" title="Pembaruan Tersedia">!</span>
                         </a>
                     </li>
                 @endif
