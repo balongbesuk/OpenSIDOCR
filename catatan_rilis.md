@@ -37,6 +37,9 @@ Aplikasi **OpenSIDOCR** merupakan pengembangan lanjutan dari **OpenSID versi 240
 15. Perbaikan icon favicon website desa, panel admin, dan layanan mandiri agar menampilkan logo resmi desa Balongbesuk serta penambahan tag multi-ukuran (PNG 32x32, 16x16, apple-touch-icon) dan cache-busting.
 16. Perbaikan penanganan blokir login admin (/siteman) agar status pemblokiran (lockout) tetap persisten dan hitung mundur tetap berjalan saat halaman di-refresh setelah salah kata sandi 3 kali.
 17. Perbaikan pencegahan duplikasi nomor dan arsip surat ganda pada pencetakan surat (RTF/PDF): penambahan proteksi anti-double submit pada tombol cetak, umpan balik proses unduh, serta validasi backend cerdas agar tidak menaikkan nomor surat dan tidak membuat arsip duplikat saat terjadi pengunduhan ulang untuk pemohon yang sama pada hari yang sama.
+18. Perbaikan inisialisasi skrip pemeriksa pembaruan GitHub pada modal informasi admin: pemindahan ke `@push('scripts')`, penundaan eksekusi aman (*deferred initializer*) menunggu `jQuery` dan DOM siap, serta penyegaran status tampilan awal untuk mencegah indikator berputar (*spinner*) tanpa henti (*stuck* memeriksa).
+19. Perbaikan otorisasi controller pembaruan aplikasi (`Pembaruan_aplikasi`): beralih ke `MY_Controller` dan penanganan respons JSON 403 khusus administrator agar tidak terkena pengalihan (*redirect*) modul tidak terdaftar.
+20. Sinkronisasi repositori dan rilis resmi ke `balongbesuk/OpenSIDOCR` pada konfigurasi aplikasi serta penambahan *fallback stream context* untuk cURL.
 
 #### Perubahan Teknis
 
