@@ -33,14 +33,8 @@ class GitHubUpdater
     public static function getLocalCommit(): array
     {
         $file = self::getVersionFilePath();
-        if (file_exists($file)) {
-            $data = json_decode(file_get_contents($file), true);
-            if (! empty($data['commit'])) {
-                return $data;
-            }
-        }
 
-        // Coba deteksi dari folder .git jika ada
+        // 1. Prioritaskan deteksi langsung dari folder .git jika repositori git tersedia
         $gitDir = FCPATH . '.git';
         if (is_dir($gitDir)) {
             $headFile = $gitDir . '/HEAD';
@@ -72,6 +66,14 @@ class GitHubUpdater
 
                     return $res;
                 }
+            }
+        }
+
+        // 2. Fallback ke berkas git_version.json (untuk hosting cPanel / tanpa .git)
+        if (file_exists($file)) {
+            $data = json_decode(file_get_contents($file), true);
+            if (! empty($data['commit'])) {
+                return $data;
             }
         }
 
