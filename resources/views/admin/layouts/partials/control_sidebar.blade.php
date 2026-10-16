@@ -90,7 +90,7 @@
                                     </div>
                                 </div>
                                 <span id="badge-status-update" class="label label-default" style="font-size: 11px; padding: 4px 8px; border-radius: 4px;">
-                                    <i class="fa fa-circle-o-notch fa-spin"></i> Memeriksa status...
+                                    <i class="fa fa-info-circle"></i> Siap Diperiksa
                                 </span>
                             </div>
 
@@ -115,13 +115,13 @@
                                     <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; padding: 12px; min-height: 100px;">
                                         <div style="font-size: 11px; font-weight: 600; color: #64748b; margin-bottom: 4px; text-transform: uppercase;"><i class="fa fa-cloud"></i> Versi Terkini di GitHub</div>
                                         <div style="display: flex; align-items: center; gap: 8px;">
-                                            <span class="label label-primary" id="label-remote-commit" style="font-family: monospace; font-size: 12px;">
-                                                <i class="fa fa-spinner fa-spin"></i>
+                                            <span class="label label-default" id="label-remote-commit" style="font-family: monospace; font-size: 12px;">
+                                                -
                                             </span>
                                             <span style="font-size: 11px; color: #64748b;" id="label-remote-date">-</span>
                                         </div>
                                         <div style="font-size: 11px; color: #475569; margin-top: 6px; line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;" id="label-remote-message">
-                                            Memeriksa commit terbaru repositori...
+                                            Klik tombol "Periksa Pembaruan" untuk mengecek rilis terbaru di repositori GitHub.
                                         </div>
                                     </div>
                                 </div>
@@ -506,118 +506,159 @@
         </div>
     </div>
 @endif
+@push('scripts')
 <script type="text/javascript">
-    $(document).ready(function() {
-        var updateUrlCek = '<?= site_url("pembaruan_aplikasi/cek") ?>';
-        var updateUrlProses = '<?= site_url("pembaruan_aplikasi/proses") ?>';
-        var csrfName = typeof csrfParam !== 'undefined' ? csrfParam : '<?= get_instance()->security->get_csrf_token_name() ?>';
-        var isChecking = false;
-
-        function getCsrfHash() {
-            if (typeof getCsrfToken === 'function') {
-                return getCsrfToken();
-            }
-            return '<?= get_instance()->security->get_csrf_hash() ?>';
+(function() {
+    function initGitHubUpdater() {
+        if (typeof jQuery === 'undefined' || typeof $ === 'undefined') {
+            setTimeout(initGitHubUpdater, 100);
+            return;
         }
 
-        function cekUpdateGitHub(showFeedback) {
-            if (isChecking) return;
-            isChecking = true;
-            $('#btn-cek-update-github').prop('disabled', true).html('<i class="fa fa-spin fa-refresh"></i> Memeriksa...');
-            $('#badge-status-update').attr('class', 'label label-default').html('<i class="fa fa-circle-o-notch fa-spin"></i> Memeriksa...');
+        $(function() {
+            var updateUrlCek = '<?= site_url("pembaruan_aplikasi/cek") ?>';
+            var updateUrlProses = '<?= site_url("pembaruan_aplikasi/proses") ?>';
+            var csrfName = typeof csrfParam !== 'undefined' ? csrfParam : '<?= get_instance()->security->get_csrf_token_name() ?>';
+            var isChecking = false;
 
-            $.ajax({
-                url: updateUrlCek,
-                type: 'GET',
-                dataType: 'json',
-                timeout: 30000,
-                success: function(resp) {
-                    isChecking = false;
-                    $('#btn-cek-update-github').prop('disabled', false).html('<i class="fa fa-refresh"></i> Periksa Pembaruan');
+            function getCsrfHash() {
+                if (typeof getCsrfToken === 'function') {
+                    try {
+                        return getCsrfToken();
+                    } catch (e) {}
+                }
+                return '<?= get_instance()->security->get_csrf_hash() ?>';
+            }
 
-                    if (resp.status && resp.data) {
-                        var d = resp.data;
-                        if (d.local && d.local.short_sha) {
-                            $('#label-local-commit').text(d.local.short_sha);
-                            $('#label-local-date').text(d.local.date || '-');
-                            $('#label-local-message').text(d.local.message || '');
-                        }
-                        if (d.remote && d.remote.short_sha) {
-                            $('#label-remote-commit').text(d.remote.short_sha);
-                            $('#label-remote-date').text(d.remote.date || '-');
-                            $('#label-remote-message').text(d.remote.message || '');
-                        }
+            function cekUpdateGitHub(showFeedback) {
+                if (isChecking) return;
+                isChecking = true;
+                $('#btn-cek-update-github').prop('disabled', true).html('<i class="fa fa-spin fa-refresh"></i> Memeriksa...');
+                $('#badge-status-update').attr('class', 'label label-default').html('<i class="fa fa-circle-o-notch fa-spin"></i> Memeriksa...');
+                $('#label-remote-commit').html('<i class="fa fa-spinner fa-spin"></i>');
+                $('#label-remote-message').html('Memeriksa commit terbaru di GitHub...');
 
-                        if (d.has_update) {
-                            $('#badge-status-update').attr('class', 'label label-success').html('<i class="fa fa-arrow-circle-up"></i> Pembaruan Tersedia');
-                            $('#badge-header-update').show();
-                            $('#badge-tab-update').show();
-                            $('#btn-proses-update-github').fadeIn();
-                            if (showFeedback) {
-                                Swal.fire({
-                                    title: 'Pembaruan Tersedia!',
-                                    html: 'Ditemukan commit terbaru di GitHub: <code>' + d.remote.short_sha + '</code><br><small>' + (d.remote.message ? d.remote.message.replace(/\n/g, '<br>') : '') + '</small>',
-                                    icon: 'info',
-                                    confirmButtonText: 'Tutup'
-                                });
+                $.ajax({
+                    url: updateUrlCek,
+                    type: 'GET',
+                    dataType: 'json',
+                    timeout: 45000,
+                    success: function(resp) {
+                        isChecking = false;
+                        $('#btn-cek-update-github').prop('disabled', false).html('<i class="fa fa-refresh"></i> Periksa Pembaruan');
+
+                        if (resp && resp.status && resp.data) {
+                            var d = resp.data;
+                            if (d.local && d.local.short_sha) {
+                                $('#label-local-commit').text(d.local.short_sha);
+                                $('#label-local-date').text(d.local.date || '-');
+                                $('#label-local-message').text(d.local.message || '');
+                            }
+                            if (d.remote && d.remote.short_sha) {
+                                $('#label-remote-commit').text(d.remote.short_sha);
+                                $('#label-remote-date').text(d.remote.date || '-');
+                                $('#label-remote-message').text(d.remote.message || '');
+                            }
+
+                            if (d.has_update) {
+                                $('#badge-status-update').attr('class', 'label label-success').html('<i class="fa fa-arrow-circle-up"></i> Pembaruan Tersedia');
+                                $('#badge-header-update').show();
+                                $('#badge-tab-update').show();
+                                $('#btn-proses-update-github').fadeIn();
+                                if (showFeedback && typeof Swal !== 'undefined') {
+                                    Swal.fire({
+                                        title: 'Pembaruan Tersedia!',
+                                        html: 'Ditemukan commit terbaru di GitHub: <code>' + d.remote.short_sha + '</code><br><small>' + (d.remote.message ? d.remote.message.replace(/\n/g, '<br>') : '') + '</small>',
+                                        icon: 'info',
+                                        confirmButtonText: 'Tutup'
+                                    });
+                                }
+                            } else {
+                                $('#badge-status-update').attr('class', 'label label-info').html('<i class="fa fa-check-circle"></i> Versi Terkini');
+                                $('#badge-header-update').hide();
+                                $('#badge-tab-update').hide();
+                                $('#btn-proses-update-github').hide();
+                                if (showFeedback && typeof Swal !== 'undefined') {
+                                    Swal.fire({
+                                        title: 'Aplikasi Terkini',
+                                        text: 'Aplikasi Anda sudah menggunakan commit terbaru (' + (d.local.short_sha || '') + ').',
+                                        icon: 'success',
+                                        confirmButtonText: 'Tutup'
+                                    });
+                                }
                             }
                         } else {
-                            $('#badge-status-update').attr('class', 'label label-info').html('<i class="fa fa-check-circle"></i> Versi Terkini');
+                            $('#badge-status-update').attr('class', 'label label-warning').html('<i class="fa fa-exclamation-triangle"></i> Gagal Cek');
+                            $('#label-remote-commit').text('-');
+                            $('#label-remote-message').text((resp && resp.message) ? resp.message : 'Gagal memperoleh data pembaruan.');
                             $('#badge-header-update').hide();
                             $('#badge-tab-update').hide();
-                            $('#btn-proses-update-github').hide();
-                            if (showFeedback) {
-                                Swal.fire({
-                                    title: 'Aplikasi Terkini',
-                                    text: 'Aplikasi Anda sudah menggunakan commit terbaru (' + (d.local.short_sha || '') + ').',
-                                    icon: 'success',
-                                    confirmButtonText: 'Tutup'
-                                });
-                            }
                         }
-                    } else {
+                    },
+                    error: function(xhr) {
+                        isChecking = false;
+                        $('#btn-cek-update-github').prop('disabled', false).html('<i class="fa fa-refresh"></i> Periksa Pembaruan');
                         $('#badge-status-update').attr('class', 'label label-warning').html('<i class="fa fa-exclamation-triangle"></i> Gagal Cek');
-                        $('#badge-header-update').hide();
-                        $('#badge-tab-update').hide();
+                        $('#label-remote-commit').text('-');
+                        var errMsg = (xhr.responseJSON && xhr.responseJSON.message) ? xhr.responseJSON.message : 'Koneksi ke GitHub API gagal atau batas waktu habis.';
+                        $('#label-remote-message').text(errMsg);
+                        if (showFeedback && typeof Swal !== 'undefined') {
+                            Swal.fire({
+                                title: 'Gagal Memeriksa Pembaruan',
+                                text: errMsg,
+                                icon: 'error'
+                            });
+                        }
                     }
-                },
-                error: function(xhr) {
-                    isChecking = false;
-                    $('#btn-cek-update-github').prop('disabled', false).html('<i class="fa fa-refresh"></i> Periksa Pembaruan');
-                    $('#badge-status-update').attr('class', 'label label-warning').html('<i class="fa fa-exclamation-triangle"></i> Gagal Cek');
-                    if (showFeedback) {
-                        Swal.fire({
-                            title: 'Gagal Memeriksa Pembaruan',
-                            text: (xhr.responseJSON && xhr.responseJSON.message) ? xhr.responseJSON.message : 'Koneksi ke GitHub API gagal.',
-                            icon: 'error'
-                        });
-                    }
+                });
+            }
+
+            $('#modal-informasi').on('shown.bs.modal', function() {
+                cekUpdateGitHub(false);
+            });
+
+            $('a[href="#tab-pembaruan"]').on('shown.bs.tab', function() {
+                cekUpdateGitHub(false);
+            });
+
+            $('#btn-cek-update-github').on('click', function(e) {
+                e.preventDefault();
+                cekUpdateGitHub(true);
+            });
+
+            // Jalankan cek jika modal sudah terbuka saat halaman selesai dimuat
+            if ($('#modal-informasi').hasClass('in') || $('#modal-informasi').is(':visible')) {
+                cekUpdateGitHub(false);
+            }
+
+            $('#btn-proses-update-github').on('click', function(e) {
+                e.preventDefault();
+                var konfirmasiModal = function() {
+                    jalankanPembaruan();
+                };
+
+                if (typeof Swal !== 'undefined') {
+                    Swal.fire({
+                        title: 'Perbarui Aplikasi Sekarang?',
+                        html: 'Aplikasi akan mengunduh pembaruan terbaru dari repositori GitHub <b>balongbesuk/OpenSIDOCR</b>.<br><br><small class="text-success"><i class="fa fa-shield"></i> Berkas konfigurasi & data warga di folder <code>desa/</code> 100% aman.</small>',
+                        icon: 'question',
+                        showCancelButton: true,
+                        confirmButtonColor: '#00a65a',
+                        cancelButtonColor: '#94a3b8',
+                        confirmButtonText: '<i class="fa fa-cloud-download"></i> Ya, Perbarui Sekarang',
+                        cancelButtonText: 'Batal'
+                    }).then(function(result) {
+                        if (result.isConfirmed) {
+                            konfirmasiModal();
+                        }
+                    });
+                } else if (confirm('Perbarui aplikasi sekarang dari balongbesuk/OpenSIDOCR?')) {
+                    konfirmasiModal();
                 }
             });
-        }
 
-        $('#modal-informasi').on('shown.bs.modal', function() {
-            cekUpdateGitHub(false);
-        });
-
-        $('#btn-cek-update-github').on('click', function(e) {
-            e.preventDefault();
-            cekUpdateGitHub(true);
-        });
-
-        $('#btn-proses-update-github').on('click', function(e) {
-            e.preventDefault();
-            Swal.fire({
-                title: 'Perbarui Aplikasi Sekarang?',
-                html: 'Aplikasi akan mengunduh pembaruan terbaru dari repositori GitHub <b>balongbesuk/OpenSIDOCR</b>.<br><br><small class="text-success"><i class="fa fa-shield"></i> Berkas konfigurasi & data warga di folder <code>desa/</code> 100% aman.</small>',
-                icon: 'question',
-                showCancelButton: true,
-                confirmButtonColor: '#00a65a',
-                cancelButtonColor: '#94a3b8',
-                confirmButtonText: '<i class="fa fa-cloud-download"></i> Ya, Perbarui Sekarang',
-                cancelButtonText: 'Batal'
-            }).then(function(result) {
-                if (result.isConfirmed) {
+            function jalankanPembaruan() {
+                if (typeof Swal !== 'undefined') {
                     Swal.fire({
                         title: 'Sedang Memperbarui Aplikasi...',
                         html: '<div style="margin: 15px 0;"><i class="fa fa-cog fa-spin fa-3x text-green"></i></div>Mengunduh paket pembaruan dari GitHub, mengekstrak berkas, dan memigrasi database.<br><br><b>Mohon tidak menutup atau menyegarkan halaman ini.</b>',
@@ -625,18 +666,20 @@
                         allowEscapeKey: false,
                         showConfirmButton: false
                     });
+                }
 
-                    var postData = {};
-                    postData[csrfName] = getCsrfHash();
+                var postData = {};
+                postData[csrfName] = getCsrfHash();
 
-                    $.ajax({
-                        url: updateUrlProses,
-                        type: 'POST',
-                        data: postData,
-                        dataType: 'json',
-                        timeout: 600000,
-                        success: function(resp) {
-                            if (resp.status) {
+                $.ajax({
+                    url: updateUrlProses,
+                    type: 'POST',
+                    data: postData,
+                    dataType: 'json',
+                    timeout: 600000,
+                    success: function(resp) {
+                        if (resp && resp.status) {
+                            if (typeof Swal !== 'undefined') {
                                 Swal.fire({
                                     title: 'Pembaruan Berhasil!',
                                     text: resp.message || 'Aplikasi berhasil diperbarui ke commit terbaru GitHub.',
@@ -646,29 +689,49 @@
                                     location.reload();
                                 });
                             } else {
+                                alert(resp.message || 'Pembaruan berhasil!');
+                                location.reload();
+                            }
+                        } else {
+                            var msg = (resp && resp.message) ? resp.message : 'Terjadi kesalahan saat menerapkan pembaruan.';
+                            if (typeof Swal !== 'undefined') {
                                 Swal.fire({
                                     title: 'Pembaruan Gagal',
-                                    text: resp.message || 'Terjadi kesalahan saat menerapkan pembaruan.',
+                                    text: msg,
                                     icon: 'error'
                                 });
+                            } else {
+                                alert(msg);
                             }
-                        },
-                        error: function(xhr) {
-                            var errMsg = 'Terjadi kesalahan pada server atau waktu proses habis.';
-                            if (xhr.responseJSON && xhr.responseJSON.message) {
-                                errMsg = xhr.responseJSON.message;
-                            }
+                        }
+                    },
+                    error: function(xhr) {
+                        var errMsg = 'Terjadi kesalahan pada server atau waktu proses habis.';
+                        if (xhr.responseJSON && xhr.responseJSON.message) {
+                            errMsg = xhr.responseJSON.message;
+                        }
+                        if (typeof Swal !== 'undefined') {
                             Swal.fire({
                                 title: 'Pembaruan Gagal',
                                 text: errMsg,
                                 icon: 'error'
                             });
+                        } else {
+                            alert(errMsg);
                         }
-                    });
-                }
-            });
+                    }
+                });
+            }
         });
-    });
+    }
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initGitHubUpdater);
+    } else {
+        initGitHubUpdater();
+    }
+})();
 </script>
+@endpush
 @endif
 
