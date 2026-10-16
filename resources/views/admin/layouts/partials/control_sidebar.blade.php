@@ -19,21 +19,18 @@
                     </div>
                     <div>
                         <h4 class="modal-title" id="modalInformasiLabel" style="font-weight: 700; color: #1e293b; margin: 0; font-size: 17px; line-height: 1.2;">
-                            Informasi & Tentang <?= config_item('nama_aplikasi') ?>
+                            Informasi & Tentang OpenSIDOCR
                         </h4>
                         <div style="margin-top: 4px; display: flex; align-items: center; gap: 6px; flex-wrap: wrap;">
                             <span class="label" style="background: #e2e8f0; color: #475569; font-size: 11px; padding: 2px 7px; border-radius: 4px; font-weight: 600;">
-                                Versi <?= AmbilVersi() ?>
+                                Basis OpenSID v<?= AmbilVersi() ?>
                             </span>
-                            @if ($ada_update)
-                                <span class="label label-success" style="font-size: 11px; padding: 2px 7px; border-radius: 4px; font-weight: 600;">
-                                    <i class="fa fa-arrow-circle-up"></i> Update Tersedia: {{ $rilis_info['latest_version'] }}
-                                </span>
-                            @else
-                                <span class="label label-info" style="font-size: 11px; padding: 2px 7px; border-radius: 4px; font-weight: 600;">
-                                    <i class="fa fa-check-circle"></i> Versi Terkini
-                                </span>
-                            @endif
+                            <span class="label label-primary" id="badge-header-commit" style="font-size: 11px; padding: 2px 7px; border-radius: 4px; font-weight: 600; font-family: monospace;">
+                                <i class="fa fa-github"></i> <?= !empty($git_local['short_sha']) ? $git_local['short_sha'] : '11b9c9f' ?>
+                            </span>
+                            <span id="badge-header-update" class="label label-success" style="font-size: 11px; padding: 2px 7px; border-radius: 4px; font-weight: 600; display: none;">
+                                <i class="fa fa-arrow-circle-up"></i> Update Tersedia
+                            </span>
                         </div>
                     </div>
                 </div>
@@ -42,15 +39,13 @@
             {{-- Navigasi Tab Modern --}}
             <div style="background: #f8fafc; border-bottom: 1px solid #e2e8f0; padding: 8px 16px;">
                 <ul class="nav nav-pills modern-info-tabs" role="tablist" style="margin: 0; display: flex; gap: 6px; flex-wrap: wrap;">
-                    <li role="presentation" class="<?= $ada_update ? 'active' : '' ?>">
+                    <li role="presentation" class="active">
                         <a href="#tab-pembaruan" aria-controls="tab-pembaruan" role="tab" data-toggle="tab">
                             <i class="fa fa-bullhorn text-green"></i> Pembaruan
-                            @if ($ada_update)
-                                <span class="badge bg-green" style="font-size: 9px; padding: 2px 5px; margin-left: 2px;">Baru</span>
-                            @endif
+                            <span id="badge-tab-update" class="badge bg-green" style="font-size: 9px; padding: 2px 5px; margin-left: 2px; display: none;">Baru</span>
                         </a>
                     </li>
-                    <li role="presentation" class="<?= !$ada_update ? 'active' : '' ?>">
+                    <li role="presentation">
                         <a href="#tab-tentang" aria-controls="tab-tentang" role="tab" data-toggle="tab">
                             <i class="fa fa-cube text-aqua"></i> Tentang Aplikasi
                         </a>
@@ -77,7 +72,7 @@
             <div class="modal-body" style="max-height: 65vh; overflow-y: auto; padding: 20px; background: #ffffff;">
                 <div class="tab-content">
                     {{-- TAB 1: PEMBARUAN --}}
-                    <div role="tabpanel" class="tab-pane <?= $ada_update ? 'active' : '' ?>" id="tab-pembaruan">
+                    <div role="tabpanel" class="tab-pane active" id="tab-pembaruan">
                         {{-- KARTU PEMBARUAN GITHUB LANGSUNG (PURE PHP - TANPA TERMINAL) --}}
                         <div style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 8px; padding: 20px; margin-bottom: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.04);">
                             <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 15px; border-bottom: 1px solid #f1f5f9; padding-bottom: 12px; flex-wrap: wrap; gap: 10px;">
@@ -105,7 +100,7 @@
                                         <div style="font-size: 11px; font-weight: 600; color: #64748b; margin-bottom: 4px; text-transform: uppercase;"><i class="fa fa-laptop"></i> Versi Server Terpasang</div>
                                         <div style="display: flex; align-items: center; gap: 8px;">
                                             <span class="label label-default" id="label-local-commit" style="font-family: monospace; font-size: 12px;">
-                                                <?= !empty($git_local['short_sha']) ? $git_local['short_sha'] : '47fe0e5' ?>
+                                                <?= !empty($git_local['short_sha']) ? $git_local['short_sha'] : '11b9c9f' ?>
                                             </span>
                                             <span style="font-size: 11px; color: #64748b;" id="label-local-date">
                                                 <?= !empty($git_local['date']) ? $git_local['date'] : '-' ?>
@@ -146,81 +141,75 @@
                                 </div>
                             </div>
                         </div>
-                        @if ($ada_update)
-                            <div style="background: linear-gradient(135deg, #00a65a, #008d4c); border-radius: 8px; padding: 20px; color: #ffffff; box-shadow: 0 4px 15px rgba(0,166,90,0.25); margin-bottom: 20px;">
-                                <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;">
-                                    <div style="width: 36px; height: 36px; border-radius: 50%; background: rgba(255,255,255,0.2); display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0;">
-                                        <i class="fa fa-rocket"></i>
-                                    </div>
-                                    <h4 style="margin: 0; font-weight: bold; font-size: 18px; color: #ffffff;">
-                                        Pembaruan Tersedia: {{ $rilis_info['latest_version'] }}
-                                    </h4>
-                                </div>
-                                <p style="margin: 0 0 15px 0; font-size: 13px; line-height: 1.6; opacity: 0.95;" align="justify">
-                                    {{ config_item('nama_aplikasi') }} <code>{{ $rilis_info['latest_version'] }}</code> telah tersedia.
-                                    Sangat dianjurkan untuk melakukan pembaruan ke versi terkini guna memperoleh fitur terbaru, perbaikan *bug*, serta peningkatan keamanan data desa sejak versi saat ini <code>{{ $rilis_info['current_version'] }}</code>.
-                                </p>
-                                <div style="display: flex; gap: 10px; flex-wrap: wrap;">
-                                    <button class="btn btn-default btn-sm" data-toggle="modal" data-target="#modal-catatan-rilis" style="font-weight: 600; color: #008d4c;">
-                                        <i class="fa fa-file-text-o"></i> Catatan Rilis {{ $rilis_info['latest_version'] }}
-                                    </button>
-                                    <a href="{{ $rilis_info['url_download'] }}" class="btn btn-warning btn-sm" style="font-weight: 600;" target="_blank">
-                                        <i class="fa fa-download"></i> Unduh Berkas Rilis
-                                    </a>
-                                    <a href="https://github.com/{{ config_item('nama_aplikasi') }}/{{ config_item('nama_aplikasi') }}/wiki/Panduan-Update-{{ config_item('nama_aplikasi') }}" class="btn btn-default btn-sm" style="background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.4); color: #fff; font-weight: 600;" target="_blank">
-                                        <i class="fa fa-book"></i> Panduan Update
-                                    </a>
-                                </div>
-                            </div>
-                        @else
-                            <div style="background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 8px; padding: 20px; color: #166534; display: flex; align-items: center; gap: 15px; margin-bottom: 20px;">
-                                <div style="width: 44px; height: 44px; border-radius: 50%; background: #dcfce7; display: flex; align-items: center; justify-content: center; font-size: 22px; color: #16a34a; flex-shrink: 0;">
-                                    <i class="fa fa-check"></i>
-                                </div>
+
+                        <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 16px; margin-bottom: 20px;">
+                            <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px;">
                                 <div>
-                                    <h4 style="margin: 0 0 4px 0; font-weight: bold; font-size: 16px;">
-                                        Aplikasi Anda Menggunakan Versi Terkini
-                                    </h4>
-                                    <p style="margin: 0; font-size: 13px; color: #15803d;">
-                                        Versi saat ini: <strong>v<?= AmbilVersi() ?></strong>. Belum ada pembaruan versi baru yang dirilis.
+                                    <h5 style="margin: 0 0 4px 0; font-weight: 700; color: #1e293b; font-size: 14px;">
+                                        <i class="fa fa-github text-primary"></i> Repositori Resmi balongbesuk/OpenSIDOCR
+                                    </h5>
+                                    <p style="margin: 0; font-size: 12px; color: #64748b; line-height: 1.5;">
+                                        Pengembangan berkelanjutan berbasis OpenSID versi 2403.0.0 dengan penambahan AI RapidOCR Kartu Keluarga, format surat RTF desa, dan pembaruan aplikasi langsung dari GitHub.
                                     </p>
                                 </div>
+                                <div style="display: flex; gap: 8px;">
+                                    <a href="https://github.com/balongbesuk/OpenSIDOCR" target="_blank" class="btn btn-default btn-sm" style="font-weight: 600;">
+                                        <i class="fa fa-github"></i> Kunjungi Repositori
+                                    </a>
+                                    <a href="https://github.com/balongbesuk/OpenSIDOCR/commits/main" target="_blank" class="btn btn-default btn-sm" style="font-weight: 600;">
+                                        <i class="fa fa-history"></i> Riwayat Commit
+                                    </a>
+                                </div>
                             </div>
-                        @endif
+                        </div>
 
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="info-card-box">
                                     <h5 class="info-card-title"><i class="fa fa-shield text-primary"></i> Keamanan & Stabilitas</h5>
-                                    <p class="info-card-text">Setiap rilis berkala memuat peningkatan keamanan basis data penduduk desa dan optimasi performa modul pelayanan.</p>
+                                    <p class="info-card-text">Setiap commit berkala memuat peningkatan keamanan basis data penduduk desa dan optimasi performa modul pelayanan.</p>
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <div class="info-card-box">
                                     <h5 class="info-card-title"><i class="fa fa-history text-success"></i> Siklus Pembaruan</h5>
-                                    <p class="info-card-text">Pembaruan OpenSID dikelola terbuka di GitHub dan dapat diunduh secara bebas oleh seluruh komunitas SID Indonesia.</p>
+                                    <p class="info-card-text">Pembaruan OpenSIDOCR dikelola secara terbuka di GitHub dan dapat diperbarui kapan pun langsung dari tombol periksa pembaruan di atas.</p>
                                 </div>
                             </div>
                         </div>
                     </div>
 
                     {{-- TAB 2: TENTANG APLIKASI --}}
-                    <div role="tabpanel" class="tab-pane <?= !$ada_update ? 'active' : '' ?>" id="tab-tentang">
-                        <div class="info-card-box" style="margin-bottom: 16px;">
-                            <h4 style="font-weight: bold; color: #0f172a; margin-top: 0; margin-bottom: 10px; font-size: 16px;">
-                                <?= config_item('nama_aplikasi') ?> (Sistem Informasi Desa)
-                            </h4>
-                            <p align="justify" style="color: #475569; line-height: 1.6; margin-bottom: 12px;">
-                                <?= config_item('nama_aplikasi') ?> adalah aplikasi Sistem Informasi Desa (SID) yang dikembangkan sejak Mei 2016. Aplikasi ini dirancang dan dikelola supaya terbuka dan dapat dikembangkan bersama-sama oleh komunitas peduli SID.
+                    <div role="tabpanel" class="tab-pane" id="tab-tentang">
+                        <div class="info-card-box" style="margin-bottom: 16px; border-left: 4px solid #00a65a;">
+                            <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; margin-bottom: 10px;">
+                                <h4 style="font-weight: bold; color: #0f172a; margin: 0; font-size: 17px;">
+                                    OpenSIDOCR <span class="label label-success" style="font-size: 11px; vertical-align: middle;">v<?= AmbilVersi() ?></span>
+                                </h4>
+                                <span class="badge" style="background: #1e293b; font-family: monospace; font-size: 11px;">
+                                    Commit: <?= !empty($git_local['short_sha']) ? $git_local['short_sha'] : '11b9c9f' ?>
+                                </span>
+                            </div>
+                            <p align="justify" style="color: #334155; line-height: 1.6; margin-bottom: 12px; font-size: 13px;">
+                                <strong>OpenSIDOCR</strong> adalah aplikasi Sistem Informasi Desa (SID) hasil pengembangan lanjutan dari <strong>OpenSID versi 2403.0.0 dan seterusnya</strong> yang dikembangkan oleh <strong>Pemerintah Desa Balongbesuk</strong>.
                             </p>
-                            <p style="margin-bottom: 0;">
-                                <a href="<?= config_item('github') ?>" target="_blank" class="btn btn-default btn-sm" style="font-weight: 600;">
-                                    <i class="fa fa-github"></i> Repositori GitHub
+                            <p align="justify" style="color: #475569; line-height: 1.6; margin-bottom: 15px; font-size: 13px;">
+                                Aplikasi ini menggabungkan seluruh keandalan sistem administrasi kependudukan OpenSID dengan serangkaian inovasi terkini:
+                            </p>
+                            <ul style="color: #334155; font-size: 12px; line-height: 1.8; padding-left: 20px; margin-bottom: 15px;">
+                                <li><strong>AI RapidOCR Kartu Keluarga (KK):</strong> Ekstraksi data otomatis dari foto, scan, atau PDF Kartu Keluarga ke formulir kependudukan desa secara instan tanpa input manual satu per satu.</li>
+                                <li><strong>Reaktivasi & Pembenahan Surat RTF:</strong> Format pembuatan surat berbasis RTF desa kembali didukung penuh, stabil, dan terhindar dari duplikasi nomor maupun arsip ganda.</li>
+                                <li><strong>Portal Layanan Mandiri Modern:</strong> Tampilan responsif (mobile & desktop) dengan dashboard beranda terpadu, notifikasi realtime status surat, dan keamanan autentikasi ganda (OTP Telegram & Email).</li>
+                                <li><strong>Pembaruan Otomatis dari GitHub:</strong> Pembaruan kode sumber aplikasi langsung dari repositori resmi <code>balongbesuk/OpenSIDOCR</code> menggunakan Pure PHP & ZipArchive yang aman untuk server cPanel shared hosting tanpa terminal.</li>
+                            </ul>
+                            <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                                <a href="https://github.com/balongbesuk/OpenSIDOCR" target="_blank" class="btn btn-default btn-sm" style="font-weight: 600;">
+                                    <i class="fa fa-github"></i> Repositori balongbesuk/OpenSIDOCR
                                 </a>
-                                <a href="<?= config_item('website') ?>" target="_blank" class="btn btn-default btn-sm" style="font-weight: 600; margin-left: 6px;">
+                                <a href="https://opendesa.id" target="_blank" class="btn btn-default btn-sm" style="font-weight: 600;">
                                     <i class="fa fa-globe text-primary"></i> Website OpenDesa
                                 </a>
-                            </p>
+                            </div>
                         </div>
 
                         <div class="row">
@@ -245,7 +234,7 @@
                         <div class="info-card-box" style="margin-top: 16px;">
                             <h5 class="info-card-title"><i class="fa fa-balance-scale text-yellow"></i> Hak Cipta & Lisensi GPL v3</h5>
                             <p class="info-card-text" align="justify" style="margin-bottom: 0;">
-                                <?= config_item('nama_aplikasi') ?> berlisensi <strong>GNU General Public License Version 3 (GPL v3)</strong> — bersifat sumber terbuka (*Open Source*), bebas digunakan dan disesuaikan oleh seluruh desa di Indonesia. Dikelola oleh Perkumpulan Desa Digital Terbuka (OpenDesa).
+                                OpenSIDOCR dibangun di atas lisensi <strong>GNU General Public License Version 3 (GPL v3)</strong> — bersifat sumber terbuka (*Open Source*), bebas digunakan dan disesuaikan untuk kemajuan pelayanan desa di seluruh Indonesia.
                             </p>
                         </div>
                     </div>
@@ -521,11 +510,14 @@
     $(document).ready(function() {
         var updateUrlCek = '<?= site_url("pembaruan_aplikasi/cek") ?>';
         var updateUrlProses = '<?= site_url("pembaruan_aplikasi/proses") ?>';
-        var csrfName = '<?= $this->security->get_csrf_token_name() ?>';
+        var csrfName = typeof csrfParam !== 'undefined' ? csrfParam : '<?= get_instance()->security->get_csrf_token_name() ?>';
         var isChecking = false;
 
         function getCsrfHash() {
-            return '<?= $this->security->get_csrf_hash() ?>';
+            if (typeof getCsrfToken === 'function') {
+                return getCsrfToken();
+            }
+            return '<?= get_instance()->security->get_csrf_hash() ?>';
         }
 
         function cekUpdateGitHub(showFeedback) {
@@ -558,6 +550,8 @@
 
                         if (d.has_update) {
                             $('#badge-status-update').attr('class', 'label label-success').html('<i class="fa fa-arrow-circle-up"></i> Pembaruan Tersedia');
+                            $('#badge-header-update').show();
+                            $('#badge-tab-update').show();
                             $('#btn-proses-update-github').fadeIn();
                             if (showFeedback) {
                                 Swal.fire({
@@ -569,6 +563,8 @@
                             }
                         } else {
                             $('#badge-status-update').attr('class', 'label label-info').html('<i class="fa fa-check-circle"></i> Versi Terkini');
+                            $('#badge-header-update').hide();
+                            $('#badge-tab-update').hide();
                             $('#btn-proses-update-github').hide();
                             if (showFeedback) {
                                 Swal.fire({
@@ -581,6 +577,8 @@
                         }
                     } else {
                         $('#badge-status-update').attr('class', 'label label-warning').html('<i class="fa fa-exclamation-triangle"></i> Gagal Cek');
+                        $('#badge-header-update').hide();
+                        $('#badge-tab-update').hide();
                     }
                 },
                 error: function(xhr) {

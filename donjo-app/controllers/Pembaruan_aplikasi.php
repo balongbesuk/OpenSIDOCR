@@ -4,7 +4,7 @@ use App\Libraries\GitHubUpdater;
 
 defined('BASEPATH') || exit('No direct script access allowed');
 
-class Pembaruan_aplikasi extends Admin_Controller
+class Pembaruan_aplikasi extends MY_Controller
 {
     public function __construct()
     {

@@ -99,10 +99,36 @@ class GitHubUpdater
 
         $response = curl_exec($ch);
         $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        $curlErr  = curl_error($ch);
         curl_close($ch);
 
+        // Fallback ke file_get_contents jika curl gagal
+        if (($httpCode !== 200 || empty($response)) && ini_get('allow_url_fopen')) {
+            $context = stream_context_create([
+                'http' => [
+                    'method' => 'GET',
+                    'header' => "User-Agent: OpenSID-GitHub-Updater\r\nAccept: application/vnd.github.v3+json\r\n",
+                    'timeout' => 15,
+                    'ignore_errors' => true,
+                ],
+                'ssl' => [
+                    'verify_peer' => false,
+                    'verify_peer_name' => false,
+                ],
+            ]);
+            $fallbackRes = @file_get_contents($apiUrl, false, $context);
+            if ($fallbackRes) {
+                $testData = json_decode($fallbackRes, true);
+                if (! empty($testData['sha'])) {
+                    $response = $fallbackRes;
+                    $httpCode = 200;
+                }
+            }
+        }
+
         if ($httpCode !== 200 || ! $response) {
-            throw new Exception('Gagal menghubungi GitHub API (HTTP ' . $httpCode . '). Periksa koneksi internet server.');
+            $errDetail = $curlErr ? " ({$curlErr})" : '';
+            throw new Exception("Gagal menghubungi GitHub API (HTTP {$httpCode}{$errDetail}). Periksa koneksi internet server.");
         }
 
         $data = json_decode($response, true);
