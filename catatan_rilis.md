@@ -41,6 +41,7 @@ Aplikasi **OpenSIDOCR** merupakan pengembangan lanjutan dari **OpenSID versi 240
 19. Perbaikan otorisasi controller pembaruan aplikasi (`Pembaruan_aplikasi`): beralih ke `MY_Controller` dan penanganan respons JSON 403 khusus administrator agar tidak terkena pengalihan (*redirect*) modul tidak terdaftar.
 20. Sinkronisasi repositori dan rilis resmi ke `balongbesuk/OpenSIDOCR` pada konfigurasi aplikasi serta penambahan *fallback stream context* untuk cURL.
 21. Perbaikan *false positive* badge notifikasi "Update" pada menu dropdown admin dan navbar: penanganan validasi cache rilis repositori agar tidak membaca cache usang OpenSID bawaan (`v2607.0.1`), sinkronisasi status keterbaruan antarmuka secara dinamis dengan status rilis `balongbesuk/OpenSIDOCR`, serta pembersihan berkas cache `desa/cache/version.json`.
+22. Optimalisasi UI/UX antarmuka modal Informasi & Tentang OpenSIDOCR pada layar mobile/smartphone: layout flexbox tinggi penuh (*full-height app dialog*) mencegah pemotongan modal header, navigasi tab horizontal *pill carousel* (1 baris *smooth scrollable* tanpa *wrapping* bertumpuk 3 baris), resolusi tumpang tindih ikon hati pada kartu donasi, serta auto-scroll reset ke atas saat beralih tab.
 
 #### Perubahan Teknis
 

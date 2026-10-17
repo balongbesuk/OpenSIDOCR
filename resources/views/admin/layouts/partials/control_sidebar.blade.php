@@ -37,8 +37,8 @@
             </div>
 
             {{-- Navigasi Tab Modern --}}
-            <div style="background: #f8fafc; border-bottom: 1px solid #e2e8f0; padding: 8px 16px;">
-                <ul class="nav nav-pills modern-info-tabs" role="tablist" style="margin: 0; display: flex; gap: 6px; flex-wrap: wrap;">
+            <div class="modal-tab-nav-wrapper">
+                <ul class="nav nav-pills modern-info-tabs" role="tablist">
                     <li role="presentation" class="active">
                         <a href="#tab-pembaruan" aria-controls="tab-pembaruan" role="tab" data-toggle="tab">
                             <i class="fa fa-bullhorn text-green"></i> Pembaruan
@@ -355,10 +355,10 @@
                         {{-- Card Donasi --}}
                         <div style="background: #fff8f8; border: 1px solid #ffd6d6; border-radius: 8px; padding: 18px;">
                             <div style="display: flex; align-items: flex-start; gap: 14px;">
-                                <div style="font-size: 32px; color: #e11d48; line-height: 1;">
+                                <div style="font-size: 32px; color: #e11d48; line-height: 1; flex-shrink: 0; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center;">
                                     <i class="fa fa-heart"></i>
                                 </div>
-                                <div style="flex: 1;">
+                                <div style="flex: 1; min-width: 0;">
                                     <h5 style="margin: 0 0 6px 0; font-weight: bold; color: #9f1239; font-size: 15px;">
                                         Dukung Pengembangan OpenSID
                                     </h5>
@@ -401,6 +401,23 @@
     }
 
     /* Styling Nav Tabs Modern untuk Modal Informasi */
+    .modal-tab-nav-wrapper {
+        background: #f8fafc;
+        border-bottom: 1px solid #e2e8f0;
+        padding: 8px 16px;
+    }
+    .modern-info-tabs {
+        display: flex;
+        gap: 6px;
+        flex-wrap: wrap;
+        margin: 0;
+        padding: 0;
+        list-style: none;
+    }
+    .modern-info-tabs > li {
+        margin: 0;
+        float: none;
+    }
     .modern-info-tabs > li > a {
         border-radius: 6px !important;
         padding: 7px 12px !important;
@@ -410,6 +427,9 @@
         border: 1px solid transparent !important;
         background: transparent !important;
         transition: all 0.2s ease !important;
+        display: inline-flex !important;
+        align-items: center !important;
+        gap: 6px !important;
     }
     .modern-info-tabs > li > a:hover {
         background: #f1f5f9 !important;
@@ -459,6 +479,7 @@
         font-weight: 600;
         text-decoration: none !important;
         transition: all 0.2s ease;
+        min-height: 44px;
     }
     .community-link-btn:hover {
         background: #f1f5f9;
@@ -470,11 +491,115 @@
     .community-link-btn i {
         font-size: 16px;
         width: 18px;
+        flex-shrink: 0;
         text-align: center;
     }
 
     #modal-catatan-rilis {
         z-index: 1060 !important;
+    }
+
+    /* ======================================================== */
+    /* RESPONSIVE MOBILE OPTIMIZATION (< 768px)               */
+    /* ======================================================== */
+    @media (max-width: 767px) {
+        #modal-informasi {
+            padding: 0 !important;
+        }
+        #modal-informasi .modal-dialog {
+            margin: 6px !important;
+            width: calc(100% - 12px) !important;
+            max-width: 100% !important;
+            height: calc(100dvh - 12px) !important;
+            height: calc(100vh - 12px) !important;
+            display: flex !important;
+            flex-direction: column !important;
+        }
+        #modal-informasi .modal-content {
+            height: 100% !important;
+            max-height: 100% !important;
+            display: flex !important;
+            flex-direction: column !important;
+            border-radius: 10px !important;
+            overflow: hidden !important;
+        }
+        #modal-informasi .modal-header {
+            flex-shrink: 0 !important;
+            padding: 12px 14px !important;
+            background: #ffffff !important;
+        }
+        #modal-informasi .modal-header .modal-title {
+            font-size: 15px !important;
+        }
+        #modal-informasi .modal-header .close {
+            top: 14px !important;
+            right: 14px !important;
+            font-size: 26px !important;
+            padding: 4px !important;
+        }
+        #modal-informasi .modal-tab-nav-wrapper {
+            flex-shrink: 0 !important;
+            padding: 6px 10px !important;
+            overflow-x: auto !important;
+            overflow-y: hidden !important;
+            -webkit-overflow-scrolling: touch !important;
+            scrollbar-width: none !important;
+            background: #f1f5f9 !important;
+        }
+        #modal-informasi .modal-tab-nav-wrapper::-webkit-scrollbar {
+            display: none !important;
+        }
+        #modal-informasi .modern-info-tabs {
+            display: flex !important;
+            flex-wrap: nowrap !important;
+            gap: 6px !important;
+            width: max-content !important;
+            padding: 2px 0 !important;
+        }
+        #modal-informasi .modern-info-tabs > li {
+            flex: 0 0 auto !important;
+            float: none !important;
+        }
+        #modal-informasi .modern-info-tabs > li > a {
+            white-space: nowrap !important;
+            padding: 6px 12px !important;
+            font-size: 12px !important;
+        }
+        #modal-informasi .modal-body {
+            flex: 1 1 auto !important;
+            max-height: none !important;
+            overflow-y: auto !important;
+            -webkit-overflow-scrolling: touch !important;
+            padding: 14px 12px !important;
+        }
+        #modal-informasi .modal-footer {
+            flex-shrink: 0 !important;
+            padding: 10px 14px !important;
+            background: #f8fafc !important;
+        }
+        #modal-informasi .modal-footer .pull-left {
+            display: none !important;
+        }
+        #modal-informasi .modal-footer .pull-right {
+            width: 100% !important;
+            text-align: right !important;
+        }
+        #modal-informasi .modal-footer .btn {
+            width: 100% !important;
+            padding: 8px 16px !important;
+            font-size: 13px !important;
+        }
+        #modal-informasi .catatan-scroll {
+            height: auto !important;
+            max-height: none !important;
+            overflow: visible !important;
+            padding: 12px !important;
+        }
+        .community-link-btn {
+            padding: 8px 10px !important;
+            font-size: 11.5px !important;
+            gap: 6px !important;
+        }
     }
 </style>
 
@@ -621,10 +746,15 @@
 
             $('#modal-informasi').on('shown.bs.modal', function() {
                 cekUpdateGitHub(false);
+                $('#modal-informasi .modal-body').scrollTop(0);
             });
 
-            $('a[href="#tab-pembaruan"]').on('shown.bs.tab', function() {
-                cekUpdateGitHub(false);
+            // Scroll modal body ke paling atas saat beralih tab
+            $('#modal-informasi a[data-toggle="tab"]').on('shown.bs.tab', function(e) {
+                $('#modal-informasi .modal-body').scrollTop(0);
+                if ($(e.target).attr('href') === '#tab-pembaruan') {
+                    cekUpdateGitHub(false);
+                }
             });
 
             $('#btn-cek-update-github').on('click', function(e) {
