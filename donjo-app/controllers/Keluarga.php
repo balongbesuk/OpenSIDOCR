@@ -1346,6 +1346,7 @@ class Keluarga extends Admin_Controller
                 }
             }
         }
+        unset($m);
 
         $data['parsed'] = $parsed;
 

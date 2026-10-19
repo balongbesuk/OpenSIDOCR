@@ -220,6 +220,7 @@ class KkPdfParser
                     $mem['nama_ibu']          = $nama_ibu;
                 }
             }
+            unset($mem);
         }
 
         $hasIstri = false;
