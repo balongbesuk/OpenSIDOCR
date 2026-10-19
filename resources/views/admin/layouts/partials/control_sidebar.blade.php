@@ -631,7 +631,7 @@
         </div>
     </div>
 @endif
-@push('scripts')
+
 <script type="text/javascript">
 (function() {
     function initGitHubUpdater() {
@@ -868,6 +868,5 @@
     }
 })();
 </script>
-@endpush
 @endif
 
