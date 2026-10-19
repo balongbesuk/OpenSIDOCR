@@ -255,7 +255,7 @@ class Release
      */
     protected function convertMarkdownLink(?string $body = null)
     {
-        return preg_replace_callback('/\[(.*?)\]\((.*?)\)/', static fn ($matches) => '<a href="' . $matches[2] . '">' . $matches[1] . '</a>', htmlspecialchars($body));
+        return preg_replace_callback('/\[(.*?)\]\((https?:\/\/[^\s"\'>]+)\)/i', static fn ($matches) => '<a href="' . $matches[2] . '" target="_blank" rel="noopener noreferrer">' . $matches[1] . '</a>', htmlspecialchars($body));
     }
 
     /**
