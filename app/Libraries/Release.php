@@ -86,7 +86,7 @@ class Release
         }
 
         if (! $this->interval) {
-            $this->setInterval(ENVIRONMENT == 'development' ? 0 : 7);
+            $this->interval = (ENVIRONMENT == 'development') ? 3600 : (1 * 86400);
         }
     }
 
@@ -104,14 +104,14 @@ class Release
 
     /**
      * Set interval waktu sinkronisasi cache dengan repo github.
-     * Defaultnya 7 hari sekali akan dilakukan pembaruan cache.
-     * Gunakan ini jika ingin mengumbah interval sinkronisasinya.
+     * Defaultnya 1 hari sekali akan dilakukan pembaruan cache.
+     * Gunakan ini jika ingin mengubah interval sinkronisasinya.
      *
      * return $this
      */
     public function setInterval(int $interval)
     {
-        $this->interval = $interval * 86400; // N * 86400 detik (1 hari)
+        $this->interval = max(3600, $interval * 86400); // Minimal 3600 detik (1 jam)
 
         return $this;
     }
@@ -120,24 +120,26 @@ class Release
      * Set lokasi folder cache.
      * Misalkan diisi 'desa/config' maka file cache akan
      * disimpan di [FCPATH]/desa/config/version.json
-     * Jika folder tidak ditemuakan atau tidak writable
+     * Jika folder tidak ditemukan atau tidak writable
      * maka akan fallback ke path default (FCPATH/version.json)
      *
      * return $this
      */
-    public function setCacheFolder(string $folder)
+    public function setCacheFolder(?string $folder = null)
     {
-        $folder = str_replace(['/', '\\'], DIRECTORY_SEPARATOR, $folder);
-        $folder = str_replace(FCPATH, '', $folder);
-        $folder = trim($folder, DIRECTORY_SEPARATOR);
+        if (empty($folder)) {
+            $folder = FCPATH . 'desa' . DIRECTORY_SEPARATOR . 'cache';
+        }
+
+        if (! is_dir($folder)) {
+            @mkdir($folder, 0755, true);
+        }
 
         if (! is_dir($folder) || ! is_writable($folder)) {
             $folder = FCPATH;
-        } else {
-            $folder = FCPATH . $folder . DIRECTORY_SEPARATOR;
         }
 
-        $this->cache = $folder . 'version.json';
+        $this->cache = rtrim($folder, '/\\') . DIRECTORY_SEPARATOR . 'version.json';
 
         return $this;
     }
@@ -275,23 +277,22 @@ class Release
                         'Accept'     => 'application/vnd.github.v3+json',
                         'User-Agent' => 'OpenSIDOCR',
                     ],
-                    'verify' => false,
+                    'verify'  => false,
+                    'timeout' => 5,
                 ]);
 
                 if ($response->getStatusCode() == 200) {
                     $contents = $response->getBody()->getContents();
-                    $this->write($contents);
+                    $this->writeRaw($contents);
 
                     return json_decode($contents, null, 512, JSON_THROW_ON_ERROR);
                 }
             } catch (ClientException $cx) {
                 log_message('error', 'Release client exception: ' . $cx->getMessage());
-
-                return false;
+                $this->setFailureCooldown();
             } catch (Exception $e) {
                 log_message('error', 'Release exception: ' . $e->getMessage());
-
-                return false;
+                $this->setFailureCooldown();
             }
         }
 
@@ -311,6 +312,33 @@ class Release
             log_message('error', $e->getMessage());
 
             return false;
+        }
+    }
+
+    /**
+     * Terapkan cooldown/jeda sementara jika request ke API gagal (misal 403 Rate Limit atau koneksi putus).
+     * Mencegah aplikasi melakukan spam request di setiap kali halaman dibuka.
+     *
+     * @param int $cooldownSeconds Default 3600 detik (1 jam)
+     */
+    protected function setFailureCooldown(int $cooldownSeconds = 3600): void
+    {
+        $targetMtime = time() - $this->interval + $cooldownSeconds;
+
+        if (is_file($this->cache)) {
+            @touch($this->cache, $targetMtime);
+        } else {
+            $placeholder = json_encode([
+                'tag_name'  => '',
+                'name'      => '',
+                'body'      => '',
+                'html_url'  => '',
+                'error'     => 'failed_or_rate_limited',
+                'cached_at' => time(),
+            ], JSON_PRETTY_PRINT);
+
+            $this->writeRaw($placeholder);
+            @touch($this->cache, $targetMtime);
         }
     }
 
@@ -349,20 +377,29 @@ class Release
     }
 
     /**
+     * Tulis konten cache secara langsung ke file cache.
+     *
+     * @return bool
+     */
+    public function writeRaw(string $cache): bool
+    {
+        $dir = dirname($this->cache);
+        if (! is_dir($dir)) {
+            @mkdir($dir, 0755, true);
+        }
+
+        return (bool) file_put_contents($this->cache, $cache, LOCK_EX);
+    }
+
+    /**
      * Buat/timpa file cache jika sudah kadaluwarsa.
      *
      * @return void
      */
     public function write(string $cache)
     {
-        $file = $this->cache;
-
         if ($this->cacheIsOutdated()) {
-            if (is_file($file)) {
-                unlink($file);
-            }
-
-            file_put_contents($file, $cache, LOCK_EX);
+            $this->writeRaw($cache);
         }
     }
 
@@ -373,6 +410,10 @@ class Release
      */
     public function read()
     {
-        return file_get_contents($this->cache);
+        if (! is_file($this->cache)) {
+            return '';
+        }
+
+        return (string) file_get_contents($this->cache);
     }
 }
