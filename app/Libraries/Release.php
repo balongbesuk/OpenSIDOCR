@@ -288,40 +288,7 @@ class Release
                     return json_decode($contents, null, 512, JSON_THROW_ON_ERROR);
                 }
             } catch (ClientException $cx) {
-                // Jika 404 pada releases/latest, GitHub tidak menemukan rilis full/official.
-                // Coba fallback ke endpoint /releases untuk membaca rilis (termasuk pre-release).
-                if ($cx->getResponse() && $cx->getResponse()->getStatusCode() === 404 && strpos($this->api, '/releases/latest') !== false) {
-                    try {
-                        $fallbackUrl = str_replace('/releases/latest', '/releases', $this->api);
-                        $resFallback = $client->get($fallbackUrl, [
-                            'headers' => [
-                                'Accept'     => 'application/vnd.github.v3+json',
-                                'User-Agent' => 'OpenSIDOCR',
-                            ],
-                            'verify'  => false,
-                            'timeout' => 5,
-                        ]);
-
-                        if ($resFallback->getStatusCode() === 200) {
-                            $items = json_decode($resFallback->getBody()->getContents(), null, 512, JSON_THROW_ON_ERROR);
-                            if (is_array($items) && ! empty($items)) {
-                                $latest = $items[0];
-                                $this->writeRaw(json_encode($latest, JSON_PRETTY_PRINT));
-
-                                return $latest;
-                            }
-                        }
-                    } catch (\Throwable $t) {
-                        // fallback gagal
-                    }
-                }
-
-                // Jangan catat 404 sebagai error fatal di error log karena repo tanpa full release adalah hal yang normal
-                if ($cx->getResponse() && $cx->getResponse()->getStatusCode() === 404) {
-                    log_message('notice', 'Release notice: endpoint ' . $this->api . ' tidak ditemukan (404 Not Found). Belum ada full release di repositori.');
-                } else {
-                    log_message('error', 'Release client exception: ' . $cx->getMessage());
-                }
+                log_message('error', 'Release client exception: ' . $cx->getMessage());
                 $this->setFailureCooldown();
             } catch (Exception $e) {
                 log_message('error', 'Release exception: ' . $e->getMessage());
@@ -402,9 +369,9 @@ class Release
         $version = explode('.', $version);
 
         // major, minor dan patch maksimal 4 digit
-        $major = (int) substr($version[0] ?? '0', 0, 4) * 100_000_000;
-        $minor = (int) substr($version[1] ?? '0', 0, 4) * 10000;
-        $patch = (int) substr($version[2] ?? '0', 0, 4);
+        $major = (int) substr($version[0], 0, 4) * 100_000_000;
+        $minor = (int) substr($version[1], 0, 4) * 10000;
+        $patch = (int) substr($version[2], 0, 4);
 
         return $major + $minor + $patch;
     }
