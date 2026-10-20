@@ -13,14 +13,15 @@
     <label class="col-sm-3 control-label">{{ 'Staf ' . ucwords(setting('sebutan_pemerintah_desa')) }}</label>
     <div class="col-sm-6 col-lg-4">
         <select class="form-control required input-sm" id="pamong" name="pamong_id">
-            <option value='' selected="selected">--
+            <option value=''>--
                 {{ 'Pilih Staf ' . ucwords(setting('sebutan_pemerintah_desa')) }} --
             </option>
             @foreach ($pamong as $data)
                 <option value="{{ $data->pamong_id }}" data-jenis="{{ $data->jenis }}"
                     data-jabatan="{{ trim($data->jabatan->nama) }}" data-nip="{{ $data->pamong_nip }}"
                     data-niap="{{ $data->pamong_niap }}" data-ttd="{{ $data->pamong_ttd }}"
-                    data-ub="{{ $data->pamong_ub }}">
+                    data-ub="{{ $data->pamong_ub }}"
+                    {{ ($data->jenis == '1' || (isset($data->jabatan_id) && $data->jabatan_id == 1)) ? 'selected="selected"' : '' }}>
                     {{ $data->pamong_nip ? 'NIP : ' . ($data->pamong_nip ?? '-') . ' | ' : setting('sebutan_nip_desa') . ' : ' . ($data->pamong_niap ?? '-') . ' | ' }}
                     {{ $data->pamong_nama . ' | ' . $data->jabatan->nama }}
                 </option>
@@ -36,6 +37,7 @@
         });
 
         function ganti_ttd(atas_nama) {
+            atas_nama = (atas_nama || "") + "";
             if (atas_nama.includes('a.n')) {
                 ub = $("#pamong option[data-ttd='1']").val();
 
@@ -51,7 +53,8 @@
                 $("#pamong option[data-ttd='1']").hide();
                 $('#pamong').attr('disabled', false);
             } else {
-                $('#pamong').val($("#pamong option[data-jenis='1']").val());
+                var kadesVal = $("#pamong option[data-jenis='1']").val() || $("#pamong option[data-jabatan='Kepala Desa']").val();
+                if (kadesVal) { $("#pamong").val(kadesVal); }
                 $('#pamong').attr('disabled', true);
             }
 
