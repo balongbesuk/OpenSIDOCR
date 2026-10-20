@@ -1944,20 +1944,17 @@ if (! function_exists('cek_pembaruan_aplikasi')) {
         $info = ['update_available' => false];
         if (cek_koneksi_internet() && ! config_item('demo_mode')) {
             try {
-                $url_rilis = config_item('rilis_umum');
-                $release   = new \App\Libraries\Release();
-                $release->setApiUrl($url_rilis)->setCurrentVersion();
-
-                if ($release->isAvailable()) {
+                $check = \App\Libraries\GitHubUpdater::checkUpdate();
+                if (! empty($check['has_update'])) {
                     $info['update_available'] = true;
-                    $info['current_version']  = 'v' . AmbilVersi();
-                    $info['latest_version']   = $release->getLatestVersion() . (PREMIUM ? '-premium' : '');
-                    $info['release_name']     = $release->getReleaseName();
-                    $info['release_body']     = $release->getReleaseBody();
-                    $info['url_download']     = $release->getReleaseDownload();
+                    $info['current_version']  = $check['local']['short_sha'] ?? 'unknown';
+                    $info['latest_version']   = $check['remote']['short_sha'] ?? '';
+                    $info['release_name']     = $check['remote']['message'] ?? '';
+                    $info['release_body']     = $check['remote']['message'] ?? '';
+                    $info['url_download']     = 'https://github.com/' . ($check['repo'] ?? 'balongbesuk/OpenSIDOCR') . '/archive/refs/heads/' . ($check['branch'] ?? 'main') . '.zip';
                 }
             } catch (\Throwable $e) {
-                log_message('error', 'Cek pembaruan rilis error: ' . $e->getMessage());
+                // Abaikan kesalahan koneksi atau rate limit agar tidak membanjiri log
             }
         }
 

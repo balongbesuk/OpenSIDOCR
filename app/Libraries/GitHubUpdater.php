@@ -86,10 +86,35 @@ class GitHubUpdater
     }
 
     /**
-     * Ambil informasi commit terbaru dari GitHub API
+     * Path ke berkas cache remote commit GitHub
      */
-    public static function getRemoteCommit(): array
+    protected static function getRemoteCacheFilePath(): string
     {
+        $dir = FCPATH . 'desa/cache/';
+        if (! is_dir($dir)) {
+            @mkdir($dir, 0755, true);
+        }
+
+        return $dir . 'git_remote_commit.json';
+    }
+
+    /**
+     * Ambil informasi commit terbaru dari GitHub API
+     *
+     * @param bool $forceRefresh Jika true, abaikan cache dan ambil langsung dari GitHub
+     * @param int  $cacheTtl      Masa berlaku cache dalam detik (default 30 menit)
+     */
+    public static function getRemoteCommit(bool $forceRefresh = false, int $cacheTtl = 1800): array
+    {
+        $cacheFile = self::getRemoteCacheFilePath();
+
+        if (! $forceRefresh && file_exists($cacheFile) && (time() - filemtime($cacheFile) < $cacheTtl)) {
+            $cached = @json_decode(file_get_contents($cacheFile), true);
+            if (! empty($cached['commit'])) {
+                return $cached;
+            }
+        }
+
         $apiUrl = sprintf('https://api.github.com/repos/%s/%s/commits/%s', self::REPO_OWNER, self::REPO_NAME, self::BRANCH);
 
         $ch = curl_init($apiUrl);
@@ -129,6 +154,14 @@ class GitHubUpdater
         }
 
         if ($httpCode !== 200 || ! $response) {
+            // Jika ada cache lama, gunakan sebagai fallback agar sistem tidak terganggu
+            if (file_exists($cacheFile)) {
+                $cached = @json_decode(file_get_contents($cacheFile), true);
+                if (! empty($cached['commit'])) {
+                    return $cached;
+                }
+            }
+
             $errDetail = $curlErr ? " ({$curlErr})" : '';
             throw new Exception("Gagal menghubungi GitHub API (HTTP {$httpCode}{$errDetail}). Periksa koneksi internet server.");
         }
@@ -138,22 +171,28 @@ class GitHubUpdater
             throw new Exception('Format data repositori GitHub tidak valid.');
         }
 
-        return [
+        $res = [
             'commit'    => $data['sha'],
             'short_sha' => substr($data['sha'], 0, 7),
             'date'      => isset($data['commit']['committer']['date']) ? date('Y-m-d H:i:s', strtotime($data['commit']['committer']['date'])) : date('Y-m-d H:i:s'),
             'message'   => trim($data['commit']['message'] ?? ''),
             'author'    => $data['commit']['author']['name'] ?? self::REPO_OWNER,
         ];
+
+        @file_put_contents($cacheFile, json_encode($res, JSON_PRETTY_PRINT));
+
+        return $res;
     }
 
     /**
      * Periksa apakah ada pembaruan di GitHub
+     *
+     * @param bool $forceRefresh Jika true, periksa langsung ke GitHub tanpa cache
      */
-    public static function checkUpdate(): array
+    public static function checkUpdate(bool $forceRefresh = false): array
     {
         $local  = self::getLocalCommit();
-        $remote = self::getRemoteCommit();
+        $remote = self::getRemoteCommit($forceRefresh);
 
         $hasUpdate = ($local['commit'] === 'unknown') || (substr($local['commit'], 0, 7) !== substr($remote['commit'], 0, 7));
 

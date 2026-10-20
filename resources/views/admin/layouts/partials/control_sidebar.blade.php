@@ -666,6 +666,7 @@
                 $.ajax({
                     url: updateUrlCek,
                     type: 'GET',
+                    data: showFeedback ? { force: 1 } : {},
                     dataType: 'json',
                     timeout: 45000,
                     success: function(resp) {

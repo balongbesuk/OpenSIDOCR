@@ -25,7 +25,8 @@ class Pembaruan_aplikasi extends MY_Controller
     public function cek()
     {
         try {
-            $info = GitHubUpdater::checkUpdate();
+            $force = (bool) $this->input->get('force');
+            $info  = GitHubUpdater::checkUpdate($force);
 
             return json([
                 'status' => true,
