@@ -67,4 +67,3 @@ $route['data-statistik/(:any)/(:num)']    = WEB . '/statistik/index/$1/$2';
 $route['data-statistik/(:any)']           = WEB . '/statistik/index/$1';
 $route['perkembangan-penduduk']            = 'first/perkembangan_penduduk';
 $route['daftar-pemilih-tetap']             = 'first/dpt';
-$route['dpt']                              = 'first/dpt';

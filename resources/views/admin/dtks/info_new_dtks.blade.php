@@ -5,8 +5,12 @@ Versi Formulir DTKS saat ini : <b id="versi">
 <div id="info_versi_dtks">
 
 </div>
+@if (modul_aktif('dtks'))
 <script>
-    setTimeout(() => {
-        $('#info_versi_dtks').load("<?=route('dtks/loadRecentInfo')?>");
-    }, 500);
+    $(document).on('shown.bs.modal', '#show_confirm_modal, #modal-tambah-dtks', function () {
+        if ($('#info_versi_dtks').is(':empty')) {
+            $('#info_versi_dtks').load("<?=route('dtks/loadRecentInfo')?>");
+        }
+    });
 </script>
+@endif

@@ -202,7 +202,7 @@ defined('BASEPATH') || exit('No direct script access allowed');
 														<?php if (can('h')): ?>
 															<a href="#" data-href="<?= site_url("rtm/delete/{$data['no_kk']}"); ?>" class="btn bg-maroon btn-flat btn-sm" title="Hapus Data" data-toggle="modal" data-target="#confirm-delete"><i class="fa fa-trash-o"></i></a>
 														<?php endif; ?>
-														<?php if ($data['terdaftar_dtks']) : ?>
+														<?php if ($data['terdaftar_dtks'] && modul_aktif('dtks')) : ?>
 															<a href="<?= site_url("dtks/new/{$data['id']}"); ?>" onclick="show_confirm(this)" data-remote="false" data-toggle="modal" data-target="#show_confirm_modal" class="btn bg-purple btn-flat btn-sm" title="DTKS"><i class="fa fa-plus "></i> DTKS</a>
 														<?php endif; ?>
 													</td>
@@ -241,6 +241,7 @@ defined('BASEPATH') || exit('No direct script access allowed');
 		</section>
 	<?php endif; ?>
 </div>
+<?php if (modul_aktif('dtks')): ?>
 <div class='modal fade' id='show_confirm_modal' tabindex='-1' role='dialog' aria-labelledby='myModalLabel' aria-hidden='true'>
 	<div class='modal-dialog modal-lg'>
 		<div class='modal-content'>
@@ -270,6 +271,7 @@ defined('BASEPATH') || exit('No direct script access allowed');
 		</div>
 	</div>
 </div>
+<?php endif; ?>
 <?php $this->load->view('global/confirm_delete'); ?>
 <?php $this->load->view('rtm/impor'); ?>
 <script>

@@ -40,4 +40,8 @@ header('Content-Disposition: attachment; filename=rtm_' . date('Y-m-d') . '.xls'
 header('Pragma: no-cache');
 header('Expires: 0');
 
-$this->load->view('rtm/rtm_cetak');
+if (isset($main)) {
+    $main = escape_formula($main);
+}
+
+$this->load->view('rtm/rtm_cetak', compact('main'));

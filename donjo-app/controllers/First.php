@@ -313,10 +313,6 @@ class First extends Web_Controller
             redirect('daftar-pemilih-tetap', 'location', 301);
         }
 
-        if ($this->uri->segment(1) === 'dpt') {
-            redirect('daftar-pemilih-tetap', 'location', 301);
-        }
-
         if (! ($this->web_menu_model->menu_aktif('daftar-pemilih-tetap') || $this->web_menu_model->menu_aktif('dpt') || $this->web_menu_model->menu_aktif('first/dpt'))) {
             show_404();
         }

@@ -58,6 +58,7 @@ class Ekspor_model extends MY_Model
      */
     private function bersihkanData(&$str, $key)
     {
+        $str = escape_formula($str);
         if (strstr($str, '"')) {
             $str = '"' . str_replace('"', '""', $str) . '"';
         }

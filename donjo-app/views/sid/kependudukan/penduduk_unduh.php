@@ -40,4 +40,8 @@ header('Content-Disposition: attachment; filename=Penduduk_' . date('Y-m-d') . '
 header('Pragma: no-cache');
 header('Expires: 0');
 
+if (isset($main)) {
+    $main = escape_formula($main);
+}
+
 include 'donjo-app/views/sid/kependudukan/penduduk_cetak.php';

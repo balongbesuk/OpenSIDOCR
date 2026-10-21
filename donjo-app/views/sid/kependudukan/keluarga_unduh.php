@@ -40,4 +40,8 @@ header('Content-Disposition: attachment; filename=keluarga_' . date('Y-m-d') . '
 header('Pragma: no-cache');
 header('Expires: 0');
 
+if (isset($main)) {
+    $main = escape_formula($main);
+}
+
 include 'donjo-app/views/sid/kependudukan/keluarga_cetak.php';

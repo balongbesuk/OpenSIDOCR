@@ -1,16 +1,7 @@
 <?php
 
-defined('BASEPATH') || exit('No direct script access allowed');
-
 /*
- * File ini:
  *
- * View Log Penduduk untuk modul Kependudukan > Penduduk
- *
- * donjo-app/views/penduduk_log/penduduk_log_unduh.php
- */
-
-/*
  * File ini bagian dari:
  *
  * OpenSID
@@ -41,13 +32,14 @@ defined('BASEPATH') || exit('No direct script access allowed');
  *
  * @see 	https://github.com/OpenSID/OpenSID
  */
-?>
 
-<?php
-  header('Content-type: application/octet-stream');
+header('Content-type: application/octet-stream');
 header('Content-Disposition: attachment; filename=Log_Penduduk_' . date('Y-m-d') . '.xls');
 header('Pragma: no-cache');
 header('Expires: 0');
 
+if (isset($main)) {
+    $main = escape_formula($main);
+}
+
 include 'donjo-app/views/penduduk_log/penduduk_log_cetak.php';
-?>

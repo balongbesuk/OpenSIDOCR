@@ -1962,3 +1962,66 @@ if (! function_exists('cek_pembaruan_aplikasi')) {
     }
 }
 
+if (! function_exists('escape_formula')) {
+    /**
+     * Sanitasi data untuk mencegah CSV/Excel Formula Injection (OWASP / CWE-1236).
+     * Mencegah karakter formula (=, +, -, @, TAB, CR) dieksekusi saat data dibuka di spreadsheet (Excel/LibreOffice).
+     *
+     * @param mixed $value
+     * @return mixed
+     */
+    function escape_formula($value)
+    {
+        if (is_array($value)) {
+            return array_map('escape_formula', $value);
+        }
+
+        if (is_object($value)) {
+            $clone = clone $value;
+            foreach ($clone as $key => $val) {
+                $clone->{$key} = escape_formula($val);
+            }
+
+            return $clone;
+        }
+
+        if (! is_string($value) || $value === '') {
+            return $value;
+        }
+
+        $trimmed = ltrim($value);
+        if ($trimmed === '') {
+            return $value;
+        }
+
+        $first_char = $trimmed[0];
+        // Karakter formula injection menurut OWASP CWE-1236
+        if (in_array($first_char, ['=', '+', '-', '@', "\t", "\r"], true)) {
+            // Kecualikan angka murni bertanda + atau - (misalnya angka negatif -500 atau nomor telepon)
+            if (in_array($first_char, ['+', '-'], true) && is_numeric($trimmed)) {
+                return $value;
+            }
+
+            return "'" . $value;
+        }
+
+        return $value;
+    }
+}
+
+if (! function_exists('modul_aktif')) {
+    /**
+     * Periksa apakah suatu modul sedang aktif atau tidak.
+     *
+     * @param string $controller
+     * @return bool
+     */
+    function modul_aktif(string $controller): bool
+    {
+        $ci = &get_instance();
+        $ci->load->model('modul_model');
+
+        return (bool) $ci->modul_model->modul_aktif($controller);
+    }
+}
+
