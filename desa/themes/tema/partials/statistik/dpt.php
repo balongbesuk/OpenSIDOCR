@@ -25,7 +25,7 @@
                 </tr>
             </thead>
             <tbody>
-                <?php if(count($main) > 0) : ?>
+                <?php if(!empty($main)) : ?>
                     <?php foreach($main as $data) : ?>
                         <tr class="hover:bg-slate-50 dark:hover:bg-slate-800/30 transition-colors">
                             <td class="text-center"><?= $data['no'] ?></td>
@@ -45,7 +45,7 @@
                     </tr>
                 <?php endif; ?>
             </tbody>
-            <?php if(count($main) > 0) : ?>
+            <?php if(!empty($main)) : ?>
                 <tfoot>
                     <tr class="bg-slate-50 dark:bg-slate-800/50">
                         <th colspan="3" class="text-right py-6 uppercase tracking-widest text-[10px]">Total Keseluruhan</th>

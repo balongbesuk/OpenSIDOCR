@@ -14,7 +14,7 @@
         
         <?php 
         // Logic: Tampilkan Slider & Profil Hanya di Beranda (Bukan Search)
-        if ((empty($_GET['cari'])) && ((count($slide_galeri)>0 || count($artikel)>0))): ?>
+        if ((empty($_GET['cari'])) && (!empty($slide_galeri) || !empty($artikel))): ?>
             
             <!-- Hero Section -->
             <main id="hero" class="w-full">

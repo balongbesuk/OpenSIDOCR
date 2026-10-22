@@ -111,7 +111,7 @@ $active_group = 'default';
 $query_builder = true;
 
 // Pengaturan basisdata standar
-$db['default']['hostname']     = 'localhost';
+$db['default']['hostname']     = '127.0.0.1';
 $db['default']['username']     = 'root';
 $db['default']['password']     = '';
 $db['default']['database']     = 'opensid';

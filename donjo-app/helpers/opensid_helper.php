@@ -1313,7 +1313,7 @@ function idm($kode_desa, $tahun)
 
     // ambil dari api idm
     try {
-        $client   = new Client();
+        $client   = new \GuzzleHttp\Client();
         $response = $client->get(config_item('api_idm') . "/{$kode_desa}/{$tahun}", [
             'headers' => [
                 'X-Requested-With' => 'XMLHttpRequest',
@@ -1326,7 +1326,7 @@ function idm($kode_desa, $tahun)
 
             return $ci->cache->get($cache);
         }
-    } catch (Exception $e) {
+    } catch (\Throwable $e) {
         log_message('error', $e->getMessage());
     }
 
@@ -1361,7 +1361,7 @@ function sdgs()
     }
 
     try {
-        $client   = new Client();
+        $client   = new \GuzzleHttp\Client();
         $response = $client->get(config_item('api_sdgs') . $kode_desa, [
             'headers' => [
                 'X-Requested-With' => 'XMLHttpRequest',

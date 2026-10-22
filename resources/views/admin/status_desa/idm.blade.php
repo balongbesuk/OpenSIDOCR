@@ -36,7 +36,7 @@
             </select>
             @if (can('u'))
                 <a class="btn btn-social btn-success btn-sm btn-sm visible-xs-block visible-sm-inline-block visible-md-inline-block visible-lg-inline-block"
-                    {!! cek_koneksi_internet() == false || is_null($idm->error_msg)
+                    {!! cek_koneksi_internet() == false || !empty($idm->error_msg)
                         ? 'disabled title="Perangkat tidak terhubung dengan jaringan"'
                         : 'href="' . route('status_desa.perbarui_idm', $tahun) . '"' !!}><i class="fa fa-refresh"></i>Perbarui</a>
                 @if (empty($idm->error_msg))
@@ -47,7 +47,7 @@
             </form>
         </div>
         <div class="box-body">
-            @if ($idm->error_msg)
+            @if (!empty($idm->error_msg))
                 <div class="alert alert-danger">
                     {!! $idm->error_msg !!}
                 </div>
@@ -167,7 +167,7 @@
                                 </thead>
                                 <tbody>
                                     @foreach ($idm->ROW as $data)
-                                        <tr class="{{ empty($data->NO) && (print 'judul') }} ">
+                                        <tr class="{{ empty($data->NO) ? 'judul' : '' }}">
                                             <td class="text-center">{{ $data->NO }}</td>
                                             <td style="min-width: 150px;">{{ $data->INDIKATOR }}</td>
                                             <td class="padat">{{ $data->SKOR }}</td>
@@ -179,7 +179,7 @@
                                             <td>{{ $data->KAB }}</td>
                                             <td>{{ $data->DESA }}</td>
                                             <td>{{ $data->CSR }}</td>
-                                            <td>{{ $data->SKOR[INDIKATOR['IKS 2020']] }}</td>
+                                            <td>{{ $data->LAINNYA }}</td>
                                         </tr>
                                     @endforeach
                                 </tbody>
@@ -193,16 +193,16 @@
 
 @endsection
 
-@if (!$idm->error_msg)
+@if (empty($idm->error_msg))
     @push('scripts')
         @include('admin.layouts.components.asset_highcharts')
         <script>
             $(document).ready(function() {
 
-                var tahun = {{ $tahun }};
-                var iks = {{ $idm->ROW[35]->SKOR }};
-                var ike = {{ $idm->ROW[48]->SKOR }};
-                var ikl = {{ $idm->ROW[52]->SKOR }};
+                var tahun = {{ $tahun ?? date('Y') }};
+                var iks = {{ $idm->ROW[35]->SKOR ?? 0 }};
+                var ike = {{ $idm->ROW[48]->SKOR ?? 0 }};
+                var ikl = {{ $idm->ROW[52]->SKOR ?? 0 }};
 
                 Highcharts.chart('container', {
                     chart: {

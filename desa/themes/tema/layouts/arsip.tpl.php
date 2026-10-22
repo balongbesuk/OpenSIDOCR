@@ -51,7 +51,7 @@
                                         </tr>
                                     </thead>
                                     <tbody class="divide-y divide-slate-50 dark:divide-slate-700/50">
-                                        <?php if(count($farsip)>0): ?>
+                                        <?php if(!empty($farsip)): ?>
                                             <?php foreach($farsip AS $data): $url = site_url('artikel/'.buat_slug($data)); ?>
                                                 <tr class="hover:bg-slate-50/50 dark:hover:bg-slate-700/30 transition-colors">
                                                     <td class="px-8 py-6 text-sm font-bold text-slate-400 dark:text-slate-500"><?= $data['no'] ?></td>
@@ -93,7 +93,7 @@
                     </div>
 
                     <!-- [PAGINATION] -->
-                    <?php if (count($farsip)>0): ?>
+                    <?php if (!empty($farsip)): ?>
                         <div class="mt-20 flex justify-center">
                             <nav class="inline-flex p-2 bg-white dark:bg-slate-800 rounded-3xl shadow-xl shadow-slate-200 dark:shadow-slate-950 border border-slate-100 dark:border-slate-700 gap-1">
                                 <?php if($paging->start_link): ?>

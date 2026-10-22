@@ -2,7 +2,7 @@
 
 <!-- [GALLERY GRID: MASONRY-INSPIRED] -->
 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8 md:gap-12">
-    <?php if (count($gallery) > 0): ?>
+    <?php if (!empty($gallery)): ?>
         <?php foreach ($gallery as $index => $item): ?>
             <?php if (is_file(LOKASI_GALERI . "sedang_" . $item['gambar'])): ?>
                 <!-- Individual Photo Card -->

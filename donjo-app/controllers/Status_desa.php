@@ -78,7 +78,7 @@ class Status_desa extends Admin_Controller
 
             // Cek server Kemendes sebelum hapus cache
             try {
-                $client = new GuzzleHttp\Client();
+                $client = new \GuzzleHttp\Client();
                 $client->get(config_item('api_idm') . "/{$kode_desa}/{$tahun}", [
                     'headers' => [
                         'X-Requested-With' => 'XMLHttpRequest',
@@ -145,7 +145,7 @@ class Status_desa extends Admin_Controller
 
             // Cek server Kemendes sebelum hapus cache
             try {
-                $client = new GuzzleHttp\Client();
+                $client = new \GuzzleHttp\Client();
                 $client->get(config_item('api_sdgs') . $kode_desa, [
                     'headers' => [
                         'X-Requested-With' => 'XMLHttpRequest',

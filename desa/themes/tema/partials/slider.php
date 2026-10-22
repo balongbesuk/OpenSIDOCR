@@ -27,7 +27,7 @@
 <section class="relative pt-32 pb-16 md:pt-48 md:pb-24 overflow-hidden hero-gradient">
     <!-- Dynamic Background Slider (From Articles) -->
     <div class="absolute inset-0 z-0 overflow-hidden">
-        <?php if (count($slider_gambar['gambar']) > 0): ?>
+        <?php if (!empty($slider_gambar['gambar'])): ?>
             <?php 
                 $gambar_slider = array_slice($slider_gambar['gambar'], 0, 6);
                 foreach($gambar_slider as $idx => $item): 
@@ -52,7 +52,7 @@
 
     <div class="container mx-auto px-4 relative z-10 flex flex-col items-center">
         <!-- Premium Announcement Ticker Redesign -->
-        <?php if (count($teks_berjalan)>0): ?>
+        <?php if (!empty($teks_berjalan)): ?>
             <div class="w-full max-w-3xl bg-white/30 dark:bg-slate-900/30 backdrop-blur-2xl border border-white/50 dark:border-slate-800/50 p-1.5 rounded-full shadow-2xl shadow-slate-200/20 dark:shadow-none mb-12 group overflow-hidden flex items-center animate-premium">
                 <!-- Label Pill -->
                 <div class="flex-none px-4 py-3 bg-slate-900 dark:bg-brand-600 text-white rounded-full flex items-center justify-center relative overflow-hidden shadow-lg shadow-slate-900/10 active:scale-95 transition-all">

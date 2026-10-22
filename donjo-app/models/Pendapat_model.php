@@ -152,7 +152,7 @@ class Pendapat_model extends MY_Model
                 $lblx  = 'TAHUN';
                 $judul = 'Setiap Tahun';
                 $where = [
-                    'tanggal != ' => 'NOT NULL',
+                    'DATE(tanggal) >=' => '1970-01-01',
                 ];
                 break;
         }
@@ -160,7 +160,7 @@ class Pendapat_model extends MY_Model
         return [
             'lblx'   => $lblx,
             'judul'  => $judul,
-            'select' => $select,
+            'select' => $select ?? null,
             'where'  => $where,
         ];
     }

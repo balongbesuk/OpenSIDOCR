@@ -1,7 +1,7 @@
 <?php if(!defined('BASEPATH')) exit('No direct script access allowed'); ?>
 
 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
-    <?php if (count($gallery) > 0): ?>
+    <?php if (!empty($gallery)): ?>
         <?php foreach ($gallery as $item): ?>
             <?php if (is_file(LOKASI_GALERI . "sedang_" . $item['gambar'])): ?>
                 <?php $sub = site_url("galeri/" . $item['id']); ?>

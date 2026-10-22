@@ -27,7 +27,7 @@
             <div class="hidden lg:flex items-center h-full">
                 <div class="flex items-center gap-1 h-full">
                     <?php foreach($menu_atas as $data): ?>
-                        <?php $has_sub = (isset($data['submenu']) && is_array($data['submenu']) && count($data['submenu']) > 0); ?>
+                        <?php $has_sub = (isset($data['submenu']) && is_array($data['submenu']) && !empty($data['submenu'])); ?>
                         <div class="relative h-full flex items-center menu-node-group">
                             <a href="<?= html_escape($data['link']) ?>" class="px-4 py-2 rounded-lg text-[13px] font-bold text-slate-700 dark:text-slate-200 hover:text-brand-600 dark:hover:text-white transition-all flex items-center gap-2 uppercase tracking-wide">
                                 <?= html_escape($data['nama']) ?>

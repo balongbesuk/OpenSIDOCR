@@ -88,11 +88,11 @@
         @if (can('u'))
             <div class="box-header with-border">
                 <a class="btn btn-social btn-success btn-sm btn-sm visible-xs-block visible-sm-inline-block visible-md-inline-block visible-lg-inline-block"
-                    {!! !cek_koneksi_internet() ? 'disabled title="Perangkat tidak terhubung dengan jaringan"' : 'id="perbarui"' !!}><i class="fa fa-refresh"></i>Perbarui {{ $header }}</a>
+                    {!! !cek_koneksi_internet() ? 'disabled title="Perangkat tidak terhubung dengan jaringan"' : 'id="perbarui"' !!}><i class="fa fa-refresh"></i>Perbarui {{ $header ?? 'SDGs' }}</a>
             </div>
         @endif
         <div class="box-body">
-            @if ($sdgs->error_msg)
+            @if (!empty($sdgs->error_msg))
                 <div class="alert alert-danger">
                     {!! $sdgs->error_msg !!}
                 </div>

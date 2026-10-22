@@ -231,22 +231,24 @@ class User_model extends MY_Model
 
     public function sesi_grup($sesi = '')
     {
-        return $this->config_id()
+        $row = $this->config_id()
             ->select('id_grup')
             ->where('session', $sesi)
             ->get('user')
-            ->row()
-            ->id_grup;
+            ->row();
+
+        return $row->id_grup ?? null;
     }
 
     public function id_grup($nama)
     {
-        return $this->config_id()
+        $row = $this->config_id()
             ->select('id')
             ->where('slug', $nama)
             ->get('user_grup')
-            ->row()
-            ->id;
+            ->row();
+
+        return $row->id ?? null;
     }
 
     public function logout()

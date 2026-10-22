@@ -123,7 +123,7 @@
 
         <div class="navbar-custom-menu">
             @php
-                $is_mobile = $ci->agent->is_mobile();
+                $is_mobile = !empty($ci->agent) && method_exists($ci->agent, 'is_mobile') ? $ci->agent->is_mobile() : false;
                 $rilis_info = $rilis ?? cek_pembaruan_aplikasi();
                 $total_notif = 0;
                 if (can('b', 'permohonan_surat_admin') && !empty($notif['surat'])) {
