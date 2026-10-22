@@ -95,7 +95,13 @@ class Beranda extends Mandiri_Controller
             'penduduk' => $this->penduduk_model->get_penduduk($this->is_login->id_pend),
         ];
 
-        $this->load->view('sid/kependudukan/cetak_biodata', $data);
+        // Format cetak murni lawas jika ada parameter ?raw=1
+        if ($this->input->get('raw') == '1') {
+            $this->load->view('sid/kependudukan/cetak_biodata', $data);
+            return;
+        }
+
+        $this->render('cetak_biodata', $data);
     }
 
     public function cetak_kk()
@@ -113,7 +119,19 @@ class Beranda extends Mandiri_Controller
 
         $data = $this->keluarga_model->get_data_cetak_kk($this->is_login->id_kk);
 
-        $this->load->view('sid/kependudukan/cetak_kk_all', $data);
+        // Format cetak murni lawas jika ada parameter ?raw=1
+        if ($this->input->get('raw') == '1') {
+            $this->load->view('sid/kependudukan/cetak_kk_all', $data);
+            return;
+        }
+
+        if (!empty($data['all_kk'][0])) {
+            $data['kepala_kk'] = $data['all_kk'][0]['kepala_kk'];
+            $data['main']      = $data['all_kk'][0]['main'];
+            $data['desa']      = $data['all_kk'][0]['desa'];
+        }
+
+        $this->render('cetak_kk', $data);
     }
 
     public function ganti_pin()

@@ -2,6 +2,37 @@ Aplikasi **OpenSIDOCR** merupakan pengembangan lanjutan dari **OpenSID versi 240
 
 ---
 
+### Rilis v1.2.0 (Modernisasi UI Layanan Mandiri, Redesain Survei Kepuasan & Integrasi Cetak Dokumen In-App)
+
+Rilis ini memuat modernisasi antarmuka pengguna (UI/UX) pada modul Layanan Mandiri, pembaruan popup penilaian survei kepuasan warga saat keluar akun, serta integrasi pratinjau dan pencetakan dokumen kependudukan (Biodata dan Salinan Kartu Keluarga) langsung di dalam bingkai aplikasi tanpa membuka tab baru.
+
+#### Penambahan Fitur & Peningkatan
+
+1. **Integrasi Penuh Cetak Dokumen di Dalam Aplikasi Layanan Mandiri (In-App Document Viewer):**
+   - Halaman **Cetak Biodata Penduduk** (`/layanan-mandiri/cetak-biodata`) dan **Cetak Salinan Kartu Keluarga** (`/layanan-mandiri/cetak-kk`) kini dimuat langsung di dalam bingkai antarmuka Layanan Mandiri menggunakan layout terpadu (`Mandiri_Controller::render()`).
+   - Penghapusan atribut `target="_blank"` pada tombol cetak di sidebar menu, halaman profil, dan dashboard beranda sehingga pengguna tidak lagi diarahkan membuka tab baru terpisah di peramban.
+   - Penambahan **Action Toolbar** di bagian atas lembar pratinjau dokumen dengan navigasi breadcrumb, tombol **"Kembali"**, dan tombol **"Cetak Dokumen"** (`window.print()`).
+   - Penataan lembar dokumen resmi standar A4 yang proporsional, bersih, dan profesional.
+   - Penerapan aturan cetak presisi scoped `@media print`: saat mencetak lembar atau menyimpan ke PDF (`Ctrl + P`), seluruh elemen navigasi antarmuka (sidebar, header akun, action toolbar, mobile bottom dock) disembunyikan secara otomatis, menghasilkan cetakan formulir resmi yang bersih.
+   - Dukungan fallback parameter `?raw=1` untuk kebutuhan kompatibilitas pratinjau cetak polos bawaan.
+
+2. **Redesain Popup Survei Kepuasan Layanan Mandiri (`#pendapat`):**
+   - Perombakan total dialog modal survei kepuasan warga saat hendak keluar dari akun Layanan Mandiri dengan konsep *modern card dialog* dan sentuhan *ambient color glow stripe*.
+   - Tipografi yang lebih ramah dengan icon badge bintang emas dan petunjuk yang informatif.
+   - Peningkatan visual emotikon pilihan kepuasan (Sangat Puas, Puas, Cukup, Buruk) menggunakan ilustrasi ekspresif yang proporsional.
+   - Sinkronisasi aset ikon survei di modul admin Pendapat (`assets/images/layanan_mandiri/`).
+   - **Optimasi Tombol Aksi Mobile**: Penataan ulang tombol "Tetap di Sini" dan "Lewati & Keluar" pada perangkat ponsel/mobile menjadi berdampingan secara horizontal (*side-by-side* / kiri-kanan) melalui `grid grid-cols-2`, menghilangkan susunan bertumpuk vertikal yang kurang ergonomis.
+
+#### Perubahan Teknis
+
+1. Pembaruan controller `donjo-app/controllers/fmandiri/Beranda.php` pada fungsi `cetak_biodata()` dan `cetak_kk()` untuk merender view kependudukan ke dalam layout utama Layanan Mandiri (`fmandiri/template`).
+2. Pembuatan template view in-app baru `donjo-app/views/fmandiri/cetak_biodata.php` dan perombakan `donjo-app/views/fmandiri/cetak_kk.php`.
+3. Penyesuaian layout container `donjo-app/views/fmandiri/template.php` untuk menyembunyikan welcome banner & kartu metrik pada rute pencetakan dokumen serta penerapan CSS print global.
+4. Pembaruan modal `donjo-app/views/fmandiri/pendapat.php` dan aset gambar terkait pada `assets/images/layanan_mandiri/`.
+5. Pengujian kompatibilitas penuh: Seluruh fungsi terverifikasi berjalan lancar dan bebas error pada **PHP 7.4** maupun **PHP 8.2**.
+
+---
+
 ### Rilis v1.1.0 (Dukungan PHP 8.2 & Penguatan Kompatibilitas Sistem)
 
 Rilis ini memuat dukungan penuh lingkungan PHP 8.2 (Dual-Support PHP 7.4 & PHP 8.2) serta perbaikan kompatibilitas menyeluruh pada tema publik dan 20 kelompok modul Panel Admin.

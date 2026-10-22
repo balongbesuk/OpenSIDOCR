@@ -34,9 +34,15 @@ defined('BASEPATH') || exit('No direct script access allowed');
 		</div>
 	</div>
 
-	<!-- Right: Cetak Biodata Action Button -->
+	<!-- Right: Cetak Actions (In-App) -->
 	<div class="flex items-center space-x-2.5">
-		<a href="<?= site_url('layanan-mandiri/cetak-biodata') ?>" target="_blank" rel="noopener noreferrer" class="px-5 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-sm sm:text-base shadow-xs transition-colors flex items-center space-x-2 text-decoration-none">
+		<?php if (!empty($this->is_login->id_kk)) : ?>
+			<a href="<?= site_url('layanan-mandiri/cetak-kk') ?>" class="px-4 py-2.5 rounded-xl bg-white hover:bg-slate-100 border border-slate-200 text-slate-700 font-bold text-xs sm:text-sm shadow-2xs transition-colors flex items-center space-x-2 text-decoration-none">
+				<i class="fa-solid fa-file-contract text-emerald-600"></i>
+				<span class="hidden sm:inline">Cetak</span> <span>Salinan KK</span>
+			</a>
+		<?php endif; ?>
+		<a href="<?= site_url('layanan-mandiri/cetak-biodata') ?>" class="px-4 sm:px-5 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs sm:text-sm shadow-xs transition-colors flex items-center space-x-2 text-decoration-none">
 			<i class="fa-solid fa-print text-sm"></i>
 			<span>Cetak Biodata</span>
 		</a>

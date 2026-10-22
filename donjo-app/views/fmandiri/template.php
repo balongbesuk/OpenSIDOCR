@@ -372,6 +372,22 @@ if ($id_pend_login) {
 		.dock-fab:active {
 			transform: scale(0.92);
 		}
+		@media print {
+			header, nav, aside, footer, .no-print, .mobile-bottom-dock, #sidebar-backdrop, #main-sidebar {
+				display: none !important;
+			}
+			body {
+				background: #ffffff !important;
+			}
+			.lg\:pl-\[295px\] {
+				padding-left: 0 !important;
+			}
+			main {
+				padding: 0 !important;
+				margin: 0 !important;
+				width: 100% !important;
+			}
+		}
 	</style>
 
 	<script src="<?= asset('bootstrap/js/jquery.min.js') ?>"></script>
@@ -461,12 +477,12 @@ if ($id_pend_login) {
 							<i class="fa-solid fa-user"></i>
 							<span>Profil</span>
 						</a>
-						<a href="<?= site_url('layanan-mandiri/cetak-biodata') ?>" class="nav-item-btn" target="_blank" rel="noopener noreferrer">
+						<a href="<?= site_url('layanan-mandiri/cetak-biodata') ?>" class="nav-item-btn <?= ($this->uri->segment(2) == 'cetak-biodata') ? 'active' : '' ?>">
 							<i class="fa-solid fa-print"></i>
 							<span>Cetak Biodata</span>
 						</a>
 						<?php if ($this->is_login->id_kk != 0) : ?>
-							<a href="<?= site_url('layanan-mandiri/cetak-kk') ?>" class="nav-item-btn" target="_blank" rel="noopener noreferrer">
+							<a href="<?= site_url('layanan-mandiri/cetak-kk') ?>" class="nav-item-btn <?= ($this->uri->segment(2) == 'cetak-kk') ? 'active' : '' ?>">
 								<i class="fa-solid fa-file-contract"></i>
 								<span>Cetak Salinan KK</span>
 							</a>
@@ -682,10 +698,11 @@ if ($id_pend_login) {
 			<!-- MAIN CONTAINER -->
 			<main class="flex-1 px-5 sm:px-8 lg:px-10 py-6 pb-12 sm:pb-16">
 				
+				<?php if (!in_array($this->uri->segment(2), ['cetak-biodata', 'cetak-kk'])) : ?>
 				<!-- ====================================================================
 				     HERO WELCOME BANNER (BRIGHT, VIBRANT, LUXURIOUS)
 				     ==================================================================== -->
-				<div class="relative rounded-2xl sm:rounded-3xl overflow-hidden mb-5 shadow-sm min-h-0 sm:min-h-[200px] flex items-center p-4 sm:p-8" style="background: linear-gradient(90deg, rgba(15, 23, 42, 0.62) 0%, rgba(15, 23, 42, 0.35) 45%, rgba(15, 23, 42, 0.1) 100%), url('<?= base_url('assets/front/images/desa_banner.jpg') ?>') center/cover no-repeat;">
+				<div class="no-print relative rounded-2xl sm:rounded-3xl overflow-hidden mb-5 shadow-sm min-h-0 sm:min-h-[200px] flex items-center p-4 sm:p-8" style="background: linear-gradient(90deg, rgba(15, 23, 42, 0.62) 0%, rgba(15, 23, 42, 0.35) 45%, rgba(15, 23, 42, 0.1) 100%), url('<?= base_url('assets/front/images/desa_banner.jpg') ?>') center/cover no-repeat;">
 					
 					<div class="w-full flex flex-col md:flex-row items-start md:items-center justify-between gap-4 md:gap-6 z-10">
 						
@@ -803,6 +820,7 @@ if ($id_pend_login) {
 					</a>
 
 				</div>
+				<?php endif; ?>
 
 				<!-- ====================================================================
 				     DYNAMIC VIEW CONTENT: LOADED FROM CONTROLLER

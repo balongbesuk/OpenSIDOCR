@@ -312,7 +312,7 @@ defined('BASEPATH') || exit('No direct script access allowed');
 					<a href="<?= site_url('layanan-mandiri/profil') ?>" class="flex-1 py-2 px-3 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs text-center transition-colors text-decoration-none">
 						<i class="fa-solid fa-user mr-1 text-slate-400"></i> Detail Profil
 					</a>
-					<a href="<?= site_url('layanan-mandiri/cetak-biodata') ?>" target="_blank" rel="noopener noreferrer" class="flex-1 py-2 px-3 rounded-xl bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-bold text-xs text-center transition-colors text-decoration-none">
+					<a href="<?= site_url('layanan-mandiri/cetak-biodata') ?>" class="flex-1 py-2 px-3 rounded-xl bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-bold text-xs text-center transition-colors text-decoration-none">
 						<i class="fa-solid fa-print mr-1 text-indigo-500"></i> Cetak Biodata
 					</a>
 				</div>

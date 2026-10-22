@@ -85,10 +85,14 @@ Jika Anda memiliki akses terminal SSH di VPS/Server:
 - **Dukungan Penuh PHP 8.2**: Pengerasan penanganan tipe data, perbaikan *unquoted array keys*, pemanggilan *static method*, serta pencegahan fatal error pada 20 kelompok modul panel admin dan tema publik.
 - **Tetap Mendukung PHP 7.4**: Menjaga fleksibilitas bagi instansi/desa yang masih menggunakan server berbasis PHP 7.4 tanpa memerlukan modifikasi ulang (*backward compatible*).
 
+### 8. Integrasi Cetak Dokumen In-App & Redesain Survei Kepuasan Layanan Mandiri
+- **Cetak In-App Terpadu**: Pratinjau dan cetak Biodata Penduduk serta Salinan Kartu Keluarga (KK) kini tampil langsung di dalam antarmuka Layanan Mandiri tanpa membuka tab baru di peramban, dilengkapi toolbar navigasi cepat dan tata letak cetak dokumen A4 presisi (`@media print`).
+- **Modernisasi Modal Survei Kepuasan**: Redesain popup penilaian survei kepuasan layanan saat keluar akun dengan card dialog modern, icon badge bintang emas, emotikon ekspresif, dan tata letak tombol aksi mobile yang sejajar rapi (berdampingan).
+
 ---
 
 ## 🛠️ Versi Rilis & Spesifikasi Lingkungan
-- **Versi Rilis**: **v1.1.0** ([Lihat Catatan Rilis Lengkap](catatan_rilis.md))
+- **Versi Rilis**: **v1.2.0** ([Lihat Catatan Rilis Lengkap](catatan_rilis.md))
 - **Versi Basis**: **OpenSID v2403.0.0**
 - **Framework**: CodeIgniter 3
 - **Lingkungan PHP**: **PHP 7.4 & PHP 8.2** *(Dual-Compatibility)*
