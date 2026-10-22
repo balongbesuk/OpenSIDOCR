@@ -2,6 +2,40 @@ Aplikasi **OpenSIDOCR** merupakan pengembangan lanjutan dari **OpenSID versi 240
 
 ---
 
+### Rilis v1.2.1 (Patch Keamanan IDOR, Stabilitas Login PHP 8.2 & Lean Code Cleanup)
+
+Rilis perbaikan (*security & stability patch*) berdasarkan hasil audit mendalam Ponytail: perbaikan celah keamanan akses arsip surat (IDOR), mitigasi fatal error TypeError pada fungsi hash PIN di PHP 8.2, penanganan null-safety saat NIK tidak terdaftar, pencegahan unhandled exception pada printer anjungan, proteksi DoS pada script instalasi OCR, serta pembersihan ribuan baris kode sampah (*dead code*).
+
+#### Perbaikan Keamanan & BUG
+
+1. **Penutupan Celah Keamanan IDOR pada Unduh Arsip Surat Warga:**
+   - Menambahkan verifikasi kepemilikan dokumen pada method `Surat::cetak($id)` di [donjo-app/controllers/fmandiri/Surat.php](file:///d:/public_html/donjo-app/controllers/fmandiri/Surat.php).
+   - Memastikan hanya warga yang berhak (`(int) $surat->id_pend === (int) $this->is_login->id_pend`) yang dapat mengunduh berkas surat arsip, mencegah manipulasi ID dokumen untuk mengintip surat rahasia warga lain.
+
+2. **Perbaikan Fatal Error TypeError pada `hash_pin()` di PHP 8.2:**
+   - Memperbaiki fungsi `hash_pin()` pada [donjo-app/helpers/donjolib_helper.php](file:///d:/public_html/donjo-app/helpers/donjolib_helper.php) agar aman terhadap nilai string kosong (`""`) dan melakukan typecasting integer eksplisit `(int) strrev((string) $pin) * 77`.
+   - Mengeliminasi fatal error `TypeError: Unsupported operand types: string * int` ketika form login disubmit tanpa PIN.
+
+3. **Penanganan Null-Safety pada Login Mandiri (`siteman` & `siteman_ektp`):**
+   - Menambahkan pengecekan `if (! $data)` sebelum mengakses properti `$data->id_pend` dan `$data->aktif` pada [donjo-app/models/Mandiri_model.php](file:///d:/public_html/donjo-app/models/Mandiri_model.php).
+   - Menghilangkan error PHP 8.x `Attempt to read property on null` saat pengguna salah memasukkan NIK atau RFID card yang belum terdaftar di database.
+
+4. **Penanganan Error Printer Anjungan (*Kiosk Printer Finally Block*):**
+   - Inisialisasi `$printer = null` dan penambahan pengecekan `if ($printer)` sebelum memanggil `$printer->close()` pada method `Surat::cetak_no_antrian()` di [Surat.php](file:///d:/public_html/donjo-app/controllers/fmandiri/Surat.php).
+   - Mencegah fatal crash saat printer thermal anjungan sedang mati / offline.
+
+5. **Proteksi Anti-DoS pada `install_ocr.php`:**
+   - Menambahkan pre-check deteksi engine aktif dan membatasi eksekusi perintah pip hanya melalui metode HTTP `POST` dengan tombol konfirmasi eksplisit pada [install_ocr.php](file:///d:/public_html/install_ocr.php).
+   - Mencegah bot/crawler yang mengakses file via `GET` memicu loop instalasi pip yang menghabiskan sumber daya CPU/RAM server.
+
+#### Pembersihan Kode Mati (*Lean Code Cleanup*)
+
+1. Menghapus berkas duplikat `assets/filemanager/UploadHandlerAsli.php` (-1.596 baris kode).
+2. Menghapus fungsi helper tidak terpakai `UploadGambarWidget()` pada [donjo-app/helpers/pict_helper.php](file:///d:/public_html/donjo-app/helpers/pict_helper.php).
+3. Membersihkan seluruh 17 berkas cadangan `.bak` pada direktori `donjo-app/controllers/fmandiri/` dan `donjo-app/views/fmandiri/`.
+
+---
+
 ### Rilis v1.2.0 (Modernisasi UI Layanan Mandiri, Redesain Survei Kepuasan & Integrasi Cetak Dokumen In-App)
 
 Rilis ini memuat modernisasi antarmuka pengguna (UI/UX) pada modul Layanan Mandiri, pembaruan popup penilaian survei kepuasan warga saat keluar akun, serta integrasi pratinjau dan pencetakan dokumen kependudukan (Biodata dan Salinan Kartu Keluarga) langsung di dalam bingkai aplikasi tanpa membuka tab baru.

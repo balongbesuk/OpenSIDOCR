@@ -497,6 +497,16 @@ class Mandiri_model extends MY_Model
         session_error_clear();
         $this->session->aktif = false;
 
+        if (! $data) {
+            if ($this->session->mandiri_try > 2) {
+                $this->session->mandiri_try = $this->session->mandiri_try - 1;
+            } else {
+                $this->session->mandiri_wait = 1;
+            }
+            $this->session->login_ektp = false;
+            return;
+        }
+
         if (akun_demo($data->id_pend, false)) {
             $data->pin       = hash_pin(config_item('demo_akun')[$data->id_pend]);
             $data->ganti_pin = 1;
@@ -550,6 +560,16 @@ class Mandiri_model extends MY_Model
 
         session_error_clear();
         $this->session->aktif = false;
+
+        if (! $data) {
+            if ($this->session->mandiri_try > 2) {
+                $this->session->mandiri_try = $this->session->mandiri_try - 1;
+            } else {
+                $this->session->mandiri_wait = 1;
+            }
+            $this->session->login_ektp = true;
+            return;
+        }
 
         if (akun_demo($data->id_pend, false)) {
             $data->ganti_pin = 1;

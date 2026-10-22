@@ -92,7 +92,7 @@ Jika Anda memiliki akses terminal SSH di VPS/Server:
 ---
 
 ## 🛠️ Versi Rilis & Spesifikasi Lingkungan
-- **Versi Rilis**: **v1.2.0** ([Lihat Catatan Rilis Lengkap](catatan_rilis.md))
+- **Versi Rilis**: **v1.2.1** ([Lihat Catatan Rilis Lengkap](catatan_rilis.md))
 - **Versi Basis**: **OpenSID v2403.0.0**
 - **Framework**: CodeIgniter 3
 - **Lingkungan PHP**: **PHP 7.4 & PHP 8.2** *(Dual-Compatibility)*

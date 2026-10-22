@@ -410,6 +410,7 @@ class Surat extends Mandiri_Controller
 
     public function cetak_no_antrian(string $no_antrian)
     {
+        $printer = null;
         try {
             $connector = new NetworkPrintConnector($this->cek_anjungan['printer_ip'], $this->cek_anjungan['printer_port'], 5);
             $printer   = new Printer($connector);
@@ -442,7 +443,9 @@ class Surat extends Mandiri_Controller
 
             redirect($_SERVER['HTTP_REFERER']);
         } finally {
-            $printer->close();
+            if ($printer) {
+                $printer->close();
+            }
         }
 
         redirect($_SERVER['HTTP_REFERER']);
@@ -469,8 +472,13 @@ class Surat extends Mandiri_Controller
     {
         $surat = LogSurat::find($id);
 
+        // Cegah IDOR: Pastikan berkas surat ada dan milik penduduk yang sedang login
+        if (! $surat || (int) $surat->id_pend !== (int) $this->is_login->id_pend) {
+            show_404();
+        }
+
         // Cek ada file
-        if (file_exists(FCPATH . LOKASI_ARSIP . $surat->nama_surat)) {
+        if (! empty($surat->nama_surat) && file_exists(FCPATH . LOKASI_ARSIP . $surat->nama_surat)) {
             return ambilBerkas($surat->nama_surat, $this->controller, null, LOKASI_ARSIP, true);
         }
         echo 'Berkas tidak ditemukan';

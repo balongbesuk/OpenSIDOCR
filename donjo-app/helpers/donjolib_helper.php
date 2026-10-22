@@ -553,8 +553,11 @@ function potong_teks($teks, $panjang)
 
 function hash_pin($pin = '')
 {
-    $pin = strrev($pin);
-    $pin = $pin * 77;
+    if (empty($pin) || ! is_numeric($pin)) {
+        return '';
+    }
+
+    $pin = ((int) strrev((string) $pin)) * 77;
     $pin .= '!#@$#%';
 
     return md5($pin);

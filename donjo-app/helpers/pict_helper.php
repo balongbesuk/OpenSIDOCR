@@ -306,23 +306,6 @@ function Foto_Default($foto, $sex = 1)
 
 
 
-function UploadGambarWidget($nama_file, $lokasi_file, $old_gambar)
-
-{
-
-    $dir_upload = LOKASI_GAMBAR_WIDGET;
-
-    if ($old_gambar) {
-
-        unlink($dir_upload . $old_gambar);
-
-    }
-
-    $file_upload = $dir_upload . $nama_file;
-
-    move_uploaded_file($lokasi_file, $file_upload);
-
-}
 
 
 
