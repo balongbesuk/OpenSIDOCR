@@ -4,16 +4,12 @@ Aplikasi **OpenSIDOCR** merupakan pengembangan lanjutan dari **OpenSID versi 240
 
 ### Rilis v1.1.0 (Dukungan PHP 8.2 & Penguatan Kompatibilitas Sistem)
 
-Rilis ini memuat dukungan penuh lingkungan PHP 8.2 (Dual-Support PHP 7.4 & PHP 8.2), pengerasan keamanan server, optimasi kecepatan respon database (eliminasi delay IPv6), serta perbaikan kompatibilitas menyeluruh pada tema publik dan 20 kelompok modul Panel Admin.
+Rilis ini memuat dukungan penuh lingkungan PHP 8.2 (Dual-Support PHP 7.4 & PHP 8.2) serta perbaikan kompatibilitas menyeluruh pada tema publik dan 20 kelompok modul Panel Admin.
 
 #### Penambahan Fitur & Peningkatan
 
 1. **Dukungan Penuh Dual-PHP (PHP 7.4 & PHP 8.2):**
    - Pembaruan arsitektur kode aplikasi agar sepenuhnya kompatibel dijalankan pada PHP 8.2 maupun PHP 7.4 secara fleksibel tanpa memerlukan konfigurasi ulang kode saat server di-upgrade.
-2. **Pengerasan Keamanan (Security Hardening):**
-   - Mitigasi keamanan sesi pengunggahan berkas (CVE-2026-109618 / CVE-2026-109619) dan penambahan aturan pemblokiran bot/scanner berbahaya serta request POST tanpa User-Agent pada berkas `.htaccess`.
-3. **Optimasi Drastis Kecepatan Respon Database:**
-   - Penggantian hostname koneksi MySQL dari `localhost` menjadi `127.0.0.1` pada `desa/config/database.php` dan `donjo-app/config/database.php`, mengeliminasi timeout resolusi DNS IPv6 (2–4 detik) pada Windows sehingga pemuatan setiap halaman admin dan web publik meningkat drastis menjadi < 50–100 milidetik.
 
 #### Perbaikan BUG & Kompatibilitas PHP 8.2
 

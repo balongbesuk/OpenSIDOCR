@@ -81,10 +81,9 @@ Jika Anda memiliki akses terminal SSH di VPS/Server:
 - **Toolbar Grafik Responsif & Sejajar**: Beralih antarmuka grafik batang, lingkaran (*pie*), dan garis (*line*) dengan preservasi query filter aktif serta tampilan tombol cetak yang sejajar rapi.
 - **Laporan Cetak Resmi Standar A4**: Fitur cetak terintegrasi yang otomatis menampilkan Kop Surat Pemerintahan Desa, cakupan wilayah terpilih, membuka seluruh baris data rincian, menyembunyikan elemen web, serta menyertakan lembar tanda tangan pengesahan Kepala Desa.
 
-### 7. Kompatibilitas Penuh Dual-PHP (PHP 7.4 & PHP 8.2) & Optimasi Database
+### 7. Kompatibilitas Penuh Dual-PHP (PHP 7.4 & PHP 8.2)
 - **Dukungan Penuh PHP 8.2**: Pengerasan penanganan tipe data, perbaikan *unquoted array keys*, pemanggilan *static method*, serta pencegahan fatal error pada 20 kelompok modul panel admin dan tema publik.
 - **Tetap Mendukung PHP 7.4**: Menjaga fleksibilitas bagi instansi/desa yang masih menggunakan server berbasis PHP 7.4 tanpa memerlukan modifikasi ulang (*backward compatible*).
-- **Optimasi Latensi Database**: Pengaturan koneksi database `127.0.0.1` mengeliminasi jeda resolusi DNS IPv6 (2–4 detik), memastikan respon halaman administratif dan web desa sangat gegas (< 50–100ms).
 
 ---
 
