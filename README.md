@@ -81,12 +81,19 @@ Jika Anda memiliki akses terminal SSH di VPS/Server:
 - **Toolbar Grafik Responsif & Sejajar**: Beralih antarmuka grafik batang, lingkaran (*pie*), dan garis (*line*) dengan preservasi query filter aktif serta tampilan tombol cetak yang sejajar rapi.
 - **Laporan Cetak Resmi Standar A4**: Fitur cetak terintegrasi yang otomatis menampilkan Kop Surat Pemerintahan Desa, cakupan wilayah terpilih, membuka seluruh baris data rincian, menyembunyikan elemen web, serta menyertakan lembar tanda tangan pengesahan Kepala Desa.
 
+### 7. Kompatibilitas Penuh Dual-PHP (PHP 7.4 & PHP 8.2) & Optimasi Database
+- **Dukungan Penuh PHP 8.2**: Pengerasan penanganan tipe data, perbaikan *unquoted array keys*, pemanggilan *static method*, serta pencegahan fatal error pada 20 kelompok modul panel admin dan tema publik.
+- **Tetap Mendukung PHP 7.4**: Menjaga fleksibilitas bagi instansi/desa yang masih menggunakan server berbasis PHP 7.4 tanpa memerlukan modifikasi ulang (*backward compatible*).
+- **Optimasi Latensi Database**: Pengaturan koneksi database `127.0.0.1` mengeliminasi jeda resolusi DNS IPv6 (2–4 detik), memastikan respon halaman administratif dan web desa sangat gegas (< 50–100ms).
+
 ---
 
-## 🛠️ Versi Basis Aplikasi
+## 🛠️ Versi Rilis & Spesifikasi Lingkungan
+- **Versi Rilis**: **v1.1.0** ([Lihat Catatan Rilis Lengkap](catatan_rilis.md))
 - **Versi Basis**: **OpenSID v2403.0.0**
-- **Framework**: CodeIgniter 3 / PHP 7.4+
-- **Database**: MySQL / MariaDB
+- **Framework**: CodeIgniter 3
+- **Lingkungan PHP**: **PHP 7.4 & PHP 8.2** *(Dual-Compatibility)*
+- **Database**: MySQL 5.7+ / MySQL 8.x LTS / MariaDB
 
 ---
 
