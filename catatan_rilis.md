@@ -9,33 +9,33 @@ Rilis perbaikan (*security & stability patch*) berdasarkan hasil audit mendalam 
 #### Perbaikan Keamanan & BUG
 
 1. **Penutupan Celah Keamanan IDOR pada Unduh Arsip Surat Warga:**
-   - Menambahkan verifikasi kepemilikan dokumen pada method `Surat::cetak($id)` di [donjo-app/controllers/fmandiri/Surat.php](file:///d:/public_html/donjo-app/controllers/fmandiri/Surat.php).
+   - Menambahkan verifikasi kepemilikan dokumen pada method `Surat::cetak($id)` di `donjo-app/controllers/fmandiri/Surat.php`.
    - Memastikan hanya warga yang berhak (`(int) $surat->id_pend === (int) $this->is_login->id_pend`) yang dapat mengunduh berkas surat arsip, mencegah manipulasi ID dokumen untuk mengintip surat rahasia warga lain.
 
 2. **Perbaikan Fatal Error TypeError pada `hash_pin()` di PHP 8.2:**
-   - Memperbaiki fungsi `hash_pin()` pada [donjo-app/helpers/donjolib_helper.php](file:///d:/public_html/donjo-app/helpers/donjolib_helper.php) agar aman terhadap nilai string kosong (`""`) dan melakukan typecasting integer eksplisit `(int) strrev((string) $pin) * 77`.
+   - Memperbaiki fungsi `hash_pin()` pada `donjo-app/helpers/donjolib_helper.php` agar aman terhadap nilai string kosong (`""`) dan melakukan typecasting integer eksplisit `(int) strrev((string) $pin) * 77`.
    - Mengeliminasi fatal error `TypeError: Unsupported operand types: string * int` ketika form login disubmit tanpa PIN.
 
 3. **Penanganan Null-Safety pada Login Mandiri (`siteman` & `siteman_ektp`):**
-   - Menambahkan pengecekan `if (! $data)` sebelum mengakses properti `$data->id_pend` dan `$data->aktif` pada [donjo-app/models/Mandiri_model.php](file:///d:/public_html/donjo-app/models/Mandiri_model.php).
+   - Menambahkan pengecekan `if (! $data)` sebelum mengakses properti `$data->id_pend` dan `$data->aktif` pada `donjo-app/models/Mandiri_model.php`.
    - Menghilangkan error PHP 8.x `Attempt to read property on null` saat pengguna salah memasukkan NIK atau RFID card yang belum terdaftar di database.
 
 4. **Penanganan Error Printer Anjungan (*Kiosk Printer Finally Block*):**
-   - Inisialisasi `$printer = null` dan penambahan pengecekan `if ($printer)` sebelum memanggil `$printer->close()` pada method `Surat::cetak_no_antrian()` di [Surat.php](file:///d:/public_html/donjo-app/controllers/fmandiri/Surat.php).
+   - Inisialisasi `$printer = null` dan penambahan pengecekan `if ($printer)` sebelum memanggil `$printer->close()` pada method `Surat::cetak_no_antrian()` di `donjo-app/controllers/fmandiri/Surat.php`.
    - Mencegah fatal crash saat printer thermal anjungan sedang mati / offline.
 
 5. **Proteksi Anti-DoS pada `install_ocr.php`:**
-   - Menambahkan pre-check deteksi engine aktif dan membatasi eksekusi perintah pip hanya melalui metode HTTP `POST` dengan tombol konfirmasi eksplisit pada [install_ocr.php](file:///d:/public_html/install_ocr.php).
+   - Menambahkan pre-check deteksi engine aktif dan membatasi eksekusi perintah pip hanya melalui metode HTTP `POST` dengan tombol konfirmasi eksplisit pada `install_ocr.php`.
    - Mencegah bot/crawler yang mengakses file via `GET` memicu loop instalasi pip yang menghabiskan sumber daya CPU/RAM server.
 
 6. **Optimasi Performa Query Skema & Kehadiran (Tanpa Mengubah Struktur Database):**
-   - Men-cache pengecekan skema kolom tabel `anjungan`, tabel `pesan`/`pesan_detail`, dan kolom `log_surat` per sesi di [donjo-app/core/MY_Controller.php](file:///d:/public_html/donjo-app/core/MY_Controller.php).
+   - Men-cache pengecekan skema kolom tabel `anjungan`, tabel `pesan`/`pesan_detail`, dan kolom `log_surat` per sesi di `donjo-app/core/MY_Controller.php`.
    - Membatasi eksekusi `cek_kehadiran()` secara berkala (tiap 10 menit), mengeliminasi query `SHOW TABLES` dan `SHOW COLUMNS` berulang pada setiap pemuatan halaman tanpa mengubah tabel database sama sekali.
 
 #### Pembersihan Kode Mati (*Lean Code Cleanup*)
 
 1. Menghapus berkas duplikat `assets/filemanager/UploadHandlerAsli.php` (-1.596 baris kode).
-2. Menghapus fungsi helper tidak terpakai `UploadGambarWidget()` pada [donjo-app/helpers/pict_helper.php](file:///d:/public_html/donjo-app/helpers/pict_helper.php).
+2. Menghapus fungsi helper tidak terpakai `UploadGambarWidget()` pada `donjo-app/helpers/pict_helper.php`.
 3. Membersihkan seluruh 17 berkas cadangan `.bak` pada direktori `donjo-app/controllers/fmandiri/` dan `donjo-app/views/fmandiri/`.
 
 ---
@@ -90,21 +90,21 @@ Rilis ini memuat dukungan penuh lingkungan PHP 8.2 (Dual-Support PHP 7.4 & PHP 8
 2. **Perbaikan Kompatibilitas Tema Website Publik:**
    - Perbaikan TypeError `count(): Argument #1 ($value) must be of type Countable|array, null given` pada 12 berkas tema website desa (`template.php`, `slider.php`, arsip, artikel, widget) dengan beralih ke pengecekan `!empty()`.
 3. **Perbaikan Modul Statistik Kependudukan & Laporan Rentan:**
-   - Perbaikan fatal error `Undefined constant "id"` pada tautan data rincian [statistik/penduduk.php](file:///d:/public_html/donjo-app/views/statistik/penduduk.php) (`$data[id]` diganti menjadi `$data['id']`).
-   - Perbaikan fatal error `Unsupported operand types: string + int` pada [laporan/kelompok.php](file:///d:/public_html/donjo-app/views/laporan/kelompok.php), `kelompok_excel.php`, dan `kelompok_print.php` akibat penimpaan variabel akumulator `$cacat` oleh loop `foreach ($jenis_cacat as $key => $cacat)`.
+   - Perbaikan fatal error `Undefined constant "id"` pada tautan data rincian `donjo-app/views/statistik/penduduk.php` (`$data[id]` diganti menjadi `$data['id']`).
+   - Perbaikan fatal error `Unsupported operand types: string + int` pada `donjo-app/views/laporan/kelompok.php`, `kelompok_excel.php`, dan `kelompok_print.php` akibat penimpaan variabel akumulator `$cacat` oleh loop `foreach ($jenis_cacat as $key => $cacat)`.
 4. **Perbaikan Modul Dokumen Sekretariat & Pengaturan Grup:**
-   - Perbaikan fatal error `Undefined constant "id"` pada berkas [dokumen/table.php](file:///d:/public_html/donjo-app/views/dokumen/table.php), [dokumen/table_dokumen.php](file:///d:/public_html/donjo-app/views/dokumen/table_dokumen.php), dan [grup/table.php](file:///d:/public_html/donjo-app/views/grup/table.php).
+   - Perbaikan fatal error `Undefined constant "id"` pada berkas `donjo-app/views/dokumen/table.php`, `donjo-app/views/dokumen/table_dokumen.php`, dan `donjo-app/views/grup/table.php`.
 5. **Perbaikan Seluruh Submenu Modul Analisis (8 Submenu):**
-   - Perbaikan TypeError `count(): Argument #1 must be Countable, null given` saat `$list_error` bernilai null pada modal impor analisis [modal_hasil_import.php](file:///d:/public_html/donjo-app/views/analisis_master/modal_hasil_import.php) yang sebelumnya menyebabkan seluruh submenu analisis gagal dimuat.
+   - Perbaikan TypeError `count(): Argument #1 must be Countable, null given` saat `$list_error` bernilai null pada modal impor analisis `donjo-app/views/analisis_master/modal_hasil_import.php` yang sebelumnya menyebabkan seluruh submenu analisis gagal dimuat.
 6. **Perbaikan Pembagian Nol (DivisionByZeroError) pada Modul Lapak, Pengaduan, & Pendapat:**
-   - Penambahan proteksi `!empty($total)` pada perhitungan persentase progres bar di [lapak_admin/navigasi.php](file:///d:/public_html/donjo-app/views/lapak_admin/navigasi.php), [pengaduan_admin/navigasi.php](file:///d:/public_html/donjo-app/views/pengaduan_admin/navigasi.php), dan [pendapat/index.php](file:///d:/public_html/donjo-app/views/pendapat/index.php) saat data masih bernilai nol (0).
+   - Penambahan proteksi `!empty($total)` pada perhitungan persentase progres bar di `donjo-app/views/lapak_admin/navigasi.php`, `donjo-app/views/pengaduan_admin/navigasi.php`, dan `donjo-app/views/pendapat/index.php` saat data masih bernilai nol (0).
 7. **Perbaikan Admin Web / Artikel (`/web`):**
    - Perbaikan fatal error `Non-static method App\Models\UserGrup::getGrupSistem() cannot be called statically` dengan menambahkan deklarasi `public static function getGrupSistem()` pada model `App\Models\UserGrup`.
 8. **Perbaikan Halaman Statistik Pengunjung (`/pengunjung`):**
    - Penyesuaian typehint `function getBulan($bln)` pada `donjolib_helper.php` agar kompatibel menerima nilai string numerik maupun integer tanpa memicu TypeError.
 9. **Perbaikan Deadlock Server & Kueri MySQL 8.4 pada Modul Pendapat:**
-   - Penanganan loopback deadlock pada helper `to_base64()` di [pict_helper.php](file:///d:/public_html/donjo-app/helpers/pict_helper.php): konversi otomatis URL localhost ke path filesystem lokal `FCPATH` untuk mencegah server terkunci saat membaca aset internal.
-   - Perbaikan kueri filter tanggal MySQL 8.4 pada [Pendapat_model.php](file:///d:/public_html/donjo-app/models/Pendapat_model.php) dari sintaks tidak valid `tanggal != 'NOT NULL'` menjadi kueri datetime standar `DATE(tanggal) >= '1970-01-01'`.
+   - Penanganan loopback deadlock pada helper `to_base64()` di `donjo-app/helpers/pict_helper.php`: konversi otomatis URL localhost ke path filesystem lokal `FCPATH` untuk mencegah server terkunci saat membaca aset internal.
+   - Perbaikan kueri filter tanggal MySQL 8.4 pada `donjo-app/models/Pendapat_model.php` dari sintaks tidak valid `tanggal != 'NOT NULL'` menjadi kueri datetime standar `DATE(tanggal) >= '1970-01-01'`.
 10. **Perbaikan Null-Safety pada Admin Controller:**
     - Penanganan akses properti aman pada `$this->session->isAdmin->pamong` dan query pengguna pada `MY_Controller.php` dan `User_model.php` untuk mencegah fatal error `Attempt to read property on null`.
 
