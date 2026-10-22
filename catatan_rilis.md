@@ -26,7 +26,7 @@ Rilis perbaikan (*security & stability patch*) berdasarkan hasil audit mendalam 
 
 5. **Peningkatan Keamanan & Deteksi Pintar pada `install_ocr.php`:**
    - Menambahkan deteksi otomatis status engine RapidOCR & ONNX Runtime (multi-platform Windows/Linux): tombol unduh & pasang otomatis disembunyikan jika engine sudah aktif terpasang.
-   - Menambahkan tombol 1-Click **Hapus File `install_ocr.php`** dengan konfirmasi dialog agar file installer dapat langsung dimusnahkan secara aman dari server setelah instalasi selesai.
+   - Menambahkan dialog **Popup Modal Otomatis Wajib** saat halaman dibuka jika engine terdeteksi sudah aktif, yang mewajibkan penekanan tombol **Hapus File `install_ocr.php`** (`unlink`) tanpa opsi lewati demi keamanan mutlak server desa.
    - Membatasi eksekusi instalasi pip hanya melalui metode HTTP `POST` dengan tombol konfirmasi eksplisit untuk mencegah bot/crawler memicu loop instalasi yang menghabiskan CPU/RAM server.
 
 6. **Optimasi Performa Query Skema & Kehadiran (Tanpa Mengubah Struktur Database):**
