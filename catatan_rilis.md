@@ -24,9 +24,10 @@ Rilis perbaikan (*security & stability patch*) berdasarkan hasil audit mendalam 
    - Inisialisasi `$printer = null` dan penambahan pengecekan `if ($printer)` sebelum memanggil `$printer->close()` pada method `Surat::cetak_no_antrian()` di `donjo-app/controllers/fmandiri/Surat.php`.
    - Mencegah fatal crash saat printer thermal anjungan sedang mati / offline.
 
-5. **Proteksi Anti-DoS pada `install_ocr.php`:**
-   - Menambahkan pre-check deteksi engine aktif dan membatasi eksekusi perintah pip hanya melalui metode HTTP `POST` dengan tombol konfirmasi eksplisit pada `install_ocr.php`.
-   - Mencegah bot/crawler yang mengakses file via `GET` memicu loop instalasi pip yang menghabiskan sumber daya CPU/RAM server.
+5. **Peningkatan Keamanan & Deteksi Pintar pada `install_ocr.php`:**
+   - Menambahkan deteksi otomatis status engine RapidOCR & ONNX Runtime (multi-platform Windows/Linux): tombol unduh & pasang otomatis disembunyikan jika engine sudah aktif terpasang.
+   - Menambahkan tombol 1-Click **Hapus File `install_ocr.php`** dengan konfirmasi dialog agar file installer dapat langsung dimusnahkan secara aman dari server setelah instalasi selesai.
+   - Membatasi eksekusi instalasi pip hanya melalui metode HTTP `POST` dengan tombol konfirmasi eksplisit untuk mencegah bot/crawler memicu loop instalasi yang menghabiskan CPU/RAM server.
 
 6. **Optimasi Performa Query Skema & Kehadiran (Tanpa Mengubah Struktur Database):**
    - Men-cache pengecekan skema kolom tabel `anjungan`, tabel `pesan`/`pesan_detail`, dan kolom `log_surat` per sesi di `donjo-app/core/MY_Controller.php`.
