@@ -28,6 +28,10 @@ Rilis perbaikan (*security & stability patch*) berdasarkan hasil audit mendalam 
    - Menambahkan pre-check deteksi engine aktif dan membatasi eksekusi perintah pip hanya melalui metode HTTP `POST` dengan tombol konfirmasi eksplisit pada [install_ocr.php](file:///d:/public_html/install_ocr.php).
    - Mencegah bot/crawler yang mengakses file via `GET` memicu loop instalasi pip yang menghabiskan sumber daya CPU/RAM server.
 
+6. **Optimasi Performa Query Skema & Kehadiran (Tanpa Mengubah Struktur Database):**
+   - Men-cache pengecekan skema kolom tabel `anjungan`, tabel `pesan`/`pesan_detail`, dan kolom `log_surat` per sesi di [donjo-app/core/MY_Controller.php](file:///d:/public_html/donjo-app/core/MY_Controller.php).
+   - Membatasi eksekusi `cek_kehadiran()` secara berkala (tiap 10 menit), mengeliminasi query `SHOW TABLES` dan `SHOW COLUMNS` berulang pada setiap pemuatan halaman tanpa mengubah tabel database sama sekali.
+
 #### Pembersihan Kode Mati (*Lean Code Cleanup*)
 
 1. Menghapus berkas duplikat `assets/filemanager/UploadHandlerAsli.php` (-1.596 baris kode).

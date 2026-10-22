@@ -94,13 +94,24 @@ class MY_Controller extends CI_Controller
         $this->setting_model->init();
         $this->request = $this->input->post();
 
-        // Untuk anjungan
-        if (Schema::hasColumn('anjungan', 'tipe') && Schema::hasColumn('anjungan', 'status_alasan')) {
+        // Untuk anjungan (cache pengecekan kolom per sesi agar tidak membebani query di setiap request)
+        if ($this->session->has_anjungan_cols ?? null) {
+            $hasAnjungan = $this->session->has_anjungan_cols === 1;
+        } else {
+            $hasAnjungan = Schema::hasColumn('anjungan', 'tipe') && Schema::hasColumn('anjungan', 'status_alasan');
+            $this->session->set_userdata('has_anjungan_cols', $hasAnjungan ? 1 : 0);
+        }
+
+        if ($hasAnjungan) {
             $this->cek_anjungan = $this->anjungan_model->cek_anjungan();
         }
 
-        // Cek perangkat lupa absen keluar
-        cek_kehadiran();
+        // Cek perangkat lupa absen keluar (dibatasi berkala tiap 10 menit agar tidak membebani query publik)
+        $lastCekKehadiran = $this->session->last_cek_kehadiran ?? 0;
+        if ((time() - $lastCekKehadiran) > 600) {
+            cek_kehadiran();
+            $this->session->set_userdata('last_cek_kehadiran', time());
+        }
     }
 
     // Bersihkan session cluster wilayah
@@ -377,7 +388,11 @@ class Admin_Controller extends MY_Controller
                 redirect('main');
             }
         }
-        $cek_kotak_pesan                        = $this->db->table_exists('pesan') && $this->db->table_exists('pesan_detail');
+        $cek_kotak_pesan = $this->session->cek_kotak_pesan ?? null;
+        if ($cek_kotak_pesan === null) {
+            $cek_kotak_pesan = $this->db->table_exists('pesan') && $this->db->table_exists('pesan_detail');
+            $this->session->set_userdata('cek_kotak_pesan', (bool) $cek_kotak_pesan);
+        }
         $this->header['notif_permohonan_surat'] = $this->notif_model->permohonan_surat_baru();
         $this->header['notif_inbox']            = $this->notif_model->inbox_baru();
         $this->header['notif_komentar']         = $this->notif_model->komentar_baru();
@@ -386,7 +401,13 @@ class Admin_Controller extends MY_Controller
         $this->header['notif_pengumuman']       = ($kode_desa || $force) ? null : $this->cek_pengumuman();
         $isAdmin                                = is_object($this->session->isAdmin ?? null) ? ($this->session->isAdmin->pamong ?? null) : null;
         $this->header['notif_permohonan']       = 0;
-        if ($this->db->field_exists('verifikasi_operator', 'log_surat') && $this->db->field_exists('deleted_at', 'log_surat')) {
+
+        $cek_field_log_surat = $this->session->cek_field_log_surat ?? null;
+        if ($cek_field_log_surat === null) {
+            $cek_field_log_surat = $this->db->field_exists('verifikasi_operator', 'log_surat') && $this->db->field_exists('deleted_at', 'log_surat');
+            $this->session->set_userdata('cek_field_log_surat', (bool) $cek_field_log_surat);
+        }
+        if ($cek_field_log_surat) {
             $this->header['notif_permohonan'] = LogSurat::whereNull('deleted_at')->when($isAdmin && isset($isAdmin->jabatan_id) && $isAdmin->jabatan_id == kades()->id, static function ($q) {
                 return $q->when(setting('tte') == 1, static function ($tte) {
                     return $tte->where('verifikasi_kades', '=', 0)->orWhere('tte', '=', 0);
