@@ -27,6 +27,10 @@ Rilis perbaikan dan peningkatan pada modul impor data kependudukan dan penangana
    - Memperbaiki pemotongan cuplikan isi artikel pada `donjo-app/views/feed.php` dengan validasi panjang teks sebelum memanggil `strpos()` dengan offset 260.
    - Mengeliminasi fatal error `ValueError: strpos(): Argument #3 ($offset) must be contained in argument #1 ($haystack)` saat RSS feed diakses ketika ada artikel pendek (< 260 karakter).
 
+6. **Kepatuhan Favicon Google Search & Pembaruan Akses Favicon di `robots.txt`:**
+   - Menambahkan deklarasi `<link rel="icon">` dengan format SVG dan ukuran kelipatan 48px (96x96, 192x192, serta sizes="any") pada meta tema desa (`desa/themes/tema/commons/meta.php`) sesuai pedoman resmi Google Search Favicon Guidelines.
+   - Membuka izin perayapan pada `robots.txt` (`Allow: /desa/logo/`) agar `Googlebot-Favicon` dapat mengakses dan mengindeks aset favicon/logo desa beresolusi tinggi di direktori logo desa.
+
 ---
 
 ### Rilis v1.2.1 (Patch Keamanan IDOR, Stabilitas Login PHP 8.2 & Lean Code Cleanup)

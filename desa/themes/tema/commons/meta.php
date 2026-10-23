@@ -174,8 +174,14 @@ $current_url = html_escape($current_url);
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <meta name="apple-mobile-web-app-title" content="Desa Balongbesuk">
-    <!-- Favicon & App Icons -->
+    <!-- Favicon & App Icons (Standar Google Search & Multi-device) -->
     <link rel="shortcut icon" href="<?= favico_desa() ?>">
+    <link rel="icon" href="<?= favico_desa() ?>" sizes="any">
+    <?php if (is_file(FCPATH . 'desa/logo/favicon.svg')): ?>
+    <link rel="icon" type="image/svg+xml" href="<?= base_url('desa/logo/favicon.svg?v=' . md5_file(FCPATH . 'desa/logo/favicon.svg')) ?>">
+    <?php endif; ?>
+    <link rel="icon" type="image/png" sizes="192x192" href="<?= is_file(FCPATH . 'desa/logo/192x192.png') ? base_url('desa/logo/192x192.png?v=' . md5_file(FCPATH . 'desa/logo/192x192.png')) : base_url('web-app-manifest-192x192.png') ?>">
+    <link rel="icon" type="image/png" sizes="96x96" href="<?= is_file(FCPATH . 'favicon-96x96.png') ? base_url('favicon-96x96.png?v=' . md5_file(FCPATH . 'favicon-96x96.png')) : (is_file(FCPATH . 'desa/logo/192x192.png') ? base_url('desa/logo/192x192.png?v=' . md5_file(FCPATH . 'desa/logo/192x192.png')) : favico_desa()) ?>">
     <link rel="icon" type="image/png" sizes="32x32" href="<?= is_file(FCPATH . 'desa/logo/favicon-32x32.png') ? base_url('desa/logo/favicon-32x32.png?v=' . md5_file(FCPATH . 'desa/logo/favicon-32x32.png')) : favico_desa() ?>">
     <link rel="icon" type="image/png" sizes="16x16" href="<?= is_file(FCPATH . 'desa/logo/favicon-16x16.png') ? base_url('desa/logo/favicon-16x16.png?v=' . md5_file(FCPATH . 'desa/logo/favicon-16x16.png')) : favico_desa() ?>">
     <link rel="apple-touch-icon" sizes="180x180" href="<?= is_file(FCPATH . 'desa/logo/apple-touch-icon.png') ? base_url('desa/logo/apple-touch-icon.png?v=' . md5_file(FCPATH . 'desa/logo/apple-touch-icon.png')) : base_url('apple-touch-icon.png') ?>">
