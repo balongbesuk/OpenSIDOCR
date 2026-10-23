@@ -1150,7 +1150,7 @@ class Keluarga extends Admin_Controller
 
         $norm_pek = static function ($str) {
             $clean = strtoupper(trim(preg_replace('/\s+/', ' ', (string) $str)));
-            if ($clean === 'PEKERJAAN LAINNYA' || $clean === 'LAINNYA') {
+            if ($clean === 'PEKERJAAN LAINNYA' || $clean === 'LAINNYA' || strpos($clean, 'ANGGOTA LEMBAGA TINGGI') !== false || strpos($clean, 'LEMBAGA TINGGI') !== false) {
                 return 'lainnya';
             }
             if ($clean === 'PEGAWAI NEGERI SIPIL' || $clean === 'PNS' || $clean === 'PEGAWAI NEGERI SIPIL (PNS)' || strpos($clean, 'APARATUR SIPIL NEGARA') !== false || $clean === 'ASN' || strpos($clean, 'ASN') !== false) {
@@ -1200,6 +1200,10 @@ class Keluarga extends Admin_Controller
         unset($mem);
 
         foreach ($parsed['members'] as &$m) {
+            if (! empty($m['pekerjaan']) && (stripos($m['pekerjaan'], 'ANGGOTA LEMBAGA TINGGI') !== false || stripos($m['pekerjaan'], 'LEMBAGA TINGGI') !== false || stripos($m['pekerjaan'], 'PEKERJAAN LAINNYA') !== false)) {
+                $m['pekerjaan'] = 'LAINNYA';
+            }
+
             if (! empty($m['hubungan'])) {
                 $clean_hub = strtoupper(preg_replace('/[^A-Z]/', '', (string) $m['hubungan']));
                 if (in_array($clean_hub, ['FAMILY', 'FAMILI', 'FAMILILAIN', 'FAMILYLAIN', 'FAMILILAINNYA', 'FAMILYLAINNYA'])) {
@@ -1481,14 +1485,17 @@ class Keluarga extends Admin_Controller
             }
         }
 
+        $id_pekerjaan_lainnya = 89;
         $pekerjaan_rows = $this->db->get('tweb_penduduk_pekerjaan')->result_array();
         $ref_pekerjaan  = [];
         foreach ($pekerjaan_rows as $row) {
             $key                 = $norm_clean($row['nama']);
             $ref_pekerjaan[$key] = $row['id'];
 
-            if ($row['nama'] === 'LAINNYA') {
+            if ($row['nama'] === 'LAINNYA' || $row['nama'] === 'PEKERJAAN LAINNYA') {
+                $id_pekerjaan_lainnya                            = $row['id'];
                 $ref_pekerjaan[$norm_clean('PEKERJAAN LAINNYA')] = $row['id'];
+                $ref_pekerjaan[$norm_clean('LAINNYA')]           = $row['id'];
             }
             if (strpos($row['nama'], ' (PNS)') !== false || $row['nama'] === 'PEGAWAI NEGERI SIPIL') {
                 $ref_pekerjaan[$norm_clean(str_replace(' (PNS)', '', $row['nama']))] = $row['id'];
@@ -1506,6 +1513,11 @@ class Keluarga extends Admin_Controller
                 $ref_pekerjaan[$norm_clean('POLRI')]                                    = $row['id'];
             }
         }
+
+        $ref_pekerjaan[$norm_clean('ANGGOTA LEMBAGA TINGGI LAINNYA')] = $id_pekerjaan_lainnya;
+        $ref_pekerjaan[$norm_clean('ANGGOTA LEMBAGA TINGGI')]         = $id_pekerjaan_lainnya;
+        $ref_pekerjaan[$norm_clean('LEMBAGA TINGGI LAINNYA')]         = $id_pekerjaan_lainnya;
+        $ref_pekerjaan[$norm_clean('LEMBAGA TINGGI')]                 = $id_pekerjaan_lainnya;
 
         if (empty($ref_pekerjaan[$norm_clean('APARATUR SIPIL NEGARA (ASN)')])) {
             $ref_pekerjaan[$norm_clean('APARATUR SIPIL NEGARA (ASN)')] = 5;
@@ -1592,7 +1604,12 @@ class Keluarga extends Admin_Controller
             $sex_id          = $ref_sex[$norm_clean($m['sex'])] ?? 1;
             $agama_id        = $ref_agama[$norm_clean($m['agama'])] ?? 1;
             $pendidikan_id   = $ref_pendidikan[$norm_clean_pend($m['pendidikan'])] ?? 1;
-            $pekerjaan_id    = $ref_pekerjaan[$norm_clean($m['pekerjaan'])] ?? 1;
+            $clean_pek       = $norm_clean($m['pekerjaan']);
+            if (strpos($clean_pek, 'ANGGOTALEMBAGATINGGI') !== false || strpos($clean_pek, 'LEMBAGATINGGI') !== false || $clean_pek === 'PEKERJAANLAINNYA') {
+                $pekerjaan_id = $id_pekerjaan_lainnya;
+            } else {
+                $pekerjaan_id = $ref_pekerjaan[$clean_pek] ?? 1;
+            }
             $status_kawin_id = $ref_kawin[$norm_clean($m['status_kawin'])] ?? 1;
             $shdk_id         = $ref_shdk[$norm_clean($m['hubungan'])] ?? 4;
 
@@ -1799,7 +1816,9 @@ class Keluarga extends Admin_Controller
         if (! empty($parsed['pdf_file']) && file_exists(FCPATH . LOKASI_DOKUMEN . $parsed['pdf_file'])) {
             $id_pend_dok = $kepala_penduduk_id ?: ($members[0]['db_id'] ?? null);
             if ($id_pend_dok) {
+                $max_dok_id = $this->db->select_max('id')->get('dokumen')->row()->id ?? 0;
                 $this->db->insert('dokumen', [
+                    'id'         => $max_dok_id + 1,
                     'config_id'  => $config_id,
                     'satuan'     => $parsed['pdf_file'],
                     'nama'       => 'Kartu Keluarga ' . $header['no_kk'],

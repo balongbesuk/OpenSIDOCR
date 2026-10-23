@@ -96,6 +96,9 @@ class KkPdfParser
                 $agama        = $lines[$i + 4] ?? '';
                 $pendidikan   = $lines[$i + 5] ?? '';
                 $pekerjaan    = $lines[$i + 6] ?? '';
+                if (preg_match('/ANGGOTA\s*LEMBAGA\s*TINGGI/i', $pekerjaan) || preg_match('/LEMBAGA\s*TINGGI\s*LAINNYA/i', $pekerjaan) || preg_match('/PEKERJAAN\s*LAINNYA/i', $pekerjaan)) {
+                    $pekerjaan = 'LAINNYA';
+                }
                 $goldarah     = $lines[$i + 7] ?? '';
 
                 $members[$no] = [

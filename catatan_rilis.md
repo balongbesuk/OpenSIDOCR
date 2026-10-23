@@ -2,6 +2,25 @@ Aplikasi **OpenSIDOCR** merupakan pengembangan lanjutan dari **OpenSID versi 240
 
 ---
 
+### Rilis v1.2.2 (Pemetaan Pekerjaan Dukcapil Impor KK & Perbaikan Stabilitas Periksa Database)
+
+Rilis perbaikan dan peningkatan pada modul impor data kependudukan dan penanganan galat sistem:
+
+#### Peningkatan & Perbaikan BUG
+
+1. **Pemetaan Otomatis Pekerjaan Dukcapil KK ke Kategori "LAINNYA":**
+   - Menambahkan pemetaan jenis pekerjaan Dukcapil `"ANGGOTA LEMBAGA TINGGI LAINNYA"` (dan variasinya) ke kategori `"LAINNYA"` (ID 89) pada modul pembaca PDF (`KkPdfParser`), OCR scan (`KkScanOcrParser`), serta tampilan pratinjau dan fungsi penyimpanan KK pada controller `Keluarga`.
+   - Mengeliminasi peringatan perbedaan (*diff*) palsu pada halaman pratinjau dan mencegah status pekerjaan warga keliru tersimpan sebagai *"BELUM/TIDAK BEKERJA"*.
+
+2. **Pengarsipan Dokumen KK yang Lebih Tangguh (*Fail-safe*):**
+   - Menambahkan mekanisme penentuan ID cadangan (`max(id) + 1`) pada proses pengarsipan file KK elektronik ke tabel `dokumen` untuk mengantisipasi database tanpa atribut auto-increment.
+
+3. **Perbaikan Fatal Error HTTP 500 pada Halaman Periksa/Login di PHP 8.2:**
+   - Mendeklarasikan properti dan menginisialisasi `$this->setting = new \stdClass()` pada controller `Periksa`.
+   - Menghilangkan galat fatal PHP 8.2 `Attempt to assign property "sebutan_desa" on null` saat sistem mendiagnosa periksa data.
+
+---
+
 ### Rilis v1.2.1 (Patch Keamanan IDOR, Stabilitas Login PHP 8.2 & Lean Code Cleanup)
 
 Rilis perbaikan (*security & stability patch*) berdasarkan hasil audit mendalam Ponytail: perbaikan celah keamanan akses arsip surat (IDOR), mitigasi fatal error TypeError pada fungsi hash PIN di PHP 8.2, penanganan null-safety saat NIK tidak terdaftar, pencegahan unhandled exception pada printer anjungan, proteksi DoS pada script instalasi OCR, serta pembersihan ribuan baris kode sampah (*dead code*).

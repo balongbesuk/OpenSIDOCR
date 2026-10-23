@@ -1371,6 +1371,8 @@ PYTHON;
                     $pekerjaan = 'KEPALA DESA';
                 } elseif (strpos($upperLine, 'WIRASWASTA') !== false || strpos($upperLine, 'WIRA SWASTA') !== false) {
                     $pekerjaan = 'WIRASWASTA';
+                } elseif (preg_match('/ANGGOTA\s*LEMBAGA\s*TINGGI/i', $upperLine) || strpos($upperLine, 'LEMBAGA TINGGI') !== false || strpos($upperLine, 'PEKERJAAN LAIN') !== false) {
+                    $pekerjaan = 'LAINNYA';
                 } elseif (strpos($upperLine, 'KARYAWAN BUMN') !== false) {
                     $pekerjaan = 'KARYAWAN BUMN';
                 } elseif (strpos($upperLine, 'KARYAWAN BUMD') !== false) {
