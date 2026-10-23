@@ -23,6 +23,10 @@ Rilis perbaikan dan peningkatan pada modul impor data kependudukan dan penangana
    - Mengizinkan administrator yang sudah terautentikasi untuk langsung mengakses halaman `/periksa` tanpa dipaksa login ulang yang memicu proteksi *single-session* ("Akun sedang aktif di perangkat lain").
    - Memperbaiki pengecekan sesi aktif pada `User_model::siteman()` agar mengenali sesi peramban yang sama (`$isCurrentSession`) sehingga re-autentikasi tidak memicu false positive.
 
+5. **Mitigasi Fatal Error PHP 8.2 pada RSS Feed (`/feed`):**
+   - Memperbaiki pemotongan cuplikan isi artikel pada [feed.php](file:///d:/public_html/donjo-app/views/feed.php) dengan validasi panjang teks sebelum memanggil `strpos()` dengan offset 260.
+   - Mengeliminasi fatal error `ValueError: strpos(): Argument #3 ($offset) must be contained in argument #1 ($haystack)` saat RSS feed diakses ketika ada artikel pendek (< 260 karakter).
+
 ---
 
 ### Rilis v1.2.1 (Patch Keamanan IDOR, Stabilitas Login PHP 8.2 & Lean Code Cleanup)

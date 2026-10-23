@@ -545,7 +545,8 @@ function potong_teks($teks, $panjang)
 {
     $abstrak = fixTag($teks);
     if (strlen($abstrak) > $panjang + 10) {
-        $abstrak = substr($abstrak, 0, strpos($abstrak, ' ', $panjang));
+        $pos = strpos($abstrak, ' ', $panjang);
+        $abstrak = substr($abstrak, 0, $pos !== false ? $pos : $panjang);
     }
 
     return $abstrak;

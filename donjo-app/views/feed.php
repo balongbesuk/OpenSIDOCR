@@ -24,7 +24,16 @@
                         <?php if (is_file(LOKASI_FOTO_ARTIKEL . "sedang_{$key->gambar}")): ?>
                             <img src="<?= base_url(LOKASI_FOTO_ARTIKEL . "sedang_{$key->gambar}") ?>" />
                         <?php endif; ?>
-                        <?= htmlentities(strip_tags(substr($key->isi, 0, max(strpos($key->isi, ' ', 260), 200))) . '[...]'); ?>
+                        <?php
+                            $teks_bersih = strip_tags((string) $key->isi);
+                            if (strlen($teks_bersih) > 260) {
+                                $pos = strpos($teks_bersih, ' ', 260);
+                                $cuplikan = ($pos !== false ? substr($teks_bersih, 0, $pos) : substr($teks_bersih, 0, 260)) . ' [...]';
+                            } else {
+                                $cuplikan = $teks_bersih;
+                            }
+                        ?>
+                        <?= htmlentities($cuplikan); ?>
                     ]]>
                 </description>
                 <content:encoded>
