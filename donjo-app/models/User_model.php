@@ -155,9 +155,11 @@ class User_model extends MY_Model
             if ($timeoutMinutes <= 0) {
                 $timeoutMinutes = 120;
             }
-            $idleTimeout  = $timeoutMinutes * 60;
-            $lastActivity = $user->last_login ? strtotime($user->last_login) : 0;
-            $isActive     = ! empty($user->session) && ((time() - $lastActivity) < $idleTimeout);
+            $idleTimeout      = $timeoutMinutes * 60;
+            $lastActivity     = $user->last_login ? strtotime($user->last_login) : 0;
+            $isCurrentSession = (! empty($this->session->sesi) && $user->session === $this->session->sesi)
+                || (! empty($this->session->user) && (int) $this->session->user === (int) $user->id);
+            $isActive         = ! empty($user->session) && ! $isCurrentSession && ((time() - $lastActivity) < $idleTimeout);
 
             if ($isActive) {
                 $durasiTeks = $timeoutMinutes >= 60 ? ($timeoutMinutes / 60) . ' jam' : $timeoutMinutes . ' menit';

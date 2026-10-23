@@ -19,6 +19,10 @@ Rilis perbaikan dan peningkatan pada modul impor data kependudukan dan penangana
    - Mendeklarasikan properti dan menginisialisasi `$this->setting = new \stdClass()` pada controller `Periksa`.
    - Menghilangkan galat fatal PHP 8.2 `Attempt to assign property "sebutan_desa" on null` saat sistem mendiagnosa periksa data.
 
+4. **Pencegahan Bentrok Sesi Login Ganda pada Halaman Periksa:**
+   - Mengizinkan administrator yang sudah terautentikasi untuk langsung mengakses halaman `/periksa` tanpa dipaksa login ulang yang memicu proteksi *single-session* ("Akun sedang aktif di perangkat lain").
+   - Memperbaiki pengecekan sesi aktif pada `User_model::siteman()` agar mengenali sesi peramban yang sama (`$isCurrentSession`) sehingga re-autentikasi tidak memicu false positive.
+
 ---
 
 ### Rilis v1.2.1 (Patch Keamanan IDOR, Stabilitas Login PHP 8.2 & Lean Code Cleanup)

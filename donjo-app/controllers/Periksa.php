@@ -60,8 +60,17 @@ class Periksa extends CI_Controller
         $this->latar_login = default_file(LATAR_LOGIN . $this->periksa_model->getSetting('latar_login'), DEFAULT_LATAR_SITEMAN);
     }
 
+    private function sudah_login_admin()
+    {
+        return $this->session->siteman == 1 && $this->session->grup == UserGrup::getGrupId(UserGrup::ADMINISTRATOR);
+    }
+
     public function index()
     {
+        if ($this->sudah_login_admin()) {
+            $this->session->periksa_data = 1;
+        }
+
         if ($this->session->periksa_data != 1) {
             redirect('periksa/login');
         }
@@ -76,6 +85,10 @@ class Periksa extends CI_Controller
 
     public function perbaiki()
     {
+        if ($this->sudah_login_admin()) {
+            $this->session->periksa_data = 1;
+        }
+
         if ($this->session->periksa_data != 1) {
             redirect('periksa/login');
         }
@@ -87,6 +100,10 @@ class Periksa extends CI_Controller
 
     public function perbaiki_sebagian($masalah)
     {
+        if ($this->sudah_login_admin()) {
+            $this->session->periksa_data = 1;
+        }
+
         if ($this->session->periksa_data != 1) {
             redirect('periksa/login');
         }
@@ -99,7 +116,8 @@ class Periksa extends CI_Controller
     // Login khusus untuk periksa
     public function login()
     {
-        if ($this->session->periksa_data == 1) {
+        if ($this->sudah_login_admin() || $this->session->periksa_data == 1) {
+            $this->session->periksa_data = 1;
             redirect('periksa');
         }
 
@@ -123,6 +141,11 @@ class Periksa extends CI_Controller
         if (! in_array($method, $allow_method)) {
             redirect('periksa/login');
         }
+        if ($this->sudah_login_admin()) {
+            $this->session->periksa_data = 1;
+            redirect('periksa');
+        }
+
         $this->user_model->siteman();
 
         if ($this->session->siteman != 1) {
