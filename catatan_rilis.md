@@ -21,6 +21,11 @@ Rilis pembersihan kode terselubung (*obfuscated code*) pada modul Anjungan Layan
      * Controller `Database`: method `inkremental_job()`, `inkremental_download()`, dan `batal_backup()`.
    - Mencegah staf/operator dengan hak akses terbatas mengeksekusi pengubahan pengaturan status desa (IDM/BPS) maupun manipulasi proses backup database melalui pemanggilan URL langsung.
 
+3. **Proteksi Penguncian Pengguna / User Lock dari Serangan CSRF via GET (Referensi Issue #12078):**
+   - Menambahkan validasi host `Referer` (`cek_referer()`) pada method `user_lock()` dan `user_unlock()` di controller `Man_user` untuk memblokir pemicuan aksi mutasi via link atau redirect dari situs web eksternal (*top-level navigation CSRF*).
+   - Menambahkan pengamanan backend agar akun berstatus Super Admin (`super_admin()`) kebal dan tidak dapat dinonaktifkan via pemanggilan langsung method `user_lock`.
+   - Mengubah pemicu tombol aktifkan/nonaktifkan pada antarmuka manajemen pengguna (`manajemen_user_table.php`) menjadi modal dialog konfirmasi eksplisit (`#confirm-status`) guna mencegah eksekusi aksi secara tidak disengaja oleh administrator.
+
 ---
 
 ### Rilis v1.2.2 (Pemetaan Pekerjaan Dukcapil Impor KK & Perbaikan Stabilitas Periksa Database)

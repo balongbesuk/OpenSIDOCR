@@ -122,9 +122,9 @@
 																	<?php if ($data['id'] !== super_admin()) : ?>
 																		<?php if (can('u')) : ?>
 																			<?php if ($data['active'] == '0') : ?>
-																				<a href="<?= site_url('man_user/user_unlock/' . $data['id']) ?>" class="btn bg-navy btn-flat btn-sm" title="Aktifkan Pengguna"><i class="fa fa-lock">&nbsp;</i></a>
+																				<a href="#" data-href="<?= site_url('man_user/user_unlock/' . $data['id']) ?>" class="btn bg-navy btn-flat btn-sm" title="Aktifkan Pengguna" data-toggle="modal" data-target="#confirm-status" data-body="Apakah Anda yakin ingin mengaktifkan pengguna ini?"><i class="fa fa-lock">&nbsp;</i></a>
 																			<?php elseif ($data['active'] == '1') : ?>
-																				<a href="<?= site_url('man_user/user_lock/' . $data['id']) ?>" class="btn bg-navy btn-flat btn-sm" title="Non Aktifkan Pengguna"><i class="fa fa-unlock"></i></a>
+																				<a href="#" data-href="<?= site_url('man_user/user_lock/' . $data['id']) ?>" class="btn bg-navy btn-flat btn-sm" title="Non Aktifkan Pengguna" data-toggle="modal" data-target="#confirm-status" data-body="Apakah Anda yakin ingin menonaktifkan pengguna ini?"><i class="fa fa-unlock"></i></a>
 																			<?php endif; ?>
 																		<?php endif; ?>
 																		<?php if (can('h')) : ?>
@@ -162,3 +162,4 @@
 	</section>
 </div>
 <?php $this->load->view('global/confirm_delete'); ?>
+<?php $this->load->view('global/konfirmasi', ['pertanyaan' => 'Apakah Anda yakin?']); ?>

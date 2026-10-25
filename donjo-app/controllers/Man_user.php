@@ -225,6 +225,12 @@ class Man_user extends Admin_Controller
     public function user_lock($id = '')
     {
         $this->redirect_hak_akses('u');
+        $this->cek_referer();
+
+        if ($id == super_admin()) {
+            redirect_with('error', 'Pengguna Super Admin tidak dapat dinonaktifkan.', 'man_user');
+        }
+
         $this->user_model->user_lock($id, 0);
         redirect('man_user');
     }
@@ -232,7 +238,22 @@ class Man_user extends Admin_Controller
     public function user_unlock($id = '')
     {
         $this->redirect_hak_akses('u');
+        $this->cek_referer();
         $this->user_model->user_lock($id, 1);
         redirect('man_user');
+    }
+
+    private function cek_referer()
+    {
+        $referer      = $_SERVER['HTTP_REFERER'] ?? '';
+        $referer_host = parse_url($referer, PHP_URL_HOST) ?? '';
+        $server_host  = parse_url(site_url(), PHP_URL_HOST) ?: ($_SERVER['HTTP_HOST'] ?? '');
+
+        $referer_host = explode(':', $referer_host)[0];
+        $server_host  = explode(':', $server_host)[0];
+
+        if (empty($referer) || strcasecmp($referer_host, $server_host) !== 0) {
+            redirect_with('error', 'Akses tidak diizinkan.', 'man_user');
+        }
     }
 }
