@@ -1,5 +1,20 @@
 Aplikasi **OpenSIDOCR** merupakan pengembangan lanjutan dari **OpenSID versi 2403.0.0** dan seterusnya oleh Pemerintah Desa Balongbesuk ([balongbesuk/OpenSIDOCR](https://github.com/balongbesuk/OpenSIDOCR)).
 
+### Rilis v1.2.3 (Pembersihan Obfuscation Modul Anjungan & Eliminasi False Positive Antivirus Cloud)
+
+Rilis pembersihan kode terselubung (*obfuscated code*) pada modul Anjungan Layanan Mandiri untuk mengeliminasi peringatan ancaman Fatal/Malicious pada Tencent Cloud CWPP / Antivirus Server:
+
+#### Keamanan & Kualitas Kode (*Clean Code*)
+
+1. **Deobfuscasi Modul Anjungan Mandiri & Eliminasi False Positive Antivirus:**
+   - Membongkar dan membersihkan pembungkus obfuscation (`eval()`, `base64_decode()`, `gzuncompress()`, dynamic lambda, dan ribuan baris padding spasi kosong) bawaan upstream OpenSID pada modul Anjungan:
+     * `donjo-app/controllers/Anjungan.php`
+     * `donjo-app/controllers/Anjungan_menu.php`
+     * `donjo-app/controllers/Anjungan_pengaturan.php`
+     * `donjo-app/helpers/cek_helper.php`
+   - Menghilangkan tanda tangan (*signature*) webshell/dropper yang memicu alarm keamanan level "Fatal Malicious" pada Tencent Cloud Host Security (CWPP Alert ID: 2700000014482) dan scanner keamanan server lainnya.
+   - Mengembalikan kode menjadi PHP polos standar berlisensi GPL V3 yang transparan, mudah diaudit, dan dieksekusi secara native oleh PHP engine tanpa overhead dekompresi memori runtime.
+
 ---
 
 ### Rilis v1.2.2 (Pemetaan Pekerjaan Dukcapil Impor KK & Perbaikan Stabilitas Periksa Database)
