@@ -26,6 +26,11 @@ Rilis pembersihan kode terselubung (*obfuscated code*) pada modul Anjungan Layan
    - Menambahkan pengamanan backend agar akun berstatus Super Admin (`super_admin()`) kebal dan tidak dapat dinonaktifkan via pemanggilan langsung method `user_lock`.
    - Mengubah pemicu tombol aktifkan/nonaktifkan pada antarmuka manajemen pengguna (`manajemen_user_table.php`) menjadi modal dialog konfirmasi eksplisit (`#confirm-status`) guna mencegah eksekusi aksi secara tidak disengaja oleh administrator.
 
+4. **Proteksi Perubahan Status Permohonan Surat dari CSRF via GET & Bypass Alur (Referensi Issue #12077):**
+   - Menambahkan guard otorisasi per-aksi (`$this->redirect_hak_akses('u')`) dan validasi host `Referer` (`cek_referer()`) pada method `proses()` dan `kirim_pesan()` di controller `Permohonan_surat_admin`.
+   - Mengunci perubahan status *Belum Lengkap* (0) dan *Dibatalkan* (5) agar tidak dapat dipicu langsung via URL GET, melainkan wajib melalui alur form dialog konfirmasi pesan dengan alasan penolakan/kekurangan.
+   - Mengubah tombol aksi status pada tabel DataTables permohonan surat (`index.blade.php`) menggunakan modal konfirmasi interaktif (`#confirm-status`) guna mencegah eksekusi mutasi status yang tidak disengaja.
+
 ---
 
 ### Rilis v1.2.2 (Pemetaan Pekerjaan Dukcapil Impor KK & Perbaikan Stabilitas Periksa Database)

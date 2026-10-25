@@ -76,10 +76,10 @@ class Permohonan_surat_admin extends Admin_Controller
                             if (in_array($row->surat->jenis, FormatSurat::TINYMCE) && (setting('verifikasi_sekdes') || setting('verifikasi_kades'))) {
                                 $aksi .= '<a class="btn btn-social bg-purple btn-flat btn-sm btn-proses" title="Surat Menunggu Tandatangan" style="width: 170px"><i class="fa fa-edit"></i>' . PermohonanSurat::STATUS_PERMOHONAN[PermohonanSurat::MENUNGGU_TANDA_TANGAN] . '</a> ';
                             } else {
-                                $aksi .= '<a href="' . route("permohonan_surat_admin/proses/{$row->id}/3") . '" class="btn btn-social bg-purple btn-flat btn-sm" title="Surat Menunggu Tandatangan" style="width: 170px"><i class="fa fa-edit"></i>' . PermohonanSurat::STATUS_PERMOHONAN[PermohonanSurat::MENUNGGU_TANDA_TANGAN] . '</a> ';
+                                $aksi .= '<a href="#" data-href="' . route("permohonan_surat_admin/proses/{$row->id}/3") . '" class="btn btn-social bg-purple btn-flat btn-sm" title="Surat Menunggu Tandatangan" data-toggle="modal" data-target="#confirm-status" data-body="Apakah Anda yakin ingin memproses status surat ini menjadi Siap Diambil?" style="width: 170px"><i class="fa fa-edit"></i>' . PermohonanSurat::STATUS_PERMOHONAN[PermohonanSurat::MENUNGGU_TANDA_TANGAN] . '</a> ';
                             }
                         } elseif ($row->status == PermohonanSurat::SIAP_DIAMBIL) {
-                            $aksi .= '<a href="' . route("permohonan_surat_admin/proses/{$row->id}/4") . '" class="btn btn-social bg-orange btn-flat btn-sm pesan-hover" title="Klik jika telah diambil" style="width: 170px"><i class="fa fa-thumbs-o-up"></i>' . PermohonanSurat::STATUS_PERMOHONAN[PermohonanSurat::SIAP_DIAMBIL] . '</a> ';
+                            $aksi .= '<a href="#" data-href="' . route("permohonan_surat_admin/proses/{$row->id}/4") . '" class="btn btn-social bg-orange btn-flat btn-sm pesan-hover" title="Klik jika telah diambil" data-toggle="modal" data-target="#confirm-status" data-body="Apakah Anda yakin surat ini sudah diambil oleh warga?" style="width: 170px"><i class="fa fa-thumbs-o-up"></i>' . PermohonanSurat::STATUS_PERMOHONAN[PermohonanSurat::SIAP_DIAMBIL] . '</a> ';
                         } elseif ($row->status == PermohonanSurat::SUDAH_DIAMBIL) {
                             $aksi .= '<a class="btn btn-social btn-success btn-flat btn-sm btn-proses" title="Surat Sudah Diambil" style="width: 170px"><i class="fa fa-check"></i>' . PermohonanSurat::STATUS_PERMOHONAN[PermohonanSurat::SUDAH_DIAMBIL] . '</a> ';
                         } else {
@@ -150,6 +150,14 @@ class Permohonan_surat_admin extends Admin_Controller
 
     public function proses($id = '', $status = '')
     {
+        $this->redirect_hak_akses('u');
+        $this->cek_referer();
+
+        // Status Belum Lengkap (0) dan Dibatalkan (5) wajib melalui alur kirim_pesan dengan alasan
+        if (in_array((int) $status, [PermohonanSurat::BELUM_LENGKAP, PermohonanSurat::DIBATALKAN], true) && ! $this->input->post('pesan')) {
+            redirect_with('error', 'Perubahan status ini harus melalui form konfirmasi pesan.', 'permohonan_surat_admin');
+        }
+
         $this->permohonan_surat_model->proses($id, $status);
 
         redirect('permohonan_surat_admin');
@@ -199,6 +207,9 @@ class Permohonan_surat_admin extends Admin_Controller
 
     public function kirim_pesan($id_permohonan = 0, $tipe = 0)
     {
+        $this->redirect_hak_akses('u');
+        $this->cek_referer();
+
         $periksa = $this->permohonan_surat_model->get_permohonan(['id' => $id_permohonan]);
         if (! $periksa) {
             redirect('permohonan_surat_admin');
@@ -241,5 +252,19 @@ class Permohonan_surat_admin extends Admin_Controller
             ];
         }
         $this->load->view('global/tampilkan', $data);
+    }
+
+    private function cek_referer()
+    {
+        $referer      = $_SERVER['HTTP_REFERER'] ?? '';
+        $referer_host = parse_url($referer, PHP_URL_HOST) ?? '';
+        $server_host  = parse_url(site_url(), PHP_URL_HOST) ?: ($_SERVER['HTTP_HOST'] ?? '');
+
+        $referer_host = explode(':', $referer_host)[0];
+        $server_host  = explode(':', $server_host)[0];
+
+        if (empty($referer) || strcasecmp($referer_host, $server_host) !== 0) {
+            redirect_with('error', 'Akses tidak diizinkan.', 'permohonan_surat_admin');
+        }
     }
 }

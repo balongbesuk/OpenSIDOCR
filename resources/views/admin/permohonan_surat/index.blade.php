@@ -50,6 +50,7 @@
     </div>
 
     @include('admin.layouts.components.konfirmasi_hapus')
+    @include('admin.layouts.components.konfirmasi', ['periksa_data' => true])
 @endsection
 @push('scripts')
     <script>
