@@ -131,6 +131,12 @@ class Database extends Admin_Controller
 
     public function inkremental_job()
     {
+        if (! can('u')) {
+            return json([
+                'status'  => false,
+                'message' => 'Akses tidak diizinkan',
+            ]);
+        }
         // cek tanggal
         // job hanya bisa dilakukan 1 hari 1 kali
         $now    = Carbon::now()->format('Y-m-d');
@@ -156,6 +162,7 @@ class Database extends Admin_Controller
 
     public function inkremental_download()
     {
+        $this->redirect_hak_akses('u');
         $file = LogBackup::latest()->first();
         $file->update(['downloaded_at' => Carbon::now(), 'status' => 2]);
         $za           = new FlxZipArchive();
@@ -245,6 +252,7 @@ class Database extends Admin_Controller
 
     public function batal_backup()
     {
+        $this->redirect_hak_akses('u');
         $this->load->library('job_prosess');
         // ambil semua data pid yang masih dalam prosess
         $last_backup = LogBackup::where('status', '=', 0)->get();

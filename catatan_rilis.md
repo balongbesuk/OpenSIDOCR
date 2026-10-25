@@ -15,6 +15,12 @@ Rilis pembersihan kode terselubung (*obfuscated code*) pada modul Anjungan Layan
    - Menghilangkan tanda tangan (*signature*) webshell/dropper yang memicu alarm keamanan level "Fatal Malicious" pada Tencent Cloud Host Security (CWPP Alert ID: 2700000014482) dan scanner keamanan server lainnya.
    - Mengembalikan kode menjadi PHP polos standar berlisensi GPL V3 yang transparan, mudah diaudit, dan dieksekusi secara native oleh PHP engine tanpa overhead dekompresi memori runtime.
 
+2. **Penutupan Celah Otorisasi Mutasi (CWE-862 - Referensi Issue #12080):**
+   - Memasang guard otorisasi per-aksi (`$this->redirect_hak_akses('u')` dan `can('u')`) pada seluruh endpoint mutasi sensitif yang sebelumnya tidak dilindungi:
+     * Controller `Status_desa`: method `simpan()`, `perbarui_idm()`, `perbarui_bps()`, dan `perbarui_sdgs()`.
+     * Controller `Database`: method `inkremental_job()`, `inkremental_download()`, dan `batal_backup()`.
+   - Mencegah staf/operator dengan hak akses terbatas mengeksekusi pengubahan pengaturan status desa (IDM/BPS) maupun manipulasi proses backup database melalui pemanggilan URL langsung.
+
 ---
 
 ### Rilis v1.2.2 (Pemetaan Pekerjaan Dukcapil Impor KK & Perbaikan Stabilitas Periksa Database)

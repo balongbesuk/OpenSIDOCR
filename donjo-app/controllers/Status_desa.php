@@ -72,6 +72,7 @@ class Status_desa extends Admin_Controller
 
     public function perbarui_idm(int $tahun)
     {
+        $this->redirect_hak_akses('u');
         if (cek_koneksi_internet() && $tahun) {
             $kode_desa = $this->header['desa']['kode_desa'];
             $cache     = 'idm_' . $tahun . '_' . $kode_desa . '.json';
@@ -100,6 +101,7 @@ class Status_desa extends Admin_Controller
 
     public function simpan(int $tahun)
     {
+        $this->redirect_hak_akses('u');
         SettingAplikasi::where('key', 'tahun_idm')->update(['value' => $tahun]);
         set_session('tahun', $tahun);
 
@@ -121,6 +123,12 @@ class Status_desa extends Admin_Controller
     public function perbarui_bps()
     {
         if ($this->input->is_ajax_request()) {
+            if (! can('u')) {
+                return json([
+                    'status'  => false,
+                    'message' => 'Akses tidak di ijinkan',
+                ]);
+            }
             $kode_bps = $this->request['kode_bps'];
             SettingAplikasi::where('key', 'kode_desa_bps')->update(['value' => $kode_bps]);
 
@@ -137,6 +145,7 @@ class Status_desa extends Admin_Controller
 
     public function perbarui_sdgs()
     {
+        $this->redirect_hak_akses('u');
         set_session('navigasi', 'sdgs');
 
         if (cek_koneksi_internet()) {
