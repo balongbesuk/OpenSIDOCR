@@ -31,6 +31,9 @@ Rilis pembersihan kode terselubung (*obfuscated code*) pada modul Anjungan Layan
    - Mengunci perubahan status *Belum Lengkap* (0) dan *Dibatalkan* (5) agar tidak dapat dipicu langsung via URL GET, melainkan wajib melalui alur form dialog konfirmasi pesan dengan alasan penolakan/kekurangan.
    - Mengubah tombol aksi status pada tabel DataTables permohonan surat (`index.blade.php`) menggunakan modal konfirmasi interaktif (`#confirm-status`) guna mencegah eksekusi mutasi status yang tidak disengaja.
 
+5. **Perbaikan Fatal Error PHP 8 pada Helper `case_replace()`:**
+   - Memperbaiki galat `TypeError: strlen(): Argument #1 ($string) must be of type string, array given` pada baris 543 di `donjo-app/helpers/general_helper.php` dengan mengganti argumen array `$matches` menjadi string `$match` serta melengkapi pengecekan batas string (*bounds check*) yang aman untuk PHP 8.x.
+
 ---
 
 ### Rilis v1.2.2 (Pemetaan Pekerjaan Dukcapil Impor KK & Perbaikan Stabilitas Periksa Database)

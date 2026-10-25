@@ -524,30 +524,39 @@ if (! function_exists('case_replace')) {
                 return preg_replace('/[\\[\\]]/', '', $match);
             }, $matches);
 
+            $match = $matches[0] ?? '';
+            $len   = strlen($match);
+
+            if ($len === 0) {
+                return $ke;
+            }
+
             // Huruf kecil semua
-            if (ctype_lower($matches[0][0])) {
+            if (ctype_lower($match[0])) {
                 return strtolower($ke);
             }
 
             // Huruf besar semua
-            if (ctype_upper($matches[0][0]) && ctype_upper($matches[0][1])) {
+            if (ctype_upper($match[0]) && isset($match[1]) && ctype_upper($match[1])) {
                 return strtoupper($ke);
             }
 
             // Huruf besar diawal kata
-            if (ctype_upper($matches[0][0]) && ctype_upper($matches[0][2])) {
+            if (ctype_upper($match[0]) && isset($match[2]) && ctype_upper($match[2])) {
                 return ucwords(strtolower($ke));
             }
 
             // Normal
-            if (ctype_upper($matches[0][0]) && ctype_upper($matches[0][strlen($matches) - 1])) {
+            if (ctype_upper($match[0]) && ctype_upper($match[$len - 1])) {
                 return $ke;
             }
 
             // Huruf besar diawal kalimat
-            if (ctype_upper($matches[0][0])) {
+            if (ctype_upper($match[0])) {
                 return ucfirst(strtolower($ke));
             }
+
+            return $ke;
         };
 
         $dari = str_replace('[', '\\[', $dari);
