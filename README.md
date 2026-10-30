@@ -6,7 +6,7 @@ Aplikasi **OpenSID Custom** ini merupakan versi modifikasi dari **OpenSID v2403.
 
 ## 📦 Tutorial Instalasi Engine RapidOCR
 
-Engine RapidOCR dapat terpasang di server Anda melalui salah satu dari **3 metode mudah** di bawah ini:
+Engine RapidOCR dapat terpasang di server Anda melalui salah satu dari **2 metode mudah** di bawah ini:
 
 ### 🌟 Metode 1: 1-Click Installer di Pop-up Modal OpenSID (Paling Mudah)
 1. Masuk ke halaman admin OpenSID $\rightarrow$ Menu **Kependudukan** $\rightarrow$ **Keluarga**.
@@ -19,18 +19,7 @@ Engine RapidOCR dapat terpasang di server Anda melalui salah satu dari **3 metod
 
 ---
 
-### 🌐 Metode 2: 1-Click Browser Installer (`install_ocr.php`)
-1. Unggah file `install_ocr.php` ke folder utama web hosting Anda (`public_html/install_ocr.php`).
-2. Akses file tersebut melalui browser:
-   ```text
-   https://domain-anda.com/install_ocr.php
-   ```
-3. Script akan otomatis mengunduh paket `rapidocr` (PP-OCRv4) & `opencv-python-headless` yang sesuai dengan OS server Anda via fungsi PHP `exec()`.
-4. Setelah muncul pesan **🎉 BERHASIL**, Anda dapat menghapus file `install_ocr.php` demi keamanan.
-
----
-
-### 💻 Metode 3: Instalasi Manual via Terminal SSH / Command Line
+### 💻 Metode 2: Instalasi Manual via Terminal SSH / Command Line
 Jika Anda memiliki akses terminal SSH di VPS/Server:
 - **Di Linux Server / VPS (Ubuntu / Debian / cPanel)**:
   ```bash
@@ -92,7 +81,7 @@ Jika Anda memiliki akses terminal SSH di VPS/Server:
 ---
 
 ## 🛠️ Versi Rilis & Spesifikasi Lingkungan
-- **Versi Rilis**: **v1.2.1** ([Lihat Catatan Rilis Lengkap](catatan_rilis.md))
+- **Versi Rilis**: **v1.2.3** ([Lihat Catatan Rilis Lengkap](catatan_rilis.md))
 - **Versi Basis**: **OpenSID v2403.0.0**
 - **Framework**: CodeIgniter 3
 - **Lingkungan PHP**: **PHP 7.4 & PHP 8.2** *(Dual-Compatibility)*
