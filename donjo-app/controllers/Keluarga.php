@@ -1016,6 +1016,11 @@ class Keluarga extends Admin_Controller
         $tmpFile = $_FILES['kk_scan']['tmp_name'];
         $ext     = strtolower(pathinfo($_FILES['kk_scan']['name'], PATHINFO_EXTENSION));
 
+        if (! in_array($ext, ['jpg', 'jpeg', 'png', 'pdf'], true)) {
+            session_error('Format berkas tidak diizinkan. Hanya berkas JPG, JPEG, PNG, dan PDF yang diperbolehkan.');
+            redirect('keluarga');
+        }
+
         $parsed = \App\Libraries\KkScanOcrParser::parseImage($tmpFile, $_FILES['kk_scan']['name']);
 
         if (empty($parsed['header']['no_kk']) && empty($parsed['members'])) {
@@ -1538,6 +1543,8 @@ class Keluarga extends Admin_Controller
             }
         }
 
+        $this->db->trans_start();
+
         // 1. Simpan/Update tweb_keluarga
         $is_new_kk           = false;
         $kepala_is_pendatang = false;
@@ -1834,6 +1841,13 @@ class Keluarga extends Admin_Controller
                     'created_by' => $this->session->user ?? 1,
                 ]);
             }
+        }
+
+        $this->db->trans_complete();
+
+        if ($this->db->trans_status() === false) {
+            set_session('error_msg', 'Gagal menyimpan data Kartu Keluarga ke database.');
+            redirect('keluarga');
         }
 
         $this->cache->hapus_cache_untuk_semua('_wilayah');

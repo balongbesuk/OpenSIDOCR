@@ -239,10 +239,12 @@ PYTHON;
             $missingPackages[] = 'opencv-python-headless';
         }
 
-        $isAvailable = $hasLocalBin || $engineWorks;
+        $hasGemini   = ! empty(self::getGeminiApiKey());
+        $isAvailable = $hasGemini || $hasLocalBin || $engineWorks;
 
         return [
             'is_available'     => $isAvailable,
+            'has_gemini'       => $hasGemini,
             'has_exec'         => $hasExec,
             'has_python'       => $hasPython,
             'python_binary'    => $pythonBinary,
@@ -259,6 +261,10 @@ PYTHON;
 
     public static function isAvailable(): bool
     {
+        if (! empty(self::getGeminiApiKey())) {
+            return true;
+        }
+
         $bin = self::getRapidOcrBinary();
         if (file_exists($bin)) {
             return true;
@@ -267,6 +273,218 @@ PYTHON;
         $info = self::getEngineInfo();
 
         return ! empty($info['is_available']);
+    }
+
+    /**
+     * Ambil Google AI / Gemini API Key dari sesi form, setting database, config, atau env
+     */
+    public static function getGeminiApiKey(): string
+    {
+        $sessionKey = get_instance()->session->userdata('gemini_ocr_api_key') ?? '';
+        if (! empty($sessionKey)) {
+            return trim($sessionKey);
+        }
+
+        if (function_exists('setting') && setting('gemini_api_key')) {
+            return trim(setting('gemini_api_key'));
+        }
+
+        $cfgKey = config_item('gemini_api_key') ?? '';
+        if (! empty($cfgKey)) {
+            return trim($cfgKey);
+        }
+
+        return trim(getenv('GEMINI_API_KEY') ?: ($_SERVER['GEMINI_API_KEY'] ?? ''));
+    }
+
+    /**
+     * Parse Kartu Keluarga via Google Gemini Multimodal Vision API (Gemini 2.5 Flash / Flash Lite)
+     * 100% cloud AI, tanpa beban CPU/RAM server hosting, tanpa Python/ONNX.
+     */
+    public static function parseViaGemini(string $imagePath, string $apiKey = ''): array
+    {
+        $key = $apiKey ?: self::getGeminiApiKey();
+        if (empty($key)) {
+            return [];
+        }
+
+        if (! file_exists($imagePath) || filesize($imagePath) < 100) {
+            return [];
+        }
+
+        $finfo = finfo_open(FILEINFO_MIME_TYPE);
+        $mime = $finfo ? finfo_file($finfo, $imagePath) : 'image/jpeg';
+        if ($finfo) {
+            finfo_close($finfo);
+        }
+        if (! in_array($mime, ['image/jpeg', 'image/png', 'image/webp', 'application/pdf'])) {
+            $mime = 'image/jpeg';
+        }
+
+        $base64 = base64_encode(file_get_contents($imagePath));
+
+        $prompt = <<<PROMPT
+Kamu adalah asisten entri data kependudukan Indonesia spesialis Kartu Keluarga (KK).
+Baca seluruh teks dari dokumen Kartu Keluarga ini secara presisi.
+Ekstrak data Header dan Tabel Anggota Keluarga dalam format JSON tunggal yang valid tanpa markdown code block.
+
+Format JSON yang WAJIB dipatuhi:
+{
+  "header": {
+    "no_kk": "16 digit angka No KK",
+    "kepala_keluarga": "NAMA KEPALA KELUARGA",
+    "alamat": "ALAMAT LENGKAP TANPA DUSUN/RT/RW",
+    "rt": "nomor RT (misal 01)",
+    "rw": "nomor RW (misal 02)",
+    "desa": "NAMA DESA/KELURAHAN",
+    "kecamatan": "NAMA KECAMATAN",
+    "kabupaten": "NAMA KABUPATEN/KOTA",
+    "provinsi": "NAMA PROVINSI",
+    "kode_pos": "KODE POS",
+    "tgl_cetak": "YYYY-MM-DD tanggal dikeluarkan/cetak KK"
+  },
+  "members": [
+    {
+      "nama": "NAMA LENGKAP",
+      "nik": "16 digit NIK",
+      "sex": "LAKI-LAKI atau PEREMPUAN",
+      "tempatlahir": "TEMPAT LAHIR",
+      "tanggallahir": "YYYY-MM-DD",
+      "agama": "ISLAM/KRISTEN/KATHOLIK/HINDU/BUDHA/KHONGHUCU",
+      "pendidikan": "Pendidikan KK (cth: TAMAT SD / SEDERAJAT, SLTP/SEDERAJAT, SLTA / SEDERAJAT, DIPLOMA IV/STRATA I, BELUM/TIDAK BEKERJA)",
+      "pekerjaan": "Pekerjaan (cth: BELUM/TIDAK BEKERJA, MENGURUS RUMAH TANGGA, PELAJAR/MAHASISWA, WIRASWASTA, PETANI/PEKEBUN, BURUH HARIAN LEPAS, KARYAWAN SWASTA, PNS)",
+      "golongan_darah": "A / B / AB / O / TIDAK TAHU",
+      "status_kawin": "BELUM KAWIN / KAWIN TERCATAT / KAWIN BELUM TERCATAT / CERAI HIDUP / CERAI MATI",
+      "tanggalperkawinan": "YYYY-MM-DD",
+      "hubungan": "KEPALA KELUARGA / SUAMI / ISTRI / ANAK / MENANTU / CUCU / ORANG TUA / MERTUA / FAMILI LAIN / PEMBANTU / LAINNYA",
+      "kewarganegaraan": "WNI",
+      "nama_ayah": "NAMA AYAH",
+      "nama_ibu": "NAMA IBU"
+    }
+  ]
+}
+PROMPT;
+
+        $body = [
+            'contents' => [
+                [
+                    'parts' => [
+                        ['text' => $prompt],
+                        [
+                            'inline_data' => [
+                                'mime_type' => $mime,
+                                'data'      => $base64,
+                            ],
+                        ],
+                    ],
+                ],
+            ],
+            'generationConfig' => [
+                'response_mime_type' => 'application/json',
+                'temperature'        => 0.1,
+            ],
+        ];
+
+        // Model aktif Google AI: Gemini 2.5 Flash, 2.5 Flash Lite, 2.0 Flash
+        $models = [
+            'gemini-2.5-flash',
+            'gemini-2.5-flash-lite',
+            'gemini-2.0-flash',
+        ];
+
+        $rawResponse = '';
+        $httpCode    = 0;
+        $lastErr     = '';
+
+        foreach ($models as $model) {
+            $url = "https://generativelanguage.googleapis.com/v1beta/models/{$model}:generateContent?key={$key}";
+
+            $ch = curl_init($url);
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+            curl_setopt($ch, CURLOPT_POST, true);
+            curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($body));
+            curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/json']);
+            curl_setopt($ch, CURLOPT_TIMEOUT, 60);
+
+            $rawResponse = curl_exec($ch);
+            $httpCode    = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+            $curlErr     = curl_error($ch);
+            curl_close($ch);
+
+            if ($httpCode === 200 && ! empty($rawResponse)) {
+                break;
+            }
+
+            $lastErr = "Model {$model} HTTP {$httpCode}: " . ($curlErr ?: substr((string) $rawResponse, 0, 250));
+        }
+
+        if ($httpCode !== 200 || empty($rawResponse)) {
+            self::$lastError = "Google AI Gemini Error ({$lastErr})";
+            log_message('error', self::$lastError);
+            return [];
+        }
+
+        $json = json_decode($rawResponse, true);
+        $textOut = $json['candidates'][0]['content']['parts'][0]['text'] ?? '';
+        if (empty($textOut)) {
+            self::$lastError = 'Google AI Gemini: Respon teks kosong';
+            return [];
+        }
+
+        $cleanJson = preg_replace('/^```(?:json)?\s*/i', '', trim($textOut));
+        $cleanJson = preg_replace('/\s*```$/', '', $cleanJson);
+
+        $parsed = json_decode($cleanJson, true);
+        if (! is_array($parsed) || empty($parsed['members'])) {
+            self::$lastError = 'Google AI Gemini: Gagal mem-parse JSON hasil ekstraksi';
+            return [];
+        }
+
+        $header = array_merge([
+            'no_kk'           => '',
+            'kepala_keluarga' => '',
+            'alamat'          => '',
+            'rt'              => '',
+            'rw'              => '',
+            'desa'            => '',
+            'kecamatan'       => '',
+            'kabupaten'       => '',
+            'provinsi'        => '',
+            'kode_pos'        => '',
+            'tgl_cetak'       => '',
+        ], $parsed['header'] ?? []);
+
+        $header['no_kk'] = preg_replace('/[^0-9]/', '', (string) $header['no_kk']);
+
+        $members = [];
+        foreach ($parsed['members'] as $m) {
+            $nik = preg_replace('/[^0-9]/', '', (string) ($m['nik'] ?? ''));
+            $members[] = [
+                'nama'              => strtoupper(trim((string) ($m['nama'] ?? ''))),
+                'nik'               => $nik,
+                'sex'               => strtoupper(trim((string) ($m['sex'] ?? ''))),
+                'tempatlahir'       => strtoupper(trim((string) ($m['tempatlahir'] ?? ''))),
+                'tanggallahir'      => trim((string) ($m['tanggallahir'] ?? '')),
+                'agama'             => strtoupper(trim((string) ($m['agama'] ?? 'ISLAM'))),
+                'pendidikan'        => strtoupper(trim((string) ($m['pendidikan'] ?? 'TAMAT SD / SEDERAJAT'))),
+                'pekerjaan'         => strtoupper(trim((string) ($m['pekerjaan'] ?? 'BELUM/TIDAK BEKERJA'))),
+                'golongan_darah'    => strtoupper(trim((string) ($m['golongan_darah'] ?? 'TIDAK TAHU'))),
+                'status_kawin'      => strtoupper(trim((string) ($m['status_kawin'] ?? 'BELUM KAWIN'))),
+                'tanggalperkawinan' => trim((string) ($m['tanggalperkawinan'] ?? '')),
+                'hubungan'          => strtoupper(trim((string) ($m['hubungan'] ?? 'ANAK'))),
+                'kewarganegaraan'   => strtoupper(trim((string) ($m['kewarganegaraan'] ?? 'WNI'))),
+                'nama_ayah'         => strtoupper(trim((string) ($m['nama_ayah'] ?? '-'))),
+                'nama_ibu'          => strtoupper(trim((string) ($m['nama_ibu'] ?? '-'))),
+            ];
+        }
+
+        self::$lastError = '';
+        return [
+            'header'   => $header,
+            'members'  => $members,
+            'raw_text' => $textOut,
+            'engine'   => 'gemini',
+        ];
     }
 
     /**
@@ -422,7 +640,7 @@ except Exception as e:
     sys.exit(1)
 PYTHON;
 
-        $scriptPath = sys_get_temp_dir() . '/ocr_preprocess_script.py';
+        $scriptPath = sys_get_temp_dir() . '/ocr_prep_' . md5(uniqid((string) mt_rand(), true)) . '.py';
         file_put_contents($scriptPath, $pyScript);
 
         $isWin    = (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN');
@@ -444,6 +662,8 @@ PYTHON;
             $cmd = "python " . escapeshellarg($scriptPath) . " {$escapedInput} {$escapedOutput} 2>&1";
             @exec($cmd, $output, $code);
         }
+
+        @unlink($scriptPath);
 
         // Jika preprocessing berhasil, gunakan gambar hasil olahan
         if ($code === 0 && file_exists($preprocessedPath) && filesize($preprocessedPath) > 1000) {
@@ -903,63 +1123,96 @@ PYTHON;
 
     public static function parseImage(string $imagePath, string $originalFilename = ''): array
     {
+        // 1. Coba Google AI (Gemini Vision) jika API key tersedia (Prioritas Cepat & Akurat)
+        $geminiKey = self::getGeminiApiKey();
+        if (! empty($geminiKey)) {
+            $geminiRes = self::parseViaGemini($imagePath, $geminiKey);
+            if (! empty($geminiRes['members']) || ! empty($geminiRes['header']['no_kk'])) {
+                return $geminiRes;
+            }
+            log_message('info', 'Fallback dari Google AI Gemini ke RapidOCR lokal: ' . self::$lastError);
+        }
+
         $targetImage = $imagePath;
         $ext         = strtolower(pathinfo($originalFilename ?: $imagePath, PATHINFO_EXTENSION));
+        $createdTempFiles = [];
 
         if ($ext === 'pdf') {
             $extracted = self::extractImageFromPdf($imagePath);
             if ($extracted) {
                 $targetImage = $extracted;
+                $createdTempFiles[] = $extracted;
             }
         }
 
         // Pastikan posisi gambar Landscape dan ukuran aman untuk memori hosting
         $landscapeImage = self::autoEnsureLandscape($targetImage);
-        $fixedImage     = self::resizeForOcr($landscapeImage, 1400);
-
-        // Tahap 1: Jalankan OCR langsung pada gambar asli (Landscape & Downscaled)
-        $items  = self::executeOcr($fixedImage);
-        $result = self::parseRapidOcrData($items);
-
-        if (! empty($result['members']) || ! empty($result['header']['no_kk'])) {
-            return $result;
+        if ($landscapeImage !== $targetImage && $landscapeImage !== $imagePath) {
+            $createdTempFiles[] = $landscapeImage;
         }
 
-        // Jika errornya adalah kehabisan memori (std::bad_alloc / OOM), hentikan proses retry agar tidak membebani server
-        if (strpos(self::$lastError, 'bad_alloc') !== false || strpos(self::$lastError, 'Out of Memory') !== false) {
-            self::$lastError = 'Server hosting kehabisan RAM (Out of Memory / std::bad_alloc). Batas RAM akun shared hosting ini terlalu kecil untuk memproses foto Kartu Keluarga. Silakan gunakan menu Impor PDF KK atau kompres resolusi foto menjadi lebih kecil.';
-            return $result;
+        $fixedImage = self::resizeForOcr($landscapeImage, 1400);
+        if ($fixedImage !== $landscapeImage && $fixedImage !== $imagePath) {
+            $createdTempFiles[] = $fixedImage;
         }
 
-        $firstError = self::$lastError;
+        $result = ['status' => false, 'header' => [], 'members' => []];
 
-        // Tahap 2: Fallback Preprocessing CLAHE & Sharpen jika gambar kurang kontras
-        $preprocessed = self::preprocessImage($fixedImage);
-        if ($preprocessed !== $fixedImage) {
-            $itemsPrep  = self::executeOcr($preprocessed);
-            $resultPrep = self::parseRapidOcrData($itemsPrep);
-            if (! empty($resultPrep['members']) || ! empty($resultPrep['header']['no_kk'])) {
-                return $resultPrep;
+        try {
+            // Tahap 1: Jalankan OCR langsung pada gambar asli (Landscape & Downscaled)
+            $items  = self::executeOcr($fixedImage);
+            $result = self::parseRapidOcrData($items);
+
+            if (! empty($result['members']) || ! empty($result['header']['no_kk'])) {
+                return $result;
+            }
+
+            // Jika errornya adalah kehabisan memori (std::bad_alloc / OOM), hentikan proses retry agar tidak membebani server
+            if (strpos(self::$lastError, 'bad_alloc') !== false || strpos(self::$lastError, 'Out of Memory') !== false) {
+                self::$lastError = 'Server hosting kehabisan RAM (Out of Memory / std::bad_alloc). Batas RAM akun shared hosting ini terlalu kecil untuk memproses foto Kartu Keluarga. Silakan gunakan menu Impor PDF KK atau kompres resolusi foto menjadi lebih kecil.';
+                return $result;
+            }
+
+            $firstError = self::$lastError;
+
+            // Tahap 2: Fallback Preprocessing CLAHE & Sharpen jika gambar kurang kontras
+            $preprocessed = self::preprocessImage($fixedImage);
+            if ($preprocessed !== $fixedImage) {
+                $createdTempFiles[] = $preprocessed;
+                $itemsPrep  = self::executeOcr($preprocessed);
+                $resultPrep = self::parseRapidOcrData($itemsPrep);
+                if (! empty($resultPrep['members']) || ! empty($resultPrep['header']['no_kk'])) {
+                    return $resultPrep;
+                }
+            }
+
+            // Tahap 3: Fallback Sudut Rotasi (+90, -90, 180) jika dokumen terbalik
+            $angles = [90, -90, 180];
+            foreach ($angles as $angle) {
+                $rotatedPath = self::rotateImage($fixedImage, $angle);
+                if ($rotatedPath !== $fixedImage) {
+                    $createdTempFiles[] = $rotatedPath;
+                }
+                $rotatedItems = self::executeOcr($rotatedPath);
+                $retryResult  = self::parseRapidOcrData($rotatedItems);
+
+                if (! empty($retryResult['members']) || ! empty($retryResult['header']['no_kk'])) {
+                    return $retryResult;
+                }
+            }
+
+            if ($firstError) {
+                self::$lastError = $firstError;
+            }
+
+            return $result;
+        } finally {
+            foreach (array_unique($createdTempFiles) as $tmp) {
+                if ($tmp && $tmp !== $imagePath && file_exists($tmp)) {
+                    @unlink($tmp);
+                }
             }
         }
-
-        // Tahap 3: Fallback Sudut Rotasi (+90, -90, 180) jika dokumen terbalik
-        $angles = [90, -90, 180];
-        foreach ($angles as $angle) {
-            $rotatedPath  = self::rotateImage($fixedImage, $angle);
-            $rotatedItems = self::executeOcr($rotatedPath);
-            $retryResult  = self::parseRapidOcrData($rotatedItems);
-
-            if (! empty($retryResult['members']) || ! empty($retryResult['header']['no_kk'])) {
-                return $retryResult;
-            }
-        }
-
-        if ($firstError) {
-            self::$lastError = $firstError;
-        }
-
-        return $result;
     }
 
     /**

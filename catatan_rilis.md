@@ -34,6 +34,14 @@ Rilis pembersihan kode terselubung (*obfuscated code*) pada modul Anjungan Layan
 5. **Perbaikan Fatal Error PHP 8 pada Helper `case_replace()`:**
    - Memperbaiki galat `TypeError: strlen(): Argument #1 ($string) must be of type string, array given` pada baris 543 di `donjo-app/helpers/general_helper.php` dengan mengganti argumen array `$matches` menjadi string `$match` serta melengkapi pengecekan batas string (*bounds check*) yang aman untuk PHP 8.x.
 
+6. **Penguatan Keamanan & Integritas Data Impor KK / OCR (Hasil Audit Kode):**
+   - **Validasi Ekstensi Berkas Scan KK**: Memfilter ketat unggahan berkas pada `Keluarga::proses_import_scan_kk()` agar hanya menerima ekstensi `.jpg`, `.jpeg`, `.png`, dan `.pdf`.
+   - **Transaksi Database Impor KK**: Membungkus penyimpanan keluarga dan anggota pada `Keluarga::simpan_import_pdf()` dengan `$this->db->trans_start()` dan `$this->db->trans_complete()` untuk mencegah data keluarga setengah tersimpan apabila terjadi galat di tengah proses.
+   - **Pembersihan Berkas Sementara & Pencegahan *Race Condition* OCR**: Menggunakan nama berkas acak unik (`ocr_prep_<hash>.py`) pada skrip preprocessing OpenCV dan menghapus otomatis seluruh berkas gambar sementara di `/tmp` dalam blok `finally` pada `KkScanOcrParser::parseImage()`.
+   - **Mitigasi ReDoS Parser PDF**: Menyederhanakan pola regex ekstraksi teks `TJ` pada `KkPdfParser::extractRawText()` guna mencegah *catastrophic backtracking*.
+   - **Verifikasi Sertifikat SSL Updater**: Menghapus penonaktifan `CURLOPT_SSL_VERIFYPEER` dan `CURLOPT_SSL_VERIFYHOST` pada `GitHubUpdater`.
+   - **Pembersihan Tracking Repositori**: Menambahkan `install_ocr.php`, `next-steps.html`, dan `UpdateBackup.txt` ke `.gitignore` serta melepaskan pelacakan git tanpa menghapus berkas fisik lokal.
+
 ---
 
 ### Rilis v1.2.2 (Pemetaan Pekerjaan Dukcapil Impor KK & Perbaikan Stabilitas Periksa Database)

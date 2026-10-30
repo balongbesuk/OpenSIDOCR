@@ -434,7 +434,7 @@ class KkPdfParser
                 $decompressed = $stream;
             }
 
-            preg_match_all('/\((?:\\\\.|[^\\\\)]+)*\)\s*T[jJ]|\[(?:(?:\((?:\\\\.|[^\\\\)]+)*\)|[^\]]+)*)\]\s*TJ/s', $decompressed, $tMatches);
+            preg_match_all('/\((?:\\\\.|[^\\\\)]+)*\)\s*T[jJ]|\[([^\]]+)\]\s*TJ/s', $decompressed, $tMatches);
             foreach ($tMatches[0] as $tm) {
                 preg_match_all('/\((?:\\\\.|[^\\\\)]+)*\)/s', $tm, $strMatches);
                 if (! empty($strMatches[0])) {
