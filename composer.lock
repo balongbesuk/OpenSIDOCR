@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "0c941610dcf6f9eb9c543219a916f15d",
+    "content-hash": "3df673ee89e0b689128aaa679c7b352d",
     "packages": [
         {
             "name": "agungsugiarto/codeigniter-datables",
@@ -4222,18 +4222,13 @@
         },
         {
             "name": "themes/esensi",
-            "version": "v2402.0.0",
+            "version": "v2610.0.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/OpenSID/tema-esensi",
-                "reference": "4745241f1c22bb1603104b478a17dd7455488c86"
+                "reference": "170791138be7b817bec48f0066cc0d2035160c9d"
             },
             "type": "library",
-            "extra": {
-                "branch-alias": {
-                    "dev-master": "2402.x-dev"
-                }
-            },
             "license": [
                 "GPL-3.0-or-later"
             ],
@@ -4249,7 +4244,7 @@
                 "OpenSID",
                 "Themes"
             ],
-            "time": "2024-01-31T09:18:52+00:00"
+            "time": "2026-09-08T03:21:38+00:00"
         },
         {
             "name": "themes/natra",
