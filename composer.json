@@ -16,7 +16,7 @@
 		"illuminate/pagination": "^8.79",
 		"jenssegers/blade": "^1.4",
 		"mike42/escpos-php": "^3.0",
-		"openspout/openspout": "^3.7",
+		"openspout/openspout": "^5.13",
 		"simplehtmldom/simplehtmldom": "^2.0@RC",
 		"spipu/html2pdf": "^5.2",
 		"symfony/process": "^5.4",
