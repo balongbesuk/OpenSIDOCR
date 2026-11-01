@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "0c941610dcf6f9eb9c543219a916f15d",
+    "content-hash": "462027e0edde62450b3aae2312a0d8b3",
     "packages": [
         {
             "name": "agungsugiarto/codeigniter-datables",
@@ -4253,18 +4253,13 @@
         },
         {
             "name": "themes/natra",
-            "version": "v2402.0.0",
+            "version": "v2603.0.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/OpenSID/tema-natra",
-                "reference": "ef6bc969b7c5fa79a9297322a99431fef5c62478"
+                "reference": "7478b7b789b11116335e1ca9540581aeee9cb36e"
             },
             "type": "library",
-            "extra": {
-                "branch-alias": {
-                    "dev-master": "2402.x-dev"
-                }
-            },
             "license": [
                 "GPL-3.0-or-later"
             ],
@@ -4280,7 +4275,7 @@
                 "OpenSID",
                 "Themes"
             ],
-            "time": "2024-01-31T09:17:42+00:00"
+            "time": "2026-08-18T05:28:17+00:00"
         },
         {
             "name": "voku/anti-xss",
