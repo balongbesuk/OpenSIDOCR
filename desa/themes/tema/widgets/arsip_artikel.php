@@ -4,7 +4,7 @@
     <div class="premium-card overflow-hidden">
         <!-- Header & Tabs -->
         <div class="p-8 pb-0 border-b border-slate-50 dark:border-slate-800 bg-slate-50/30 dark:bg-slate-800/20">
-            <h3 class="premium-h1 text-[10px] uppercase tracking-[0.3em] mb-6 flex items-center gap-3">
+            <h3 class="premium-h1 text-xs uppercase tracking-[0.3em] mb-6 flex items-center gap-3">
                 <i class="fa-solid fa-archive text-brand-600"></i>
                 <?= html_escape($judul_widget) ?>
             </h3>
@@ -12,7 +12,7 @@
             <div class="flex gap-1 mb-[-1px]">
                 <?php foreach (['terkini' => 'Terbaru', 'populer' => 'Populer', 'acak' => 'Acak'] as $id => $label): ?>
                     <button onclick="switchArsipTab('<?= $id ?>')" id="tab-btn-<?= $id ?>" 
-                        class="arsip-tab-btn px-6 py-4 text-[10px] font-display font-black uppercase tracking-widest border-b-2 transition-all duration-300 <?= $id === 'terkini' ? 'border-brand-600 text-brand-600 dark:text-brand-400' : 'border-transparent text-slate-500 dark:text-slate-400 hover:text-slate-600 dark:hover:text-slate-200' ?>">
+                        class="arsip-tab-btn px-6 py-4 text-xs font-display font-black uppercase tracking-widest border-b-2 transition-all duration-300 <?= $id === 'terkini' ? 'border-brand-600 text-brand-600 dark:text-brand-400' : 'border-transparent text-slate-500 dark:text-slate-400 hover:text-slate-600 dark:hover:text-slate-200' ?>">
                         <?= html_escape($label) ?>
                     </button>
                 <?php endforeach; ?>
@@ -43,11 +43,11 @@
                                         <?= html_escape($arsip['judul']) ?>
                                     </h4>
                                     <div class="flex items-center gap-3 mt-1.5">
-                                        <span class="text-[8px] font-display font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest flex items-center gap-1">
+                                        <span class="text-[11px] font-display font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest flex items-center gap-1">
                                             <i class="fa-solid fa-eye text-[7px]"></i>
                                             <?= hit($arsip['hit']) ?>
                                         </span>
-                                        <span class="text-[8px] font-display font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest">
+                                        <span class="text-[11px] font-display font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest">
                                             <?= tgl_indo($arsip['tgl_upload']) ?>
                                         </span>
                                     </div>
@@ -57,13 +57,13 @@
                     <?php else: ?>
                         <div class="py-12 text-center">
                             <i class="fa-solid fa-folder-open text-slate-200 dark:text-slate-800 text-4xl mb-3"></i>
-                            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Data belum tersedia</p>
+                            <p class="text-xs font-bold text-slate-400 uppercase tracking-widest">Data belum tersedia</p>
                         </div>
                     <?php endif; ?>
                 </div>
             <?php endforeach; ?>
             
-            <a href="<?= site_url('arsip') ?>" class="mt-6 group/btn flex items-center justify-center gap-3 w-full py-4 rounded-2xl bg-slate-50 dark:bg-slate-800/50 text-slate-400 dark:text-slate-500 font-display font-black text-[10px] uppercase tracking-[0.2em] text-center hover:bg-brand-600 hover:text-white transition-all">
+            <a href="<?= site_url('arsip') ?>" class="mt-6 group/btn flex items-center justify-center gap-3 w-full py-4 rounded-2xl bg-slate-50 dark:bg-slate-800/50 text-slate-400 dark:text-slate-500 font-display font-black text-xs uppercase tracking-[0.2em] text-center hover:bg-brand-600 hover:text-white transition-all">
                 Semua Arsip
                 <i class="fa-solid fa-arrow-right-long transition-transform group-hover/btn:translate-x-1"></i>
             </a>

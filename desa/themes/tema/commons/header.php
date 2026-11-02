@@ -16,7 +16,7 @@
                         <span class="premium-h1 text-lg md:text-xl leading-none">
                             <?= html_escape($desa['nama_desa']) ?>
                         </span>
-                        <span class="premium-p text-[9px] uppercase tracking-widest mt-1 text-slate-600 dark:text-slate-300">
+                        <span class="premium-p text-xs uppercase tracking-widest mt-1 text-slate-600 dark:text-slate-300">
                              Portal Resmi Pemerintah Desa
                         </span>
                     </div>
@@ -26,22 +26,26 @@
             <!-- Desktop Nav -->
             <div class="hidden lg:flex items-center h-full">
                 <div class="flex items-center gap-1 h-full">
-                    <?php foreach($menu_atas as $data): ?>
-                        <?php $has_sub = (isset($data['submenu']) && is_array($data['submenu']) && !empty($data['submenu'])); ?>
+                    <?php 
+                    $total_menus = is_array($menu_atas) ? count($menu_atas) : 0;
+                    foreach($menu_atas as $idx => $data): 
+                        $has_sub = (isset($data['submenu']) && is_array($data['submenu']) && !empty($data['submenu'])); 
+                        $align_right = ($idx >= max(0, $total_menus - 2));
+                    ?>
                         <div class="relative h-full flex items-center menu-node-group">
                             <a href="<?= html_escape($data['link']) ?>" class="px-4 py-2 rounded-lg text-[13px] font-bold text-slate-700 dark:text-slate-200 hover:text-brand-600 dark:hover:text-white transition-all flex items-center gap-2 uppercase tracking-wide">
                                 <?= html_escape($data['nama']) ?>
                                 <?php if($has_sub): ?>
-                                    <i class="fa-solid fa-chevron-down text-[10px] opacity-50"></i>
+                                    <i class="fa-solid fa-chevron-down text-xs opacity-50"></i>
                                 <?php endif; ?>
                             </a>
 
                             <?php if($has_sub): ?>
-                                <!-- Robust Dropdown Panel -->
-                                <div class="dropdown-panel-container absolute top-full left-0 pt-2 w-64 z-[1000001] hidden overflow-visible">
-                                    <div class="glass-submenu rounded-xl py-2 overflow-hidden">
+                                <!-- Robust Dropdown Panel (Smart Right/Left Alignment) -->
+                                <div class="dropdown-panel-container absolute top-full <?= $align_right ? 'right-0' : 'left-0' ?> pt-2 w-64 z-[1000001] hidden overflow-visible">
+                                    <div class="glass-submenu rounded-xl py-2 overflow-hidden shadow-2xl">
                                         <?php foreach($data['submenu'] as $submenu): ?>
-                                            <a href="<?= html_escape($submenu['link']) ?>" class="block px-6 py-3 text-[12px] font-semibold text-slate-700 dark:text-slate-300 hover:bg-white/10 dark:hover:bg-white/5 hover:text-brand-600 dark:hover:text-white transition-colors uppercase tracking-wider">
+                                            <a href="<?= html_escape($submenu['link']) ?>" class="block px-6 py-3 text-[12px] font-semibold text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-brand-600 dark:hover:text-white transition-colors uppercase tracking-wider">
                                                 <?= html_escape($submenu['nama']) ?>
                                             </a>
                                         <?php endforeach; ?>
@@ -85,7 +89,7 @@
 </style>
 
 <!-- Mobile Menu (Standard Sidebar Model) -->
-<div id="mobileMenu" class="fixed inset-0 z-[2000000] translate-x-full transition-transform duration-500 flex flex-col">
+<div id="mobileMenu" class="fixed inset-0 z-[2000000] translate-x-full transition-transform duration-500 flex flex-col bg-white dark:bg-slate-900">
     <!-- Header Sidebar -->
     <div class="p-6 flex justify-between items-center border-b dark:border-slate-800/60 bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl sticky top-0 z-20">
         <div class="flex items-center gap-3">
@@ -94,7 +98,7 @@
             </div>
             <div class="flex flex-col">
                 <span class="font-black text-slate-900 dark:text-white uppercase tracking-tighter text-lg leading-none">Navigasi</span>
-                <span class="text-[9px] text-slate-500 dark:text-slate-400 font-bold uppercase tracking-[0.2em] mt-1">Menu Utama Portal</span>
+                <span class="text-xs text-slate-500 dark:text-slate-400 font-bold uppercase tracking-[0.2em] mt-1">Menu Utama Portal</span>
             </div>
         </div>
         <button onclick="toggleMobileMenu()" class="w-12 h-12 rounded-2xl bg-white dark:bg-slate-800 border border-slate-200/50 dark:border-slate-700/50 flex items-center justify-center text-slate-600 dark:text-white active:scale-90 transition-all shadow-sm" aria-label="Tutup Menu">
@@ -107,40 +111,57 @@
         
         <!-- Category Label -->
         <div class="space-y-4">
-            <span class="text-[10px] font-black uppercase tracking-[0.3em] text-slate-500 dark:text-slate-400 ml-2">Main Directory</span>
+            <span class="text-xs font-black uppercase tracking-[0.3em] text-slate-500 dark:text-slate-400 ml-2">Main Directory</span>
             
             <nav class="flex flex-col">
                 <?php foreach($menu_atas as $data): ?>
-                    <?php $has_sub = !empty($data['submenu']); ?>
+                    <?php 
+                    $has_sub = !empty($data['submenu']); 
+                    $is_dummy = empty($data['link']) || $data['link'] === '#' || strpos($data['link'], 'javascript:') !== false;
+                    ?>
                     <div class="group/mobile-nav relative">
                         <div class="flex items-center">
-                            <a href="<?= html_escape($data['link']) ?>" class="flex-1 py-4 flex items-center justify-between group-hover/mobile-nav:translate-x-1 transition-transform duration-300">
-                                <div class="flex items-center gap-5">
-                                    <div class="w-1.5 h-6 rounded-full bg-slate-200 dark:bg-slate-800 group-hover/mobile-nav:bg-brand-600 transition-colors"></div>
-                                    <span class="text-xl font-bold text-slate-900 dark:text-white tracking-tight group-hover/mobile-nav:text-brand-600 transition-colors"><?= html_escape($data['nama']) ?></span>
+                            <a href="<?= ($has_sub && $is_dummy) ? 'javascript:void(0)' : html_escape($data['link']) ?>" 
+                               <?php if ($has_sub && $is_dummy): ?>onclick="toggleSubMenu(this.parentElement.querySelector('.submenu-toggle-btn')); return false;"<?php endif; ?>
+                               class="flex-1 py-4 flex items-center justify-between group-hover/mobile-nav:translate-x-1 transition-transform duration-300">
+                                <div class="flex items-center gap-4">
+                                    <div class="w-1.5 h-6 rounded-full bg-slate-200 dark:bg-slate-800 group-hover/mobile-nav:bg-brand-600 transition-colors flex-shrink-0"></div>
+                                    <span class="text-lg md:text-xl font-bold text-slate-900 dark:text-white tracking-tight group-hover/mobile-nav:text-brand-600 transition-colors leading-snug"><?= html_escape($data['nama']) ?></span>
                                 </div>
                             </a>
                             
                             <?php if($has_sub): ?>
-                                <button onclick="toggleSubMenu(this)" class="w-12 h-12 flex items-center justify-center text-slate-300 dark:text-slate-600 hover:text-brand-600 active:scale-75 transition-all" aria-label="Buka Submenu">
-                                    <i class="fa-solid fa-plus text-sm transition-transform duration-500" aria-hidden="true"></i>
+                                <button type="button" onclick="toggleSubMenu(this)" class="submenu-toggle-btn w-12 h-12 flex items-center justify-center text-slate-400 dark:text-slate-500 hover:text-brand-600 dark:hover:text-brand-400 active:scale-75 transition-all flex-shrink-0" aria-label="Buka Submenu">
+                                    <i class="fa-solid fa-plus text-sm transition-transform duration-300" aria-hidden="true"></i>
                                 </button>
                             <?php else: ?>
-                                <div class="w-12 h-12 flex items-center justify-center opacity-0 group-hover/mobile-nav:opacity-100 transition-opacity">
+                                <div class="w-12 h-12 flex items-center justify-center opacity-0 group-hover/mobile-nav:opacity-100 transition-opacity flex-shrink-0">
                                     <i class="fa-solid fa-arrow-right-long text-brand-600 text-xs text-slate-400"></i>
                                 </div>
                             <?php endif; ?>
                         </div>
 
                         <?php if($has_sub): ?>
-                            <!-- Minimalist Submenu Expansion -->
-                            <div class="max-h-0 overflow-hidden ml-6 mobile-submenu transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] opacity-0">
-                                <div class="py-2 flex flex-col gap-1 border-l-2 border-slate-100 dark:border-slate-800/50 ml-0.5 pl-6">
+                            <!-- Minimalist Submenu Expansion (No height truncation) -->
+                            <div class="max-h-0 overflow-hidden ml-4 md:ml-6 mobile-submenu transition-all duration-400 ease-out opacity-0">
+                                <div class="py-2 flex flex-col gap-1 border-l-2 border-slate-200 dark:border-slate-800 ml-0.5 pl-4 md:pl-6">
                                     <?php foreach($data['submenu'] as $submenu): ?>
-                                        <a href="<?= html_escape($submenu['link']) ?>" class="py-3 text-[13px] font-bold text-slate-600 dark:text-slate-300 uppercase tracking-widest hover:text-brand-600 dark:hover:text-white flex items-center gap-3 group">
-                                            <span class="w-1 h-1 rounded-full bg-slate-300 dark:bg-slate-700 group-hover:scale-150 group-hover:bg-brand-500 transition-all"></span>
-                                            <?= html_escape($submenu['nama']) ?>
-                                        </a>
+                                        <?php $has_sub2 = !empty($submenu['submenu']); ?>
+                                        <div class="py-1">
+                                            <a href="<?= html_escape($submenu['link']) ?>" class="py-2 text-xs md:text-[13px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wide hover:text-brand-600 dark:hover:text-white flex items-center gap-3 group break-words">
+                                                <span class="w-1.5 h-1.5 rounded-full bg-slate-300 dark:bg-slate-700 group-hover:scale-150 group-hover:bg-brand-500 transition-all flex-shrink-0"></span>
+                                                <span class="leading-relaxed"><?= html_escape($submenu['nama']) ?></span>
+                                            </a>
+                                            <?php if($has_sub2): ?>
+                                                <div class="ml-4 pl-3 border-l border-slate-200 dark:border-slate-800/80 flex flex-col gap-1 py-1">
+                                                    <?php foreach($submenu['submenu'] as $sub2): ?>
+                                                        <a href="<?= html_escape($sub2['link']) ?>" class="py-1 text-[11px] font-semibold text-slate-500 dark:text-slate-400 hover:text-brand-600 dark:hover:text-white break-words">
+                                                            <?= html_escape($sub2['nama']) ?>
+                                                        </a>
+                                                    <?php endforeach; ?>
+                                                </div>
+                                            <?php endif; ?>
+                                        </div>
                                     <?php endforeach; ?>
                                 </div>
                             </div>
@@ -155,7 +176,7 @@
 
         <!-- System Actions: Integrated Glass Cards -->
         <div class="space-y-4 pt-4">
-            <span class="text-[10px] font-black uppercase tracking-[0.3em] text-slate-500 dark:text-slate-400 ml-2">Quick Access</span>
+            <span class="text-xs font-black uppercase tracking-[0.3em] text-slate-500 dark:text-slate-400 ml-2">Quick Access</span>
             <div class="grid grid-cols-1 gap-3">
                 <a href="<?= site_url('layanan-mandiri') ?>" class="group flex items-center justify-between p-4 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/50 dark:border-slate-800/50 shadow-sm hover:border-brand-600/30 transition-all">
                     <div class="flex items-center gap-4">
@@ -164,11 +185,11 @@
                         </div>
                         <div class="flex flex-col">
                             <span class="text-sm font-black text-slate-900 dark:text-white uppercase tracking-tight">Layanan Mandiri</span>
-                            <span class="text-[9px] font-bold text-slate-500 uppercase tracking-wider">Akses Warga Desa</span>
+                            <span class="text-xs font-bold text-slate-500 uppercase tracking-wider">Akses Warga Desa</span>
                         </div>
                     </div>
                     <div class="w-8 h-8 rounded-full bg-slate-50 dark:bg-slate-800 flex items-center justify-center text-slate-300 group-hover:text-brand-600 transition-colors">
-                        <i class="fa-solid fa-arrow-right text-[10px]"></i>
+                        <i class="fa-solid fa-arrow-right text-xs"></i>
                     </div>
                 </a>
 
@@ -179,11 +200,11 @@
                         </div>
                         <div class="flex flex-col">
                             <span class="text-sm font-black text-slate-900 dark:text-white uppercase tracking-tight">E-GIS Kawasan</span>
-                            <span class="text-[9px] font-bold text-slate-500 uppercase tracking-wider">Peta Digital Desa</span>
+                            <span class="text-xs font-bold text-slate-500 uppercase tracking-wider">Peta Digital Desa</span>
                         </div>
                     </div>
                     <div class="w-8 h-8 rounded-full bg-slate-50 dark:bg-slate-800 flex items-center justify-center text-slate-300 group-hover:text-accent transition-colors">
-                        <i class="fa-solid fa-arrow-right text-[10px]"></i>
+                        <i class="fa-solid fa-arrow-right text-xs"></i>
                     </div>
                 </a>
             </div>
@@ -203,7 +224,7 @@
                 </div>
                 <div class="flex flex-col items-start leading-none">
                     <span class="text-sm font-black uppercase tracking-tight">Ganti Tema</span>
-                    <span class="text-[9px] font-medium text-slate-500 dark:text-slate-400 uppercase tracking-widest mt-1">Dark / Light Mode</span>
+                    <span class="text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-widest mt-1">Dark / Light Mode</span>
                 </div>
             </div>
             

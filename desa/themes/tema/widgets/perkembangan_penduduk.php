@@ -33,7 +33,7 @@
                 <div class="flex items-center justify-center h-full">
                     <div class="flex flex-col items-center gap-4 text-slate-300">
                         <i class="fa-solid fa-circle-notch fa-spin text-2xl text-brand-600"></i>
-                        <span class="text-[10px] font-black uppercase tracking-widest">Memuat Data...</span>
+                        <span class="text-xs font-black uppercase tracking-widest">Memuat Data...</span>
                     </div>
                 </div>
             </div>
@@ -41,11 +41,11 @@
             <!-- Quick Summary -->
             <div id="summary-widget-penduduk" class="mt-4 pt-6 border-t border-slate-50 dark:border-slate-800 grid grid-cols-2 gap-4 hidden">
                 <div class="flex flex-col">
-                    <span class="text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1">Tahun Lalu</span>
+                    <span class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Tahun Lalu</span>
                     <span id="prev-year-val" class="font-display font-black text-lg text-slate-900 dark:text-white">-</span>
                 </div>
                 <div class="flex flex-col items-end">
-                    <span class="text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1">Tahun Ini</span>
+                    <span class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Tahun Ini</span>
                     <span id="curr-year-val" class="font-display font-black text-lg text-brand-600">-</span>
                 </div>
             </div>

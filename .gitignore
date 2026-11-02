@@ -6,8 +6,7 @@ desa/themes/*
 !desa/themes/tema/**
 
 # Abaikan backup_inkremental
-backup_inkremental/*
-!backup_inkremental/index.html
+backup_inkremental/
 
 # Abaikan file
 *.log
@@ -84,3 +83,23 @@ htaccess.txt
 install_ocr.php
 next-steps.html
 UpdateBackup.txt
+
+# Local testing, screenshots, and design artifacts
+screenshots/
+design-system/
+
+# PWA and local site assets
+OneSignalSDK*.js
+pwabuilder-sw*.js
+manifest.json
+site.webmanifest
+offline.html
+apple-touch-icon.png
+favicon-96x96.png
+favicon.svg
+web-app-manifest-*.png
+google*.html
+assets/filemanager/UploadHandlerAsli.php
+backup_inkremental/.htaccess
+images/
+backup_inkremental/.*

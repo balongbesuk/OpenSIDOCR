@@ -88,20 +88,54 @@ document.addEventListener('DOMContentLoaded', function() {
     };
 
     window.toggleSubMenu = function(btn) {
-        const submenu = btn.parentElement.nextElementSibling;
-        if (submenu && submenu.classList.contains('mobile-submenu')) {
-            const isHidden = submenu.classList.contains('max-h-0');
-            if (isHidden) {
-                submenu.classList.remove('max-h-0', 'opacity-0', 'pointer-events-none');
-                submenu.classList.add('max-h-[500px]', 'opacity-100', 'pointer-events-auto');
-                btn.querySelector('i').classList.add('rotate-180');
-            } else {
-                submenu.classList.add('max-h-0', 'opacity-0', 'pointer-events-none');
-                submenu.classList.remove('max-h-[500px]', 'opacity-100', 'pointer-events-auto');
-                btn.querySelector('i').classList.remove('rotate-180');
+        if (!btn) return;
+        const parentNode = btn.closest('.group\\/mobile-nav') || btn.closest('.relative') || btn.parentElement;
+        const submenu = parentNode ? parentNode.querySelector('.mobile-submenu') : (btn.parentElement ? btn.parentElement.nextElementSibling : null);
+        if (!submenu) return;
+
+        const isHidden = submenu.classList.contains('max-h-0') || submenu.style.maxHeight === '0px' || !submenu.style.maxHeight;
+        const icon = btn.querySelector('i');
+
+        if (isHidden) {
+            submenu.classList.remove('max-h-0', 'opacity-0', 'pointer-events-none');
+            submenu.classList.add('opacity-100', 'pointer-events-auto');
+            // Ukur scrollHeight asli agar semua item tampil penuh tanpa terpotong berapa pun banyaknya
+            const targetHeight = Math.max(submenu.scrollHeight, 80) + 60;
+            submenu.style.maxHeight = targetHeight + 'px';
+            if (icon) {
+                icon.classList.remove('fa-plus');
+                icon.classList.add('fa-minus');
+            }
+            // Setelah transisi selesai, lepaskan batasan maxHeight agar sub-item dinamis tampil penuh
+            setTimeout(() => {
+                if (!submenu.classList.contains('max-h-0')) {
+                    submenu.style.maxHeight = 'none';
+                    submenu.style.overflow = 'visible';
+                }
+            }, 450);
+        } else {
+            submenu.style.overflow = 'hidden';
+            submenu.style.maxHeight = submenu.scrollHeight + 'px';
+            void submenu.offsetHeight; // trigger reflow
+            submenu.style.maxHeight = '0px';
+            submenu.classList.add('max-h-0', 'opacity-0', 'pointer-events-none');
+            submenu.classList.remove('opacity-100', 'pointer-events-auto');
+            if (icon) {
+                icon.classList.remove('fa-minus');
+                icon.classList.add('fa-plus');
             }
         }
     };
+
+    // Tutup mobile menu saat tombol Escape ditekan
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            const menu = document.getElementById('mobileMenu');
+            if (menu && !menu.classList.contains('translate-x-full')) {
+                window.toggleMobileMenu();
+            }
+        }
+    });
 
     // 4. [ LIGHTBOX ENGINE ]
     const initLightbox = () => {

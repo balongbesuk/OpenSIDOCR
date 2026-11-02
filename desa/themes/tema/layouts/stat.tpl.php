@@ -164,7 +164,7 @@
                 </nav>
 
                 <!-- [TWO COLUMN GRID: SIDEBAR KIRI + KONTEN KANAN] -->
-                <div class="flex flex-col lg:flex-row gap-8 lg:gap-10 items-start">
+                <div class="flex flex-col-reverse lg:flex-row gap-8 lg:gap-10 items-start">
                     
                     <!-- [SIDEBAR KIRI: DAFTAR STATISTIK] -->
                     <aside class="w-full lg:w-80 lg:flex-shrink-0 lg:sticky lg:top-28 lg:self-start z-20 print:hidden">
@@ -257,88 +257,89 @@
 
                         <!-- [FILTER WILAYAH: DUSUN, RW, RT] -->
                         <?php if (!$is_dpt && !$is_wilayah && !empty($daftar_dusun)): ?>
-                        <div class="p-6 md:p-8 rounded-[2.5rem] bg-white/95 dark:bg-slate-900/90 backdrop-blur-2xl border border-slate-100 dark:border-slate-800 shadow-xl shadow-slate-200/40 dark:shadow-none print:hidden">
-                            <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
-                                
-                                <!-- Header Filter -->
+                        <div class="p-6 md:p-7 rounded-[2.5rem] bg-white/95 dark:bg-slate-900/90 backdrop-blur-2xl border border-slate-100 dark:border-slate-800 shadow-xl shadow-slate-200/40 dark:shadow-none print:hidden space-y-5">
+                            
+                            <!-- Header & Reset Action -->
+                            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-slate-100 dark:border-slate-800/80">
                                 <div class="flex items-center gap-3.5">
-                                    <div class="w-10 h-10 rounded-2xl bg-gradient-to-tr from-brand-600 to-emerald-500 text-white flex items-center justify-center text-sm shadow-md shadow-brand-600/20">
+                                    <div class="w-10 h-10 rounded-2xl bg-gradient-to-tr from-brand-600 to-emerald-500 text-white flex items-center justify-center text-sm shadow-md shadow-brand-600/20 shrink-0">
                                         <i class="fa-solid fa-filter"></i>
                                     </div>
                                     <div>
                                         <h2 class="text-sm font-black text-slate-900 dark:text-white uppercase tracking-wider">Filter Wilayah</h2>
-                                        <p class="text-[11px] font-medium text-slate-400 dark:text-slate-500">Saring demografi berdasarkan Dusun, RW, dan RT</p>
+                                        <p class="text-xs font-medium text-slate-500 dark:text-slate-400">Saring demografi berdasarkan Dusun, RW, dan RT</p>
                                     </div>
                                 </div>
+                                <?php if (!empty($filter_dusun) || !empty($filter_rw) || !empty($filter_rt)): ?>
+                                <div class="flex items-center gap-2 self-start sm:self-auto">
+                                    <a href="<?= site_url($stat_url_prefix . ($tipe !== null && $tipe !== '' ? "/{$tipe}" : '')) ?>" class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-rose-50 dark:bg-rose-950/40 hover:bg-rose-100 dark:hover:bg-rose-900/40 text-rose-600 dark:text-rose-400 font-bold text-xs transition-all border border-rose-200 dark:border-rose-900/50" title="Reset Semua Filter">
+                                        <i class="fa-solid fa-rotate-left text-xs"></i>
+                                        <span>Reset Filter</span>
+                                    </a>
+                                </div>
+                                <?php endif; ?>
+                            </div>
 
-                                <!-- Filter Form -->
-                                <form method="get" action="<?= site_url($stat_url_prefix . ($tipe !== null && $tipe !== '' ? "/{$tipe}" : '')) ?>" id="formFilterWilayah" class="flex flex-wrap items-center gap-3 flex-1 lg:justify-end">
-                                    
-                                    <!-- Select Dusun -->
-                                    <div class="relative min-w-[140px] flex-1 sm:flex-initial">
-                                        <select name="dusun" id="selectDusun" class="w-full h-11 pl-4 pr-9 rounded-2xl bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700/80 text-xs font-bold text-slate-700 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500 appearance-none transition-all cursor-pointer">
-                                            <option value="">Semua Dusun</option>
-                                            <?php foreach ($daftar_dusun as $d): ?>
-                                                <option value="<?= html_escape($d['dusun']) ?>" <?= ($filter_dusun === $d['dusun']) ? 'selected' : '' ?>>
-                                                    <?= html_escape($d['dusun']) ?>
+                            <!-- Form Kontrol Grid Presisi (Full Width, Tanpa Terpotong) -->
+                            <form method="get" action="<?= site_url($stat_url_prefix . ($tipe !== null && $tipe !== '' ? "/{$tipe}" : '')) ?>" id="formFilterWilayah" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 gap-3 items-center">
+                                
+                                <!-- Select Dusun -->
+                                <div class="relative lg:col-span-4">
+                                    <select name="dusun" id="selectDusun" class="w-full h-11 pl-4 pr-10 rounded-2xl bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700/80 text-xs font-bold text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500 appearance-none transition-all cursor-pointer">
+                                        <option value="">Semua Dusun</option>
+                                        <?php foreach ($daftar_dusun as $d): ?>
+                                            <option value="<?= html_escape($d['dusun']) ?>" <?= ($filter_dusun === $d['dusun']) ? 'selected' : '' ?>>
+                                                <?= html_escape($d['dusun']) ?>
+                                            </option>
+                                        <?php endforeach; ?>
+                                    </select>
+                                    <i class="fa-solid fa-chevron-down absolute right-3.5 top-1/2 -translate-y-1/2 text-[10px] text-slate-400 pointer-events-none"></i>
+                                </div>
+
+                                <!-- Select RW -->
+                                <div class="relative lg:col-span-3">
+                                    <select name="rw" id="selectRw" class="w-full h-11 pl-4 pr-10 rounded-2xl bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700/80 text-xs font-bold text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500 appearance-none transition-all cursor-pointer disabled:opacity-60 disabled:bg-slate-100/60 dark:disabled:bg-slate-800/40 disabled:cursor-not-allowed" <?= empty($filter_dusun) ? 'disabled' : '' ?>>
+                                        <option value="">Semua RW</option>
+                                        <?php if (!empty($daftar_rw)): ?>
+                                            <?php foreach ($daftar_rw as $r): ?>
+                                                <option value="<?= html_escape($r['rw']) ?>" <?= ($filter_rw === $r['rw']) ? 'selected' : '' ?>>
+                                                    RW <?= html_escape($r['rw']) ?>
                                                 </option>
                                             <?php endforeach; ?>
-                                        </select>
-                                        <i class="fa-solid fa-chevron-down absolute right-3.5 top-1/2 -translate-y-1/2 text-[10px] text-slate-400 pointer-events-none"></i>
-                                    </div>
-
-                                    <!-- Select RW -->
-                                    <div class="relative min-w-[110px] flex-1 sm:flex-initial">
-                                        <select name="rw" id="selectRw" class="w-full h-11 pl-4 pr-9 rounded-2xl bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700/80 text-xs font-bold text-slate-700 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500 appearance-none transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed" <?= empty($filter_dusun) ? 'disabled' : '' ?>>
-                                            <option value="">Semua RW</option>
-                                            <?php if (!empty($daftar_rw)): ?>
-                                                <?php foreach ($daftar_rw as $r): ?>
-                                                    <option value="<?= html_escape($r['rw']) ?>" <?= ($filter_rw === $r['rw']) ? 'selected' : '' ?>>
-                                                        RW <?= html_escape($r['rw']) ?>
-                                                    </option>
-                                                <?php endforeach; ?>
-                                            <?php endif; ?>
-                                        </select>
-                                        <i class="fa-solid fa-chevron-down absolute right-3.5 top-1/2 -translate-y-1/2 text-[10px] text-slate-400 pointer-events-none"></i>
-                                    </div>
-
-                                    <!-- Select RT -->
-                                    <div class="relative min-w-[110px] flex-1 sm:flex-initial">
-                                        <select name="rt" id="selectRt" class="w-full h-11 pl-4 pr-9 rounded-2xl bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700/80 text-xs font-bold text-slate-700 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500 appearance-none transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed" <?= (empty($filter_dusun) || empty($filter_rw)) ? 'disabled' : '' ?>>
-                                            <option value="">Semua RT</option>
-                                            <?php if (!empty($daftar_rt)): ?>
-                                                <?php foreach ($daftar_rt as $t): ?>
-                                                    <option value="<?= html_escape($t['rt']) ?>" <?= ($filter_rt === $t['rt']) ? 'selected' : '' ?>>
-                                                        RT <?= html_escape($t['rt']) ?>
-                                                    </option>
-                                                <?php endforeach; ?>
-                                            <?php endif; ?>
-                                        </select>
-                                        <i class="fa-solid fa-chevron-down absolute right-3.5 top-1/2 -translate-y-1/2 text-[10px] text-slate-400 pointer-events-none"></i>
-                                    </div>
-
-                                    <!-- Tombol Terapkan & Reset -->
-                                    <div class="flex items-center gap-2">
-                                        <button type="submit" class="h-11 px-5 rounded-2xl bg-brand-600 hover:bg-brand-500 text-white font-black text-xs uppercase tracking-wider flex items-center gap-2 transition-all shadow-md shadow-brand-600/30 active:scale-95">
-                                            <i class="fa-solid fa-check text-xs"></i>
-                                            <span>Filter</span>
-                                        </button>
-                                        <?php if (!empty($filter_dusun) || !empty($filter_rw) || !empty($filter_rt)): ?>
-                                            <a href="<?= site_url($stat_url_prefix . ($tipe !== null && $tipe !== '' ? "/{$tipe}" : '')) ?>" class="h-11 px-4 rounded-2xl bg-rose-50 dark:bg-rose-950/40 hover:bg-rose-100 text-rose-600 dark:text-rose-400 font-bold text-xs uppercase tracking-wider flex items-center gap-1.5 transition-all border border-rose-200 dark:border-rose-900/50" title="Reset Filter Wilayah">
-                                                <i class="fa-solid fa-rotate-left text-xs"></i>
-                                                <span>Reset</span>
-                                            </a>
                                         <?php endif; ?>
-                                    </div>
+                                    </select>
+                                    <i class="fa-solid fa-chevron-down absolute right-3.5 top-1/2 -translate-y-1/2 text-[10px] text-slate-400 pointer-events-none"></i>
+                                </div>
 
-                                </form>
+                                <!-- Select RT -->
+                                <div class="relative lg:col-span-3">
+                                    <select name="rt" id="selectRt" class="w-full h-11 pl-4 pr-10 rounded-2xl bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700/80 text-xs font-bold text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500 appearance-none transition-all cursor-pointer disabled:opacity-60 disabled:bg-slate-100/60 dark:disabled:bg-slate-800/40 disabled:cursor-not-allowed" <?= (empty($filter_dusun) || empty($filter_rw)) ? 'disabled' : '' ?>>
+                                        <option value="">Semua RT</option>
+                                        <?php if (!empty($daftar_rt)): ?>
+                                            <?php foreach ($daftar_rt as $t): ?>
+                                                <option value="<?= html_escape($t['rt']) ?>" <?= ($filter_rt === $t['rt']) ? 'selected' : '' ?>>
+                                                    RT <?= html_escape($t['rt']) ?>
+                                                </option>
+                                            <?php endforeach; ?>
+                                        <?php endif; ?>
+                                    </select>
+                                    <i class="fa-solid fa-chevron-down absolute right-3.5 top-1/2 -translate-y-1/2 text-[10px] text-slate-400 pointer-events-none"></i>
+                                </div>
 
-                            </div>
+                                <!-- Tombol Filter -->
+                                <div class="lg:col-span-2 flex items-center">
+                                    <button type="submit" class="w-full h-11 px-5 rounded-2xl bg-brand-600 hover:bg-brand-500 text-white font-black text-xs uppercase tracking-wider flex items-center justify-center gap-2 transition-all shadow-md shadow-brand-600/30 active:scale-95 whitespace-nowrap">
+                                        <i class="fa-solid fa-check text-xs"></i>
+                                        <span>Filter</span>
+                                    </button>
+                                </div>
+
+                            </form>
 
                             <!-- Active Filter Badges -->
                             <?php if (!empty($filter_dusun)): ?>
-                            <div class="flex flex-wrap items-center gap-2 pt-4 mt-4 border-t border-slate-100 dark:border-slate-800 text-[11px]">
-                                <span class="font-bold text-slate-400 uppercase tracking-widest text-[10px]">Filter Aktif:</span>
+                            <div class="flex flex-wrap items-center gap-2 pt-3 border-t border-slate-100 dark:border-slate-800/80 text-xs">
+                                <span class="font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider text-[11px]">Filter Aktif:</span>
                                 <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-brand-50 dark:bg-brand-950/60 text-brand-700 dark:text-brand-300 font-bold border border-brand-200 dark:border-brand-900/50">
                                     <i class="fa-solid fa-map-pin text-[10px] text-brand-500"></i>
                                     Dusun <?= html_escape($filter_dusun) ?>

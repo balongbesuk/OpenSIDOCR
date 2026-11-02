@@ -4,7 +4,7 @@
     <div class="premium-card overflow-hidden">
         <!-- Header Section -->
         <div class="p-8 pb-6 border-b border-slate-50 dark:border-slate-800 bg-slate-50/30 dark:bg-slate-800/20 backdrop-blur-md">
-            <h3 class="premium-h1 text-[10px] uppercase tracking-[0.3em] flex items-center gap-3">
+            <h3 class="premium-h1 text-xs uppercase tracking-[0.3em] flex items-center gap-3">
                 <i class="fa-solid fa-chart-pie text-brand-600"></i>
                 <?= $judul_widget ?>
             </h3>
@@ -20,7 +20,7 @@
                             <i class="fa-solid fa-users-viewfinder text-lg"></i>
                         </div>
                         <div>
-                            <span class="block text-[8px] font-display font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest leading-none mb-1.5">Hari Ini</span>
+                            <span class="block text-[11px] font-display font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest leading-none mb-1.5">Hari Ini</span>
                             <h4 class="font-display font-black text-xl text-slate-900 dark:text-white leading-none tracking-tighter">
                                 <?= number_format($pengunjung['hari_ini'], 0, ',', '.') ?>
                             </h4>
@@ -36,7 +36,7 @@
                             <i class="fa-solid fa-calendar-check text-lg"></i>
                         </div>
                         <div>
-                            <span class="block text-[8px] font-display font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest leading-none mb-1.5">Kemarin</span>
+                            <span class="block text-[11px] font-display font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest leading-none mb-1.5">Kemarin</span>
                             <h4 class="font-display font-black text-xl text-slate-900 dark:text-white leading-none tracking-tighter">
                                 <?= number_format($pengunjung['kemarin'], 0, ',', '.') ?>
                             </h4>
@@ -51,7 +51,7 @@
                             <i class="fa-solid fa-globe text-lg"></i>
                         </div>
                         <div>
-                            <span class="block text-[8px] font-display font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest leading-none mb-1.5">Total Kunjungan</span>
+                            <span class="block text-[11px] font-display font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest leading-none mb-1.5">Total Kunjungan</span>
                             <h4 class="font-display font-black text-xl text-slate-900 dark:text-white leading-none tracking-tighter">
                                 <?= number_format($pengunjung['total'], 0, ',', '.') ?>
                             </h4>
@@ -64,10 +64,10 @@
             <!-- Online Indicator -->
             <div class="mt-8 pt-8 border-t border-slate-50 dark:border-slate-800 flex items-center justify-between px-2">
                 <div class="flex items-center gap-2">
-                    <span class="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest">Digital Presence</span>
+                    <span class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest">Digital Presence</span>
                 </div>
                 <div class="flex items-center gap-3">
-                    <span class="text-[10px] font-black text-emerald-500 uppercase tracking-[0.2em]">Verified Status</span>
+                    <span class="text-xs font-black text-emerald-500 uppercase tracking-[0.2em]">Verified Status</span>
                     <i class="fa-solid fa-circle-check text-emerald-500 text-xs"></i>
                 </div>
             </div>
