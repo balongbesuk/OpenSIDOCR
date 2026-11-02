@@ -131,7 +131,12 @@ class Captcha
     public static function check($value)
     {
         $value = trim((string) (static::$case_sensitive ? $value : strtolower($value)));
-        $hash  = get_instance()->session->captcha;
+        $ci    = get_instance();
+        $hash  = $ci->session->captcha;
+
+        // Invalidate / burn captcha setelah divalidasi agar tidak bisa digunakan ulang (Issue #10852)
+        $ci->session->unset_userdata('captcha');
+        unset($_SESSION['captcha']);
 
         return $value && $hash && Hash::check($value, $hash);
     }

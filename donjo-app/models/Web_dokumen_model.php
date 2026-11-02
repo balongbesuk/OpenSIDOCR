@@ -340,14 +340,15 @@ class Web_dokumen_model extends MY_Model
 
         $data['config_id'] = $this->config_id;
 
-        if (! empty($post['satuan'])) {
+        if (! empty($post['satuan']) || ! empty($_FILES['satuan']['name'])) {
             $data['satuan'] = $result = $this->upload_dokumen();
             if ($result == false) {
                 return false;
             }
         }
 
-        if ($result === null && $data['tipe'] == 1) {
+        // Cegah database pollution: jangan simpan jika dokumen fisik gagal terupload (Issue #10850)
+        if ($data['tipe'] == 1 && empty($data['satuan'])) {
             return false;
         }
 
@@ -446,7 +447,7 @@ class Web_dokumen_model extends MY_Model
             ->row()
             ->satuan;
         $data['satuan'] = $old_file;
-        if (! empty($post['satuan'])) {
+        if (! empty($post['satuan']) || ! empty($_FILES['satuan']['name'])) {
             $data['satuan'] = $this->upload_dokumen();
             $retval &= ! (empty($data['satuan']));
             if (! $retval) {
