@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "0c941610dcf6f9eb9c543219a916f15d",
+    "content-hash": "bad8c5ef197cf6fe986e827d9edf1259",
     "packages": [
         {
             "name": "agungsugiarto/codeigniter-datables",
@@ -4576,16 +4576,16 @@
         },
         {
             "name": "tinymce/tinymce",
-            "version": "7.9.3",
+            "version": "8.10.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/tinymce/tinymce-dist.git",
-                "reference": "4e5c520b2b6d52a6251316ab2e4af383c5e753bd"
+                "reference": "2389164632e1b6e23cc8a9322fc16776d6985192"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/tinymce/tinymce-dist/zipball/4e5c520b2b6d52a6251316ab2e4af383c5e753bd",
-                "reference": "4e5c520b2b6d52a6251316ab2e4af383c5e753bd",
+                "url": "https://api.github.com/repos/tinymce/tinymce-dist/zipball/2389164632e1b6e23cc8a9322fc16776d6985192",
+                "reference": "2389164632e1b6e23cc8a9322fc16776d6985192",
                 "shasum": ""
             },
             "type": "component",
@@ -4610,7 +4610,7 @@
             },
             "notification-url": "https://packagist.org/downloads/",
             "license": [
-                "GPL-2.0-or-later"
+                "SEE LICENSE IN license.md"
             ],
             "description": "Web based JavaScript HTML WYSIWYG editor control.",
             "homepage": "https://www.tiny.cloud/",
@@ -4629,9 +4629,9 @@
                 "wysiwyg"
             ],
             "support": {
-                "source": "https://github.com/tinymce/tinymce-dist/tree/7.9.3"
+                "source": "https://github.com/tinymce/tinymce-dist/tree/8.10.1"
             },
-            "time": "2026-05-19T23:38:56+00:00"
+            "time": "2026-10-28T04:04:23+00:00"
         }
     ],
     "aliases": [],

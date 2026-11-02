@@ -27,7 +27,7 @@
 	},
 	"require-dev": {
 		"mikey179/vfsstream": "1.1.*",
-		"tinymce/tinymce": "^7.0"
+		"tinymce/tinymce": "^8.10"
 	},
 	"config": {
 		"audit": {
