@@ -490,7 +490,7 @@ function isPHP($file, $filename): bool
                 preg_match('/<\?php/i', $buffer)
                 || preg_match('/<\s*(script|html)/i', $buffer)
                 || preg_match('/__halt_compiler\s*\(/i', $buffer)
-                || preg_match('/<\?=\s*[\$a-zA-Z_\x7f-\xff'"`\(\\\{\[0-9\-+!@~][\x20-\x7e\t\r\n]{0,500}?(?:\?>|;|\$)/is', $buffer)
+                || preg_match('/<\?=\s*[\$a-zA-Z_\x7f-\xff\x27\x22\x60\(\\\{\[0-9\-+!@~][\x20-\x7e\t\r\n]{0,500}?(?:\?>|;|\$)/is', $buffer)
                 || preg_match('/<\?(?!xml\b|xpacket\b)[\s\r\n\t]+[\x20-\x7e\t\r\n]{0,500}?(?:\?>|;|\$)/is', $buffer)
                 || preg_match('/<\?(?!xml\b|xpacket\b)(?:system|eval|assert|passthru|exec|shell_exec|include|require|echo|print|var_dump|\$[a-zA-Z_\x7f-\xff])[\x20-\x7e\t\r\n]{0,500}?(?:\?>|;|\$)/is', $buffer)
                 || preg_match('/(?:SetHandler|AddType|AddHandler)\s+application\/x-httpd-php/i', $buffer)
