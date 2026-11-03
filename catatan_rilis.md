@@ -1,5 +1,21 @@
 Aplikasi **OpenSIDOCR** merupakan pengembangan lanjutan dari **OpenSID versi 2403.0.0** dan seterusnya oleh Pemerintah Desa Balongbesuk ([balongbesuk/OpenSIDOCR](https://github.com/balongbesuk/OpenSIDOCR)).
 
+### Rilis v1.2.4 (Perbaikan Bug Form Cetak & Arsip Lampiran Surat Kelahiran F-2.01)
+
+Rilis perbaikan pada modul Layanan Surat khususnya form Surat Keterangan Kelahiran dan pembuatan lampiran F-2.01:
+
+#### Perbaikan BUG
+
+1. **Retensi Pilihan Data Bayi/Anak pada Form Surat Keterangan Kelahiran:**
+   - Memperbaiki dropdown pemilihan bayi (`id_bayi`) pada `template-surat/surat_ket_kelahiran/surat_ket_kelahiran.php` agar menandai opsi terpilih (`selected`) secara benar dengan ID anak.
+   - Memperbaiki pengkondisian pembersihan session di `Surat::form()` (`donjo-app/controllers/Surat.php`) agar hanya menghapus sesi pihak surat saat pertama kali membuka form (`if (empty($_POST))`), sehingga saat memilih pelapor atau saksi yang memicu *auto-refresh*, data anak tidak hilang.
+
+2. **Perbaikan Fatal Error PHP 8.2+ pada Helper `hari()` & Pengarsipan Lampiran PDF F-2.01:**
+   - Menangani kompatibilitas fungsi `hari($tgl)` di `donjo-app/helpers/donjolib_helper.php` agar mampu menerima string tanggal maupun integer timestamp tanpa memicu `TypeError: date(): Argument #2 ($timestamp) must be of type ?int, string given`.
+   - Mengeliminasi kegagalan pembuatan PDF lampiran F-2.01 oleh `Html2Pdf` sehingga berkas fisik lampiran berhasil dibuat di `desa/arsip/` dan terdata dengan benar pada Arsip Surat Keluar.
+
+---
+
 ### Rilis v1.2.3 (Pembersihan Obfuscation Modul Anjungan & Eliminasi False Positive Antivirus Cloud)
 
 Rilis pembersihan kode terselubung (*obfuscated code*) pada modul Anjungan Layanan Mandiri untuk mengeliminasi peringatan ancaman Fatal/Malicious pada Tencent Cloud CWPP / Antivirus Server:

@@ -289,7 +289,17 @@ function hari($tgl)
     $hari = [
         0 => 'Minggu', 1 => 'Senin', 2 => 'Selasa', 3 => 'Rabu', 4 => 'Kamis', 5 => 'Jumat', 6 => 'Sabtu',
     ];
-    $dayofweek = date('w', $tgl);
+
+    if (empty($tgl)) {
+        return '';
+    }
+
+    $timestamp = is_numeric($tgl) ? (int) $tgl : strtotime($tgl);
+    if (! $timestamp) {
+        return '';
+    }
+
+    $dayofweek = date('w', $timestamp);
 
     return $hari[$dayofweek];
 }

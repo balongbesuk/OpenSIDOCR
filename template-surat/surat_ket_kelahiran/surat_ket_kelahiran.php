@@ -325,10 +325,13 @@
 								<div class="form-group">
 									<label for="ibu_desa" class="col-sm-3 control-label"><strong>NIK / Nama</strong></label>
 									<div class="col-sm-6 col-lg-4">
-										<select class="form-control  input-sm select2" id="id_bayi" name="id_bayi" style="width:100%;" onchange="submit_form_ambil_data(this.id);">
-											<option value=""><?php if ($bayi) : ?>NIK : <?= $bayi['nik'] ?> - <?= $bayi['nama'] ?><?php else : ?>-- Cari NIK / Nama Penduduk --<?php endif; ?></option>
+										<select class="form-control input-sm select2" id="id_bayi" name="id_bayi" style="width:100%;" onchange="submit_form_ambil_data(this.id);">
+											<option value="">-- Cari NIK / Nama Penduduk --</option>
+											<?php if ($bayi && (!is_array($anak) || !in_array($bayi['id'], array_column($anak, 'id')))) : ?>
+												<option value="<?= $bayi['id'] ?>" selected>NIK : <?= $bayi['nik'] . ' - ' . $bayi['nama'] ?></option>
+											<?php endif; ?>
 											<?php foreach ($anak as $data) : ?>
-												<option value="<?= $data['id'] ?>">NIK : <?= $data['nik'] . " - " . $data['nama'] ?></option>
+												<option value="<?= $data['id'] ?>" <?php if (!empty($bayi['id']) && $bayi['id'] == $data['id']) : ?>selected<?php endif; ?>>NIK : <?= $data['nik'] . " - " . $data['nama'] ?></option>
 											<?php endforeach; ?>
 										</select>
 									</div>
