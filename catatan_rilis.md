@@ -1,5 +1,20 @@
 Aplikasi **OpenSIDOCR** merupakan pengembangan lanjutan dari **OpenSID versi 2403.0.0** dan seterusnya oleh Pemerintah Desa Balongbesuk ([balongbesuk/OpenSIDOCR](https://github.com/balongbesuk/OpenSIDOCR)).
 
+### Rilis v1.2.5 (Perbaikan Bug Tampilan Waktu Peristiwa Status Mati & Pindah pada Biodata Penduduk)
+
+Rilis perbaikan pada modul Kependudukan khususnya tampilan detail/biodata penduduk:
+
+#### Perbaikan BUG
+
+1. **Perbaikan Tampilan Waktu Peristiwa Status Mati & Pindah pada Biodata Penduduk:**
+   - Memperbaiki query log penduduk pada `donjo-app/models/Penduduk_model.php` agar mencocokkan riwayat peristiwa sesuai `status_dasar` penduduk (`kode_peristiwa = u.status_dasar`), sehingga tanggal peristiwa kepindahan/kematian dan jam kematian (`log_jam_mati`) terambil dengan akurat.
+   - Memperbaiki tampilan biodata penduduk pada `donjo-app/views/sid/kependudukan/penduduk_detail.php`:
+     * Mengeliminasi bug placeholder mentah `(waktu peristiwa {PINDAH}: {})` dan `(waktu peristiwa {MATI}: {})` pada kolom Nomor Kartu Keluarga.
+     * Menampilkan waktu peristiwa secara informatif di samping label Status Dasar (contoh: `(Waktu Peristiwa: 12 Oktober 2024 pukul 14:30)`).
+     * Memastikan keterangan riwayat nomor KK hanya tampil apabila tercatat dan berbeda dengan nomor KK saat ini.
+
+---
+
 ### Rilis v1.2.4 (Perbaikan Bug Form Cetak & Arsip Lampiran Surat Kelahiran F-2.01)
 
 Rilis perbaikan pada modul Layanan Surat khususnya form Surat Keterangan Kelahiran dan pembuatan lampiran F-2.01:

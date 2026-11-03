@@ -1540,7 +1540,7 @@ class Penduduk_model extends MY_Model
             DATE_FORMAT(FROM_DAYS(TO_DAYS(NOW())-TO_DAYS(`tanggallahir`)), '%Y')+0  AS umur,
             x.nama AS sex, w.nama AS warganegara, p.nama AS pekerjaan, g.nama AS agama, c.nama as cacat, kb.nama as cara_kb, sm.nama as sakit_menahun, sd.nama as status_dasar, u.status_dasar as status_dasar_id,
             (select tweb_penduduk.nama AS nama from tweb_penduduk where (tweb_penduduk.id = d.nik_kepala)) AS kepala_kk,
-            log.no_kk as log_no_kk, log.tgl_lapor as tgl_lapor, log.tgl_peristiwa as tgl_peristiwa, log.maksud_tujuan_kedatangan as maksud_tujuan_kedatangan FROM tweb_penduduk u
+            log.no_kk as log_no_kk, log.tgl_lapor as tgl_lapor, log.tgl_peristiwa as tgl_peristiwa, log.maksud_tujuan_kedatangan as maksud_tujuan_kedatangan, log.jam_mati as log_jam_mati FROM tweb_penduduk u
             LEFT JOIN tweb_keluarga d ON u.id_kk = d.id
             LEFT JOIN tweb_wil_clusterdesa a ON u.id_cluster = a.id
             LEFT JOIN tweb_penduduk_pendidikan o ON u.pendidikan_sedang_id = o.id
@@ -1557,7 +1557,10 @@ class Penduduk_model extends MY_Model
             LEFT JOIN tweb_sakit_menahun sm ON u.sakit_menahun_id = sm.id
             LEFT JOIN tweb_cara_kb kb ON u.cara_kb_id = kb.id
             LEFT JOIN tweb_status_dasar sd ON u.status_dasar = sd.id
-            LEFT JOIN log_penduduk log ON u.id = log.id_pend
+            LEFT JOIN log_penduduk log ON log.id = COALESCE(
+                (SELECT MAX(id) FROM log_penduduk WHERE id_pend = u.id AND kode_peristiwa = u.status_dasar),
+                (SELECT MAX(id) FROM log_penduduk WHERE id_pend = u.id)
+            )
             LEFT JOIN user ux ON u.updated_by = ux.id
             LEFT JOIN user ucreate ON u.created_by = ucreate.id
             LEFT JOIN tweb_penduduk_asuransi polis ON polis.id = u.id_asuransi
@@ -1572,6 +1575,7 @@ class Penduduk_model extends MY_Model
             $data['tanggalperkawinan']    = tgl_indo_out($data['tanggalperkawinan']);
             $data['tanggalperceraian']    = tgl_indo_out($data['tanggalperceraian']);
             $data['tanggal_cetak_ktp']    = tgl_indo_out($data['tanggal_cetak_ktp']);
+            $data['tgl_peristiwa_format'] = ! empty($data['tgl_peristiwa']) ? tgl_indo_dari_str($data['tgl_peristiwa']) : (! empty($data['tgl_lapor']) ? tgl_indo_dari_str($data['tgl_lapor']) : '');
             // Penduduk lepas, pakai alamat penduduk
             if ($data['id_kk'] == 0 || $data['id_kk'] == '') {
                 $data['alamat'] = $data['alamat_sekarang'];

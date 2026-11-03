@@ -89,7 +89,13 @@
 												<table class="table table-bordered table-striped table-hover" >
 													<tbody>
 														<tr>
-															<td>Status Dasar</td><td >:</td><td><span class="<?= ($penduduk['status_dasar_id'] != 1) ? 'label label-danger' : ''?>"><strong><?= strtoupper($penduduk['status_dasar'])?></strong></span></td>
+															<td>Status Dasar</td><td >:</td>
+															<td>
+																<span class="<?= ($penduduk['status_dasar_id'] != 1) ? 'label label-danger' : ''?>"><strong><?= strtoupper($penduduk['status_dasar'])?></strong></span>
+																<?php if ($penduduk['status_dasar_id'] != 1 && !empty($penduduk['tgl_peristiwa_format'])): ?>
+																	<span style="padding-left: 10px; color: #555;">(Waktu Peristiwa: <strong><?= $penduduk['tgl_peristiwa_format'] ?><?= !empty($penduduk['log_jam_mati']) ? ' pukul ' . $penduduk['log_jam_mati'] : '' ?></strong>)</span>
+																<?php endif; ?>
+															</td>
 														</tr>
 														<tr>
 															<td width="300">Nama</td>
@@ -118,9 +124,9 @@
 														<tr>
 															<td>Nomor Kartu Keluarga</td><td >:</td>
 															<td>
-																<?= $penduduk['no_kk']?>
-																<?php if ($penduduk['status_dasar_id'] != '1' && $penduduk['no_kk'] != $penduduk['log_no_kk']): ?>
-																	(waktu peristiwa {<?= $penduduk['status_dasar']?>}: {<?= $penduduk['log_no_kk']?>})
+																<?= $penduduk['no_kk'] ?: '-' ?>
+																<?php if ($penduduk['status_dasar_id'] != '1' && !empty($penduduk['log_no_kk']) && $penduduk['no_kk'] != $penduduk['log_no_kk']): ?>
+																	(saat peristiwa <?= $penduduk['status_dasar']?>: <?= $penduduk['log_no_kk']?>)
 																<?php endif; ?>
 															</td>
 														</tr>
