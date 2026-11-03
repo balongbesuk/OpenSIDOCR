@@ -49,9 +49,11 @@ class MY_Security extends CI_Security
         // print("<pre>".print_r($_POST, true)."</pre>");
         // die();
 
+        $referer = $_SERVER['HTTP_REFERER'] ?? site_url();
+
         show_error(
             "Verifikasi CSRF Gagal. <br><br>
-            Kembali ke halaman sebelumnya di <a href='{$_SERVER['HTTP_REFERER']}'>sini</a>, dan ulangi.<br><br>
+            Kembali ke halaman sebelumnya di <a href='{$referer}'>sini</a>, dan ulangi.<br><br>
             Kalau masih error, coba clear cache dan cookies di browser anda, dan login kembali.<br><br>
             Kalau masih bermasalah, silakan laporkan.",
             403,

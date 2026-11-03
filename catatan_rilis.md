@@ -13,6 +13,9 @@ Rilis perbaikan pada modul Kependudukan khususnya tampilan detail/biodata pendud
      * Menampilkan waktu peristiwa secara informatif di samping label Status Dasar (contoh: `(Waktu Peristiwa: 12 Oktober 2024 pukul 14:30)`).
      * Memastikan keterangan riwayat nomor KK hanya tampil apabila tercatat dan berbeda dengan nomor KK saat ini.
 
+2. **Penanganan Warning PHP 8+ pada Error CSRF (`HTTP_REFERER`):**
+   - Menambahkan fallback null coalescing (`$_SERVER['HTTP_REFERER'] ?? site_url()`) pada `donjo-app/core/MY_Security.php` untuk mengeliminasi warning `Severity: Warning --> Undefined array key "HTTP_REFERER"` saat verifikasi CSRF gagal pada request tanpa header referer.
+
 ---
 
 ### Rilis v1.2.4 (Perbaikan Bug Form Cetak & Arsip Lampiran Surat Kelahiran F-2.01)
