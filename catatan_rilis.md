@@ -52,6 +52,9 @@ Rilis perbaikan efisiensi memori, performa akses publik, dan penguatan keamanan 
 3. **Fitur Salin Data Tabel Sekali Klik:**
    - Menambahkan tombol salin ke clipboard untuk memudahkan staf desa menyalin data tabel statistik ke dokumen laporan kantor secara instan.
 
+4. **Optimasi Semantik Navigasi Mobile & Skor SEO 100/100:**
+   - Mengubah tautan dummy pemicu buka-tutup submenu mobile (`javascript:void(0)`) pada `header.php` menjadi elemen tombol semantik `<button type="button">`, meloloskan audit *Crawlable Links* Google Lighthouse hingga mencapai skor sempurna.
+
 ---
 
 ### Rilis v1.2.6 (Audit Keamanan, Performa Offline, dan Penyempurnaan UI/UX Siteman & Layanan Mandiri)

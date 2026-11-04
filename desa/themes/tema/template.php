@@ -120,6 +120,16 @@
 
     <script src="<?= base_url($folder_themes . '/assets/js/aos.js') ?>"></script>
 
+    <!-- PWA Service Worker Registration -->
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', function() {
+                navigator.serviceWorker.register('<?= base_url("pwabuilder-sw.js") ?>', { scope: '/' })
+                    .catch(function(err) { console.warn('SW reg error:', err); });
+            });
+        }
+    </script>
+
 
 
 </body>

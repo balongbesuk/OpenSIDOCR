@@ -121,14 +121,24 @@
                     ?>
                     <div class="group/mobile-nav relative">
                         <div class="flex items-center">
-                            <a href="<?= ($has_sub && $is_dummy) ? 'javascript:void(0)' : html_escape($data['link']) ?>" 
-                               <?php if ($has_sub && $is_dummy): ?>onclick="toggleSubMenu(this.parentElement.querySelector('.submenu-toggle-btn')); return false;"<?php endif; ?>
-                               class="flex-1 py-4 flex items-center justify-between group-hover/mobile-nav:translate-x-1 transition-transform duration-300">
-                                <div class="flex items-center gap-4">
-                                    <div class="w-1.5 h-6 rounded-full bg-slate-200 dark:bg-slate-800 group-hover/mobile-nav:bg-brand-600 transition-colors flex-shrink-0"></div>
-                                    <span class="text-lg md:text-xl font-bold text-slate-900 dark:text-white tracking-tight group-hover/mobile-nav:text-brand-600 transition-colors leading-snug"><?= html_escape($data['nama']) ?></span>
-                                </div>
-                            </a>
+                            <?php if ($has_sub && $is_dummy): ?>
+                                <button type="button" 
+                                        onclick="toggleSubMenu(this.parentElement.querySelector('.submenu-toggle-btn'))"
+                                        class="flex-1 py-4 flex items-center justify-between group-hover/mobile-nav:translate-x-1 transition-transform duration-300 text-left bg-transparent border-0 cursor-pointer">
+                                    <div class="flex items-center gap-4">
+                                        <div class="w-1.5 h-6 rounded-full bg-slate-200 dark:bg-slate-800 group-hover/mobile-nav:bg-brand-600 transition-colors flex-shrink-0"></div>
+                                        <span class="text-lg md:text-xl font-bold text-slate-900 dark:text-white tracking-tight group-hover/mobile-nav:text-brand-600 transition-colors leading-snug"><?= html_escape($data['nama']) ?></span>
+                                    </div>
+                                </button>
+                            <?php else: ?>
+                                <a href="<?= html_escape($data['link']) ?>" 
+                                   class="flex-1 py-4 flex items-center justify-between group-hover/mobile-nav:translate-x-1 transition-transform duration-300">
+                                    <div class="flex items-center gap-4">
+                                        <div class="w-1.5 h-6 rounded-full bg-slate-200 dark:bg-slate-800 group-hover/mobile-nav:bg-brand-600 transition-colors flex-shrink-0"></div>
+                                        <span class="text-lg md:text-xl font-bold text-slate-900 dark:text-white tracking-tight group-hover/mobile-nav:text-brand-600 transition-colors leading-snug"><?= html_escape($data['nama']) ?></span>
+                                    </div>
+                                </a>
+                            <?php endif; ?>
                             
                             <?php if($has_sub): ?>
                                 <button type="button" onclick="toggleSubMenu(this)" class="submenu-toggle-btn w-12 h-12 flex items-center justify-center text-slate-400 dark:text-slate-500 hover:text-brand-600 dark:hover:text-brand-400 active:scale-75 transition-all flex-shrink-0" aria-label="Buka Submenu">
