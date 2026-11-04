@@ -231,4 +231,27 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     };
 
+    // 8. [ PWA SERVICE WORKER REGISTRATION ]
+    if ('serviceWorker' in navigator) {
+        const registerSW = () => {
+            navigator.serviceWorker.register('/pwabuilder-sw.js', { scope: '/' })
+                .then(reg => {
+                    if (reg.installing) {
+                        console.log('PWA Service Worker installing...');
+                    } else if (reg.active) {
+                        console.log('PWA Service Worker active.');
+                    }
+                })
+                .catch(err => {
+                    console.warn('PWA Service Worker registration failed:', err);
+                });
+        };
+
+        if (document.readyState === 'complete') {
+            registerSW();
+        } else {
+            window.addEventListener('load', registerSW);
+        }
+    }
+
 });

@@ -38,6 +38,9 @@ Rilis perbaikan efisiensi memori, performa akses publik, dan penguatan keamanan 
 1. **Lokalisasi Pustaka Animasi AOS (Bebas Ketergantungan CDN):**
    - Menyimpan aset pustaka `aos.js` dan `aos.css` secara lokal di dalam tema desa (`desa/themes/tema/assets/`), memutus seluruh ketergantungan CDN eksternal `unpkg.com` di `template.php`, `meta.php`, serta seluruh layout template publik.
 
+2. **Registrasi Service Worker PWA (Progressive Web App):**
+   - Mengaktifkan registrasi Service Worker (`pwabuilder-sw.js`) pada `app.js` tema desa untuk mengaktifkan fungsionalitas PWA di peramban perangkat seluler warga (dukungan cache offline dan prompt *Add to Home Screen*).
+
 #### Peningkatan Fitur & Pengalaman Pengguna (*UI/UX Enhancements*)
 
 1. **Highlight Demografi & Dinamika Warga:**
