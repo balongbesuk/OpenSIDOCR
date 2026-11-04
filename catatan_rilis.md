@@ -55,6 +55,11 @@ Rilis perbaikan efisiensi memori, performa akses publik, dan penguatan keamanan 
 4. **Optimasi Semantik Navigasi Mobile & Skor SEO 100/100:**
    - Mengubah tautan dummy pemicu buka-tutup submenu mobile (`javascript:void(0)`) pada `header.php` menjadi elemen tombol semantik `<button type="button">`, meloloskan audit *Crawlable Links* Google Lighthouse hingga mencapai skor sempurna.
 
+5. **Optimasi Modul WebGIS Peta Digital (`/peta`):**
+   - Mengeliminasi query zombie COVID-19 pada controller `fweb/Peta.php` dan memastikan `program_bantuan_model` dimuat secara eksplisit.
+   - Melokalkan pustaka CSS & JS Leaflet, MarkerCluster, serta plugin Fullscreen ke direktori aset lokal, memutus ketergantungan CDN eksternal.
+   - Memperbaiki rasio kontras warna teks badge peta sesuai standar WCAG AA untuk menyempurnakan skor Aksesibilitas.
+
 ---
 
 ### Rilis v1.2.6 (Audit Keamanan, Performa Offline, dan Penyempurnaan UI/UX Siteman & Layanan Mandiri)

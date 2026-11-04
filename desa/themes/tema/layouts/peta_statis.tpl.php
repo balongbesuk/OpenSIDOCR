@@ -9,10 +9,10 @@
     <link rel="preconnect" href="https://b.tile.openstreetmap.org">
     <link rel="preconnect" href="https://c.tile.openstreetmap.org">
     <link rel="dns-prefetch" href="https://a.tile.openstreetmap.org">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/leaflet.css" fetchpriority="high">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.4.1/MarkerCluster.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.4.1/MarkerCluster.Default.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.fullscreen/1.6.0/Control.FullScreen.css">
+    <link rel="stylesheet" href="<?= base_url('assets/css/leaflet.css') ?>" fetchpriority="high">
+    <link rel="stylesheet" href="<?= base_url('assets/css/MarkerCluster.css') ?>">
+    <link rel="stylesheet" href="<?= base_url('assets/css/MarkerCluster.Default.css') ?>">
+    <link rel="stylesheet" href="<?= base_url($folder_themes . '/assets/css/Control.FullScreen.css') ?>">
     
     <!-- Assets Peta Leaflet & Plugins -->
     
@@ -278,7 +278,7 @@
                         <div class="max-w-3xl">
                             <div class="flex items-center gap-3 mb-5">
                                 <span class="w-12 h-1 bg-brand-600 rounded-full"></span>
-                                <span class="text-brand-600 font-black tracking-[0.3em] uppercase text-[10px]">Digital Mapping System</span>
+                                <span class="text-brand-700 dark:text-brand-300 font-black tracking-[0.3em] uppercase text-[10px]">Digital Mapping System</span>
                             </div>
                             <h1 class="premium-h1 text-4xl md:text-6xl mb-4">
                                 Peta <span class="text-transparent bg-clip-text bg-gradient-to-r from-brand-600 to-emerald-500">Kearifan Lokal</span>.
@@ -378,9 +378,9 @@
     </div>
 
     <!-- Scripts Area -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/leaflet.js" fetchpriority="high"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.4.1/leaflet.markercluster.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.fullscreen/1.6.0/Control.FullScreen.js"></script>
+    <script src="<?= base_url('assets/js/leaflet.js') ?>" fetchpriority="high"></script>
+    <script src="<?= base_url('assets/js/leaflet.markercluster.js') ?>"></script>
+    <script src="<?= base_url($folder_themes . '/assets/js/Control.FullScreen.js') ?>"></script>
     <script>
         // Data dari Controller OpenSID
         const configMap = {

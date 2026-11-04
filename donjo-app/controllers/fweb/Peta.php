@@ -45,7 +45,7 @@ class Peta extends Web_Controller
             show_404();
         }
 
-        $this->load->model(['wilayah_model', 'referensi_model', 'laporan_penduduk_model', 'plan_garis_model', 'plan_lokasi_model', 'data_persil_model', 'plan_area_model', 'pembangunan_model']);
+        $this->load->model(['wilayah_model', 'referensi_model', 'program_bantuan_model', 'plan_garis_model', 'plan_lokasi_model', 'data_persil_model', 'plan_area_model', 'pembangunan_model']);
 
         $data = $this->includes;
 
@@ -56,8 +56,7 @@ class Peta extends Web_Controller
         $data['dusun_gis']          = $data['list_dusun'];
         $data['rw_gis']             = $this->wilayah_model->list_rw();
         $data['rt_gis']             = $this->wilayah_model->list_rt();
-        $data['list_ref']           = $this->referensi_model->list_ref(STAT_PENDUDUK);
-        $data['covid']              = $this->laporan_penduduk_model->list_data('covid');
+        $data['list_ref']           = $this->referensi_model->list_ref(STAT_PENDUDUK);
         $data['lokasi']             = $this->plan_lokasi_model->list_lokasi(1);
         $data['garis']              = $this->plan_garis_model->list_garis(1);
         $data['area']               = $this->plan_area_model->list_area(1);
