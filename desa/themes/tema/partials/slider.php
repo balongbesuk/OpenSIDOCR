@@ -15,7 +15,9 @@
     /* Ensure marquee is perfectly seamless */
     .ticker-content {
         display: flex;
+        align-items: center;
         width: max-content;
+        height: 100%;
         animation: ticker-scroll 40s linear infinite !important;
     }
     @keyframes ticker-scroll {
@@ -53,7 +55,7 @@
     <div class="container mx-auto px-4 relative z-10 flex flex-col items-center">
         <!-- Premium Announcement Ticker Redesign -->
         <?php if (!empty($teks_berjalan)): ?>
-            <div class="w-full max-w-3xl bg-white/30 dark:bg-slate-900/30 backdrop-blur-2xl border border-white/50 dark:border-slate-800/50 p-1.5 rounded-full shadow-2xl shadow-slate-200/20 dark:shadow-none mb-12 group overflow-hidden flex items-center animate-premium">
+            <div class="w-full max-w-3xl h-[56px] min-h-[56px] bg-white/30 dark:bg-slate-900/30 backdrop-blur-2xl border border-white/50 dark:border-slate-800/50 p-1.5 rounded-full shadow-2xl shadow-slate-200/20 dark:shadow-none mb-12 group overflow-hidden flex items-center">
                 <!-- Label Pill -->
                 <div class="flex-none px-4 py-3 bg-slate-900 dark:bg-brand-600 text-white rounded-full flex items-center justify-center relative overflow-hidden shadow-lg shadow-slate-900/10 active:scale-95 transition-all">
                     <div class="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000"></div>
@@ -83,8 +85,8 @@
         <?php endif; ?>
 
         <!-- Headline Content -->
-        <div class="text-center max-w-4xl space-y-6">
-            <h1 class="font-display font-[800] text-4xl md:text-7xl text-slate-900 leading-[1.1] tracking-tight">
+        <div class="text-center max-w-4xl space-y-6 md:min-h-[220px]">
+            <h1 class="font-display font-[800] text-4xl md:text-7xl text-slate-900 leading-[1.1] tracking-tight md:min-h-[160px]">
                 Portal Informasi & <span class="text-transparent bg-clip-text bg-gradient-to-r from-brand-600 to-accent">Layanan Publik</span> Digital.
             </h1>
             <p class="text-lg md:text-xl text-slate-500 font-medium max-w-2xl mx-auto leading-relaxed">
@@ -99,7 +101,7 @@
                     <i class="fa-solid fa-magnifying-glass text-xl"></i>
                 </div>
                 <input type="text" name="cari" value="<?= isset($_GET['cari']) ? html_escape($_GET['cari']) : ''; ?>" placeholder="Cari Artikel dan Berita Desa?" class="w-full pl-16 pr-10 py-5 bg-transparent border-none focus:ring-0 text-slate-800 dark:text-white font-semibold placeholder:text-slate-400 placeholder:font-medium transition-colors outline-none">
-                <button type="submit" class="hidden md:block absolute right-2.5 px-8 py-4 bg-slate-900 dark:bg-brand-600 text-white font-display font-black uppercase tracking-widest text-[10px] rounded-[1.5rem] hover:bg-brand-600 dark:hover:bg-brand-500 shadow-lg shadow-slate-900/20 active:scale-95 transition-all outline-none">
+                <button type="submit" class="hidden md:block absolute right-2.5 w-44 py-4 bg-slate-900 dark:bg-brand-600 text-white font-display font-black uppercase tracking-widest text-[10px] rounded-[1.5rem] hover:bg-brand-600 dark:hover:bg-brand-500 shadow-lg shadow-slate-900/20 active:scale-95 transition-all outline-none text-center">
                     Temukan
                 </button>
             </form>
