@@ -134,11 +134,7 @@ class User_model extends MY_Model
             // Ganti pass md5 jadi bcrypt
             $pwBcrypt = generatePasswordHash($password);
 
-            // Modifikasi panjang karakter di kolom user.password menjadi 100 untuk -
-            // backward compatibility dengan kolom di database lama yang hanya 40 karakter.
-            // Hal ini menyebabkan string bcrypt (yang default lengthnya 60 karakter) jadi -
-            // terpotong sehingga $authLolos selalu mereturn FALSE.
-            $this->db->query('ALTER TABLE user MODIFY COLUMN password VARCHAR(100) NOT NULL');
+
             // Lanjut ke update password di database
             $this->config_id()->where('id', $user->id)->update('user', ['password' => $pwBcrypt]);
         }

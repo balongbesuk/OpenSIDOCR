@@ -16,7 +16,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <!-- Tailwind CSS Engine -->
-    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="<?= asset('js/tailwindcss.min.js') ?>"></script>
     <script>
         tailwind.config = {
             theme: {
@@ -216,20 +216,24 @@
                         <div class="space-y-2">
                             <label class="text-sm font-bold text-slate-700 ml-1">Username</label>
                             <div class="relative group">
-                                <i class="fa-solid fa-user absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-blue-500 transition-colors"></i>
+                                <i class="fa-solid fa-user absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 group-focus-within:text-blue-500 transition-colors"></i>
                                 <input name="username" type="text" autocomplete="off" placeholder="Nama pengguna" 
                                     <?php jecho($this->session->siteman_wait, 1, 'disabled') ?> 
-                                    class="input-premium w-full h-14 rounded-2xl pl-12 pr-4 text-sm font-semibold text-slate-900 required" maxlength="100">
+                                    class="input-premium w-full h-14 rounded-2xl pl-12 pr-4 text-sm font-semibold text-slate-900 required" maxlength="100" autofocus>
                             </div>
                         </div>
 
                         <div class="space-y-2">
                             <label class="text-sm font-bold text-slate-700 ml-1">Password</label>
                             <div class="relative group">
-                                <i class="fa-solid fa-lock absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-blue-500 transition-colors"></i>
+                                <i class="fa-solid fa-lock absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 group-focus-within:text-blue-500 transition-colors"></i>
                                 <input id="password" name="password" type="password" autocomplete="off" placeholder="Kata sandi" 
                                     <?php jecho($this->session->siteman_wait, 1, 'disabled') ?> 
-                                    class="input-premium w-full h-14 rounded-2xl pl-12 pr-4 text-sm font-semibold text-slate-900 required" maxlength="100">
+                                    class="input-premium w-full h-14 rounded-2xl pl-12 pr-28 text-sm font-semibold text-slate-900 required" maxlength="100">
+                                <div id="capslock-warning" class="hidden absolute right-3 top-1/2 -translate-y-1/2 text-[11px] font-bold text-amber-700 bg-amber-50 px-2.5 py-1 rounded-xl border border-amber-200/80 items-center space-x-1 shadow-sm">
+                                    <i class="fa-solid fa-arrow-up text-[10px]"></i>
+                                    <span>Caps Lock</span>
+                                </div>
                             </div>
                         </div>
 
@@ -276,7 +280,7 @@
 
     <script>
         function start_countdown() {
-            var times = eval(<?= json_encode(((int) ($time_block ?? 0)) + config_item('lockout_time'), JSON_THROW_ON_ERROR) ?>) - eval(<?= json_encode(time(), JSON_THROW_ON_ERROR) ?>);
+            var times = <?= ((int) ($time_block ?? 0)) + (int) config_item('lockout_time') ?> - <?= time() ?>;
             if (times <= 0) {
                 location.reload();
                 return;
@@ -303,6 +307,26 @@
                     dot.removeClass('translate-x-4');
                 }
             });
+
+            $('#password').on('keyup keydown', function(e) {
+                if (e.originalEvent && typeof e.originalEvent.getModifierState === 'function') {
+                    if (e.originalEvent.getModifierState('CapsLock')) {
+                        $('#capslock-warning').removeClass('hidden').addClass('flex');
+                    } else {
+                        $('#capslock-warning').removeClass('flex').addClass('hidden');
+                    }
+                }
+            }).on('blur', function() {
+                $('#capslock-warning').removeClass('flex').addClass('hidden');
+            });
+
+            $('#validasi').on('submit', function() {
+                var btn = $(this).find('button[type="submit"]');
+                setTimeout(function() {
+                    btn.prop('disabled', true).addClass('opacity-75 cursor-not-allowed').html('<span>Memproses...</span> <i class="fa-solid fa-circle-notch fa-spin"></i>');
+                }, 10);
+            });
+
             if ($('#countdown').length) start_countdown();
         });
     </script>

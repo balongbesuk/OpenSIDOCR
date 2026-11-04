@@ -481,7 +481,7 @@ class Mandiri_model extends MY_Model
         session_error_clear();
 
         $masuk = $this->input->post();
-        $nik   = bilangan(bilangan($masuk['nik']));
+        $nik   = bilangan($masuk['nik']);
         $pin   = hash_pin(bilangan($masuk['pin']));
 
         $data = $this->config_id('pm')
@@ -547,7 +547,7 @@ class Mandiri_model extends MY_Model
 
         $masuk = $this->input->post();
         $pin   = hash_pin(bilangan($masuk['pin']));
-        $tag   = bilangan(bilangan($masuk['tag']));
+        $tag   = bilangan($masuk['tag']);
 
         $data = $this->config_id('pm')
             ->select('pm.*, p.nama, p.nik, p.tag_id_card, p.foto, p.kk_level, p.id_kk, k.no_kk')

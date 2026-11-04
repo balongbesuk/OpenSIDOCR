@@ -116,7 +116,8 @@ class Siteman extends MY_Controller
         // Notif bisa dipanggil sewaktu-waktu dan tidak digunakan untuk redirect
         if (isset($_SESSION['request_uri']) && strpos($_SESSION['request_uri'], 'notif/') === false) {
             // Lengkapi url supaya tidak diubah oleh redirect
-            $request_awal = $_SERVER['HTTP_ORIGIN'] . $_SESSION['request_uri'];
+            $origin = $_SERVER['HTTP_ORIGIN'] ?? (($_SERVER['REQUEST_SCHEME'] ?? 'http') . '://' . ($_SERVER['HTTP_HOST'] ?? 'localhost'));
+            $request_awal = $origin . $_SESSION['request_uri'];
             unset($_SESSION['request_uri']);
             redirect($request_awal);
         } else {
@@ -157,7 +158,6 @@ class Siteman extends MY_Controller
     {
         if ($this->session->siteman == 1 && $this->session->user) {
             $this->session->last_active = time();
-            User::where('id', $this->session->user)->update(['last_login' => Carbon::now()]);
 
             return $this->output
                 ->set_content_type('application/json')
@@ -234,7 +234,7 @@ class Siteman extends MY_Controller
                 ['email' => $request->email, 'token' => $request->token, 'password' => $request->password],
                 function ($user, $password) {
                     // TODO: OpenKab - Perlu disesuaikan ulang setelah semua modul selesai
-                    $this->db->where('id', $user->id)->update('user', ['password' => $this->generatePasswordHash($password)]);
+                    $this->db->where('id', $user->id)->update('user', ['password' => generatePasswordHash($password)]);
                 }
             );
         } catch (Exception $e) {
@@ -254,17 +254,4 @@ class Siteman extends MY_Controller
         }
     }
 
-    protected function generatePasswordHash($string)
-    {
-        // Pastikan inputnya adalah string
-        $string = is_string($string) ? $string : (string) $string;
-        // Buat hash password
-        $pwHash = password_hash($string, PASSWORD_BCRYPT);
-        // Cek kekuatan hash, regenerate jika masih lemah
-        if (password_needs_rehash($pwHash, PASSWORD_BCRYPT)) {
-            $pwHash = password_hash($string, PASSWORD_BCRYPT);
-        }
-
-        return $pwHash;
-    }
 }

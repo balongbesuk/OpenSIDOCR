@@ -1,5 +1,48 @@
 Aplikasi **OpenSIDOCR** merupakan pengembangan lanjutan dari **OpenSID versi 2403.0.0** dan seterusnya oleh Pemerintah Desa Balongbesuk ([balongbesuk/OpenSIDOCR](https://github.com/balongbesuk/OpenSIDOCR)).
 
+### Rilis v1.2.6 (Audit Keamanan, Performa Offline, dan Penyempurnaan UI/UX Siteman & Layanan Mandiri)
+
+Rilis perbaikan dan peningkatan kualitas kode (*Ponytail audit*) pada portal autentikasi Admin (`/siteman`) dan Layanan Mandiri Warga (`/layanan-mandiri/masuk`):
+
+#### Keamanan & Kestabilan Sistem (*Security & Reliability*)
+
+1. **Dukungan Proteksi CSRF Lengkap pada Form Layanan Mandiri:**
+   - Menambahkan token CSRF tersembunyi (`csrf_token_name`) pada form pendaftaran dan form login warga di `donjo-app/views/fmandiri/masuk.php` untuk mencegah error penolakan HTTP 403 Forbidden saat proteksi CSRF diaktifkan.
+
+2. **Penguatan Verifikasi Kios/Anjungan Layanan Mandiri:**
+   - Memperbaiki validasi token pada `donjo-app/controllers/fmandiri/Masuk.php` dengan pengecekan `!empty()` dan fungsi `hash_equals()` tahan *timing-attack* untuk mencegah potensi bypass autentikasi perangkat anjungan saat token belum dikonfigurasi.
+
+3. **Eliminasi Penggunaan `eval()` & Kepatuhan CSP:**
+   - Mengganti kalkulasi countdown waktu tunggu sesi (`mandiri_timeout` & `time_block`) di `donjo-app/views/fmandiri/masuk.php` dan `donjo-app/views/siteman.php` dengan perhitungan aritmatika integer langsung tanpa `eval()`.
+
+4. **Perbaikan Fallback Lockout & Sanitasi Input:**
+   - Memperbaiki penanganan waktu blokir login (`lockout_time`) di `donjo-app/controllers/Siteman.php` dan `donjo-app/models/User_model.php`.
+   - Menghapus pemanggilan fungsi ganda `bilangan()` pada `donjo-app/models/Mandiri_model.php`.
+
+#### Performa & Dukungan Offline (*Offline & Lean Performance*)
+
+1. **Dukungan Penuh Penggunaan Offline / Intranet Balai Desa:**
+   - Menyediakan aset lokal mandiri `assets/js/tailwindcss.min.js` menggantikan dependensi CDN eksternal pada halaman login Siteman dan Layanan Mandiri.
+
+2. **Pembersihan Beban Aset Script (Hemat ~450KB):**
+   - Mengeliminasi duplikasi pemuatan `jquery.min.js` pada tag `<head>` Layanan Mandiri.
+   - Menghapus library yang tidak dipakai pada login mandiri (`moment-timezone`, `adminlte.min.js`, `slimscroll`, `fastclick`) dan hanya memuat aset datetimepicker secara kondisional saat form pendaftaran aktif.
+
+#### Penyempurnaan Pengalaman Pengguna (*UI/UX Polish*)
+
+1. **Pencegahan Double-Submit (*Rage Click*):**
+   - Mencegah pengiriman request formulir ganda pada tombol Masuk di kedua portal login dengan auto-disable dan indikator loading visual (*"Memproses..."*).
+
+2. **Auto-Focus & Peringatan Caps Lock Dinamis:**
+   - Menambahkan autofocus kursor otomatis pada kolom input pertama (Username di Siteman, NIK di Layanan Mandiri).
+   - Menambahkan indikator visual interaktif saat tombol *Caps Lock* keyboard sedang menyala di form password Siteman.
+
+3. **Kemudahan Input & Petunjuk Ramah Warga:**
+   - Menambahkan pembatasan digit `maxlength="16"`, `inputmode="numeric"`, filter non-angka otomatis, dan perenggangan spasi karakter NIK.
+   - Menambahkan teks edukatif bantuan pembuatan/reset PIN di kantor desa serta memperpanjang durasi alert notifikasi menjadi 9 detik dengan fitur tap/klik untuk menutup.
+
+---
+
 ### Rilis v1.2.5 (Perbaikan Bug Tampilan Waktu Peristiwa Status Mati & Pindah pada Biodata Penduduk)
 
 Rilis perbaikan pada modul Kependudukan khususnya tampilan detail/biodata penduduk:

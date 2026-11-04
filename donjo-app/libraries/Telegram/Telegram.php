@@ -77,7 +77,7 @@ class Telegram
         $this->ci = get_instance();
 
         $this->token = $this->ci->setting->telegram_token;
-        $this->http  = new HttpClient();
+        $this->http  = new HttpClient(['timeout' => 3.0, 'connect_timeout' => 2.0]);
     }
 
     /**

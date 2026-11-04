@@ -56,7 +56,7 @@ class Masuk extends Web_Controller
     {
         $mac_address = $this->input->get('mac_address', true);
         $token       = $this->input->get('token_layanan', true);
-        if (($mac_address && $token == $this->setting->layanan_opendesa_token) || $this->session->mandiri == 1) {
+        if (($mac_address && ! empty($this->setting->layanan_opendesa_token) && hash_equals((string) $this->setting->layanan_opendesa_token, (string) $token)) || $this->session->mandiri == 1) {
             $this->session->mac_address = $mac_address;
             redirect('layanan-mandiri/beranda');
         }
