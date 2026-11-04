@@ -30,9 +30,15 @@
 
                 <!-- Hero Title & Subtitle -->
                 <div class="max-w-3xl mb-12">
-                    <div class="inline-flex items-center gap-2.5 px-3.5 py-1.5 rounded-full bg-brand-50 dark:bg-brand-950/60 border border-brand-200 dark:border-brand-900/50 mb-4 shadow-sm">
-                        <span class="w-2 h-2 rounded-full bg-brand-600 animate-pulse"></span>
-                        <span class="text-brand-700 dark:text-brand-300 font-black tracking-[0.2em] uppercase text-[10px]">Data Visualization Center</span>
+                    <div class="flex flex-wrap items-center gap-2.5 mb-4">
+                        <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-brand-50 dark:bg-brand-950/60 border border-brand-200 dark:border-brand-900/50 shadow-sm">
+                            <span class="w-2 h-2 rounded-full bg-brand-600 animate-pulse"></span>
+                            <span class="text-brand-700 dark:text-brand-300 font-black tracking-[0.2em] uppercase text-[10px]">Data Visualization Center</span>
+                        </div>
+                        <div class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 text-[11px] font-semibold border border-slate-200 dark:border-slate-700/80">
+                            <i class="fa-solid fa-clock-rotate-left text-[10px] text-brand-600 dark:text-brand-400"></i>
+                            <span>Data otomatis per <?= tgl_indo(date('Y-m-d')) ?></span>
+                        </div>
                     </div>
                     <h1 class="premium-h1 text-3xl md:text-5xl lg:text-6xl mb-4 font-display font-black leading-tight text-slate-900 dark:text-white">
                         Portal Data Statistik <span class="text-transparent bg-clip-text bg-gradient-to-r from-brand-600 to-emerald-500">Desa <?= html_escape($desa['nama_desa']) ?></span>.
@@ -117,6 +123,30 @@
                         </p>
                     </div>
 
+                </div>
+
+                <!-- [FEATURE HIGHLIGHT: Piramida Penduduk & Perkembangan] -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-12">
+                    <a href="<?= site_url('data-statistik/rentang-umur') ?>" class="p-6 rounded-[2rem] bg-gradient-to-r from-blue-900 to-indigo-900 text-white flex items-center justify-between group hover:shadow-xl transition-all duration-300 relative overflow-hidden">
+                        <div class="relative z-10">
+                            <span class="text-[10px] font-black uppercase tracking-widest text-blue-300 bg-white/10 px-2.5 py-1 rounded-full inline-block mb-2">Demografi Utama</span>
+                            <h3 class="text-lg md:text-xl font-display font-black text-white group-hover:text-blue-200 transition-colors">Piramida & Rentang Umur</h3>
+                            <p class="text-xs text-blue-200/80 mt-1 max-w-sm">Distribusi proporsi penduduk balita, usia sekolah, angkatan kerja produktif, dan lansia.</p>
+                        </div>
+                        <div class="w-14 h-14 rounded-2xl bg-white/10 flex items-center justify-center text-2xl text-blue-300 group-hover:scale-110 group-hover:bg-blue-600 group-hover:text-white transition-all shadow-inner">
+                            <i class="fa-solid fa-users-viewfinder"></i>
+                        </div>
+                    </a>
+                    <a href="<?= site_url('perkembangan-penduduk') ?>" class="p-6 rounded-[2rem] bg-gradient-to-r from-emerald-900 to-teal-900 text-white flex items-center justify-between group hover:shadow-xl transition-all duration-300 relative overflow-hidden">
+                        <div class="relative z-10">
+                            <span class="text-[10px] font-black uppercase tracking-widest text-emerald-300 bg-white/10 px-2.5 py-1 rounded-full inline-block mb-2">Dinamika Warga</span>
+                            <h3 class="text-lg md:text-xl font-display font-black text-white group-hover:text-emerald-200 transition-colors">Tren Laju Perkembangan</h3>
+                            <p class="text-xs text-emerald-200/80 mt-1 max-w-sm">Dinamika riwayat kelahiran, kematian, pindah datang, dan mutasi penduduk antar tahun.</p>
+                        </div>
+                        <div class="w-14 h-14 rounded-2xl bg-white/10 flex items-center justify-center text-2xl text-emerald-300 group-hover:scale-110 group-hover:bg-emerald-600 group-hover:text-white transition-all shadow-inner">
+                            <i class="fa-solid fa-chart-line"></i>
+                        </div>
+                    </a>
                 </div>
 
                 <!-- [SEARCH & FILTER BAR TOOLBAR] -->
@@ -360,7 +390,7 @@
     </script>
 
     <script src="<?= base_url($folder_themes . '/assets/js/app.js') ?>"></script>
-    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script src="<?= base_url($folder_themes . '/assets/js/aos.js') ?>"></script>
 
 </body>
 </html>

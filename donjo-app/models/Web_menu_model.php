@@ -227,12 +227,19 @@ class Web_menu_model extends MY_Model
         ];
     }
 
+    protected static $cached_active_links = null;
+
     public function menu_aktif($link)
     {
-        return $this->config_id()
-            ->where('link', $link)
-            ->where('enabled', 1)
-            ->get($this->table)
-            ->num_rows();
+        if (self::$cached_active_links === null) {
+            $rows = $this->config_id()
+                ->select('link')
+                ->where('enabled', 1)
+                ->get($this->table)
+                ->result_array();
+            self::$cached_active_links = array_flip(array_column($rows, 'link'));
+        }
+
+        return isset(self::$cached_active_links[$link]);
     }
 }

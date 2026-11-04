@@ -62,21 +62,21 @@ class Laporan_penduduk_model extends MY_Model
     private function dusun_sql()
     {
         if ($dusun = $this->session->userdata('dusun')) {
-            return "AND a.dusun = '{$dusun}' ";
+            return 'AND a.dusun = ' . $this->db->escape($dusun) . ' ';
         }
     }
 
     private function rw_sql()
     {
         if ($rw = $this->session->userdata('rw')) {
-            return "AND a.rw = '{$rw}' ";
+            return 'AND a.rw = ' . $this->db->escape($rw) . ' ';
         }
     }
 
     private function rt_sql()
     {
         if ($rt = $this->session->userdata('rt')) {
-            return "AND a.rt = '{$rt}' ";
+            return 'AND a.rt = ' . $this->db->escape($rt) . ' ';
         }
     }
 

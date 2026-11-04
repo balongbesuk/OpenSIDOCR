@@ -1,5 +1,56 @@
 Aplikasi **OpenSIDOCR** merupakan pengembangan lanjutan dari **OpenSID versi 2403.0.0** dan seterusnya oleh Pemerintah Desa Balongbesuk ([balongbesuk/OpenSIDOCR](https://github.com/balongbesuk/OpenSIDOCR)).
 
+### Rilis v1.2.7 (Optimasi Performa Beranda, Kecepatan Modul Statistik, dan Kemandirian Aset Offline)
+
+Rilis perbaikan efisiensi memori, performa akses publik, dan penguatan keamanan pada Beranda Utama (`/first`) serta Portal Statistik Publik (`/data-statistik`):
+
+#### Performa & Optimalisasi Sumber Daya (*Performance & Resource Efficiency*)
+
+1. **Pemangkasan Beban Model Beranda (Hemat RAM):**
+   - Memangkas inisialisasi eager 14 model tidak terpakai pada konstruktor controller `First.php` dan menerapkan *lazy-loading* on-demand (`laporan_penduduk_model`, `first_penduduk_m`, `web_dokumen_model`, `program_bantuan_model`, `analisis_import_model`, `penduduk_model`).
+   - Menghapus 7 model usang yang tidak pernah dipanggil di alur website publik (`surat_model`, `keluarga_model`, `keluar_model`, `keuangan_model`, `keuangan_manual_model`, `plan_lokasi_model`, `plan_area_model`, `plan_garis_model`).
+
+2. **Eliminasi Zombie Query Agregasi COVID-19:**
+   - Menghapus query agregasi penghitungan status kesehatan seluruh penduduk pada method `First::index()` yang sudah tidak lagi digunakan atau ditampilkan di tema modern.
+
+3. **Proteksi Timeout Permintaan Eksternal:**
+   - Menambahkan batas timeout cURL (2 detik koneksi, 3 detik eksekusi) pada fungsi pembantu `cek_bisa_akses_site()` di `donjo-app/helpers/opensid_helper.php`, mencegah potensi server *hang / freeze* saat memverifikasi tautan feed atau server luar.
+
+4. **In-Memory Caching Menu Aktif (Solusi N+1 Query):**
+   - Menerapkan static cache pada method `menu_aktif()` di `Web_menu_model.php` untuk memotong query berulang ke tabel menu menjadi satu kali pembacaan per request.
+
+5. **Sinkronisasi Agregasi Data Keluarga:**
+   - Menyelaraskan penghitungan jumlah keluarga aktif di `donjo-app/controllers/fweb/Statistik.php` menggunakan query builder `Keluarga::status()->count()` untuk konsistensi angka demografi.
+
+#### Keamanan & Kestabilan Sistem (*Security & Reliability*)
+
+1. **Penguatan Filter SQL Injection pada Laporan Penduduk:**
+   - Menambahkan pengamanan escape database `$this->db->escape()` pada filter sesi dusun, RW, dan RT di `donjo-app/models/Laporan_penduduk_model.php`.
+
+2. **Pembersihan Rute Web Ganda:**
+   - Menghapus definisi rute ganda untuk endpoint statistik di `donjo-app/config/routes/web.php`.
+
+3. **Sanitasi Parameter Pencarian pada View:**
+   - Mengganti akses langsung variabel superglobal `$_GET['cari']` di `desa/themes/tema/template.php` menggunakan `$cari` yang telah divalidasi oleh controller.
+
+#### Kemandirian Aset & Dukungan Offline (*Offline-First Assets*)
+
+1. **Lokalisasi Pustaka Animasi AOS (Bebas Ketergantungan CDN):**
+   - Menyimpan aset pustaka `aos.js` dan `aos.css` secara lokal di dalam tema desa (`desa/themes/tema/assets/`), memutus seluruh ketergantungan CDN eksternal `unpkg.com` di `template.php`, `meta.php`, serta seluruh layout template publik.
+
+#### Peningkatan Fitur & Pengalaman Pengguna (*UI/UX Enhancements*)
+
+1. **Highlight Demografi & Dinamika Warga:**
+   - Menyediakan kartu akses cepat visual untuk navigasi *Piramida & Rentang Umur* serta tren *Laju Perkembangan Penduduk* pada portal statistik.
+
+2. **Indikator Kesegaran Data & Insight Otomatis:**
+   - Menampilkan penanda tanggal pembaruan otomatis hari ini serta ringkasan naratif kelompok data mayoritas di atas tabel statistik.
+
+3. **Fitur Salin Data Tabel Sekali Klik:**
+   - Menambahkan tombol salin ke clipboard untuk memudahkan staf desa menyalin data tabel statistik ke dokumen laporan kantor secara instan.
+
+---
+
 ### Rilis v1.2.6 (Audit Keamanan, Performa Offline, dan Penyempurnaan UI/UX Siteman & Layanan Mandiri)
 
 Rilis perbaikan dan peningkatan kualitas kode (*Ponytail audit*) pada portal autentikasi Admin (`/siteman`) dan Layanan Mandiri Warga (`/layanan-mandiri/masuk`):

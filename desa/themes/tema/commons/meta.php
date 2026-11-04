@@ -186,9 +186,7 @@ $current_url = html_escape($current_url);
 
     <!-- Resource Preloading -->
 
-    <link rel="dns-prefetch" href="https://unpkg.com">
 
-    <link rel="preconnect" href="https://unpkg.com" crossorigin>
 
     <link rel="preload" href="<?= base_url($folder_themes . '/assets/webfonts/fa-solid-900.woff2') ?>" as="font" type="font/woff2" crossorigin>
 
@@ -206,11 +204,11 @@ $current_url = html_escape($current_url);
 
     <!-- AOS (Animate On Scroll) -->
 
-    <link rel="preload" as="style" href="https://unpkg.com/aos@2.3.1/dist/aos.css">
+    <link rel="preload" as="style" href="<?= base_url($folder_themes . '/assets/css/aos.css') ?>">
 
-    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet" media="print" onload="this.media='all'">
+    <link href="<?= base_url($folder_themes . '/assets/css/aos.css') ?>" rel="stylesheet" media="print" onload="this.media='all'">
 
-    <noscript><link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet"></noscript>
+    <noscript><link href="<?= base_url($folder_themes . '/assets/css/aos.css') ?>" rel="stylesheet"></noscript>
 
     <!-- Tailwind CSS Engine -->
 

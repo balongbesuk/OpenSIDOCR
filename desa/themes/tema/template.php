@@ -30,7 +30,7 @@
 
         // Logic: Tampilkan Slider & Profil Hanya di Beranda (Bukan Search)
 
-        if ((empty($_GET['cari'])) && (!empty($slide_galeri) || !empty($artikel))): ?>
+        if ((empty($cari)) && (!empty($slide_galeri) || !empty($artikel))): ?>
 
             
 
@@ -118,7 +118,7 @@
 
     <!-- AOS (Animate On Scroll) Logic -->
 
-    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script src="<?= base_url($folder_themes . '/assets/js/aos.js') ?>"></script>
 
 
 

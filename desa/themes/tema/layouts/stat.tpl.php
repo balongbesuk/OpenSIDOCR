@@ -374,11 +374,41 @@
 
                         <!-- [TABEL DATA] -->
                         <div class="space-y-6">
-                            <div class="flex items-center gap-6 px-2">
+                            <?php
+                            $top_item = null;
+                            $total_item = null;
+                            if (is_array($stat)) {
+                                foreach ($stat as $row) {
+                                    if (in_array(strtoupper($row['nama'] ?? ''), ['TOTAL', 'JUMLAH'])) {
+                                        $total_item = $row;
+                                        continue;
+                                    }
+                                    if (is_numeric($row['jumlah'] ?? 0) && ($top_item === null || (int)$row['jumlah'] > (int)$top_item['jumlah'])) {
+                                        $top_item = $row;
+                                    }
+                                }
+                            }
+                            ?>
+                            <?php if ($top_item && !empty($top_item['jumlah']) && !empty($total_item['jumlah']) && (int)$total_item['jumlah'] > 0): ?>
+                                <div class="p-4 md:p-5 rounded-2xl bg-brand-50/80 dark:bg-brand-950/40 border border-brand-200 dark:border-brand-900/50 flex items-center gap-3.5 text-xs md:text-sm text-slate-700 dark:text-slate-300">
+                                    <div class="w-9 h-9 rounded-xl bg-brand-600 text-white flex items-center justify-center shrink-0 text-base shadow-sm">
+                                        <i class="fa-solid fa-lightbulb"></i>
+                                    </div>
+                                    <div>
+                                        <span class="font-bold text-brand-700 dark:text-brand-300">Sekilas Data:</span>
+                                        Kategori terbanyak adalah <strong><?= html_escape($top_item['nama']) ?></strong> sebanyak <strong><?= number_format($top_item['jumlah'], 0, ',', '.') ?> jiwa</strong> (<?= html_escape($top_item['persen'] ?? round(((int)$top_item['jumlah'] / (int)$total_item['jumlah']) * 100, 1)) ?>% dari total populasi).
+                                    </div>
+                                </div>
+                            <?php endif; ?>
+
+                            <div class="flex items-center justify-between gap-4 px-2 flex-wrap">
                                 <h2 class="font-display font-black text-2xl md:text-3xl text-slate-900 dark:text-white flex items-center gap-3">
                                     Rincian Data <span class="text-brand-600 italic">Tabel</span>.
                                 </h2>
-                                <div class="flex-1 h-px bg-slate-200/80 dark:bg-slate-800"></div>
+                                <button type="button" id="btnSalinTabel" class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 text-xs font-bold transition-all shadow-sm active:scale-95" title="Salin isi tabel untuk ditempel ke Excel / Spreadsheet">
+                                    <i class="fa-regular fa-copy"></i>
+                                    <span id="btnSalinText">Salin Tabel</span>
+                                </button>
                             </div>
 
                             <div class="p-4 md:p-8 rounded-[3.5rem] bg-white dark:bg-slate-900/40 backdrop-blur-md border border-slate-100 dark:border-slate-800 shadow-2xl shadow-slate-200/40 dark:shadow-none relative overflow-hidden">
@@ -516,6 +546,36 @@
             });
         });
 
+        $('#btnSalinTabel').on('click', function() {
+            var table = document.querySelector('#table-only table');
+            if (!table) return;
+            var rows = Array.from(table.querySelectorAll('tr'));
+            var text = rows.map(function(row) {
+                var cells = Array.from(row.querySelectorAll('th, td'));
+                return cells.map(function(cell) { return cell.innerText.trim(); }).join('\t');
+            }).join('\n');
+
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(text).then(function() {
+                    $('#btnSalinText').text('Tersalin!');
+                    $('#btnSalinTabel').addClass('text-emerald-600 bg-emerald-50 dark:bg-emerald-950/50');
+                    setTimeout(function() {
+                        $('#btnSalinText').text('Salin Tabel');
+                        $('#btnSalinTabel').removeClass('text-emerald-600 bg-emerald-50 dark:bg-emerald-950/50');
+                    }, 2000);
+                });
+            } else {
+                var ta = document.createElement('textarea');
+                ta.value = text;
+                document.body.appendChild(ta);
+                ta.select();
+                document.execCommand('copy');
+                document.body.removeChild(ta);
+                $('#btnSalinText').text('Tersalin!');
+                setTimeout(function() { $('#btnSalinText').text('Salin Tabel'); }, 2000);
+            }
+        });
+
         window.addEventListener('scroll', function() {
             const bt = document.getElementById('backToTop');
             if (window.scrollY > 500) {
@@ -532,7 +592,7 @@
     <script src="<?= base_url($folder_themes . '/assets/js/app.js') ?>"></script>
 
     <!-- AOS (Animate On Scroll) Logic -->
-    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script src="<?= base_url($folder_themes . '/assets/js/aos.js') ?>"></script>
 
 </body>
 </html>

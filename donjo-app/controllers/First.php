@@ -53,23 +53,9 @@ class First extends Web_Controller
         $this->security_trusted_host->handle();
 
         $this->load->model('first_artikel_m');
-        $this->load->model('first_penduduk_m');
-        $this->load->model('penduduk_model');
-        $this->load->model('surat_model'); // TODO: Cek digunakan halaman apa saja
-        $this->load->model('keluarga_model'); // TODO: Cek digunakan halaman apa saja
-        $this->load->model('laporan_penduduk_model');
         $this->load->model('track_model');
-        $this->load->model('keluar_model'); // TODO: Cek digunakan halaman apa saja
-        $this->load->model('keuangan_model'); // TODO: Cek digunakan halaman apa saja
-        $this->load->model('keuangan_manual_model'); // TODO: Cek digunakan halaman apa saja
-        $this->load->model('web_dokumen_model');
-        $this->load->model('program_bantuan_model');
         $this->load->model('keuangan_grafik_model');
         $this->load->model('keuangan_grafik_manual_model');
-        $this->load->model('plan_lokasi_model'); // TODO: Cek digunakan halaman apa saja
-        $this->load->model('plan_area_model'); // TODO: Cek digunakan halaman apa saja
-        $this->load->model('plan_garis_model'); // TODO: Cek digunakan halaman apa saja
-        $this->load->model('analisis_import_model');
     }
 
     public function index($p = 1)
@@ -101,8 +87,6 @@ class First extends Web_Controller
                 ? $this->keuangan_grafik_manual_model->grafik_keuangan_tema()
                 : $this->keuangan_grafik_model->grafik_keuangan_tema();
         }
-
-        $data['covid'] = $this->laporan_penduduk_model->list_data('covid');
 
         $cari = trim($this->input->get('cari', true));
         if (! empty($cari)) {
@@ -193,6 +177,8 @@ class First extends Web_Controller
 
         public function statistik($stat = 0, $tipe = 0)
     {
+        $this->load->model('laporan_penduduk_model');
+
         if ($slug = StatistikEnum::slugFromKey($stat)) {
             $qs = $this->input->server('QUERY_STRING') ? '?' . $this->input->server('QUERY_STRING') : '';
             redirect('data-statistik/' . $slug . ($tipe ? "/{$tipe}" : '') . $qs);
@@ -251,6 +237,7 @@ class First extends Web_Controller
 
     public function ajax_peserta_program_bantuan()
     {
+        $this->load->model('program_bantuan_model');
         $peserta = $this->program_bantuan_model->get_peserta_bantuan();
         $data    = [];
         $no      = $_POST['start'];
@@ -282,6 +269,7 @@ class First extends Web_Controller
 
         $master = $this->input->get('master', true);
 
+        $this->load->model('first_penduduk_m');
         $data                     = $this->includes;
         $data['master_indikator'] = $this->first_penduduk_m->master_indikator();
         $data['list_indikator']   = $this->first_penduduk_m->list_indikator($master);
@@ -299,6 +287,7 @@ class First extends Web_Controller
             show_404();
         }
 
+        $this->load->model('first_penduduk_m');
         $data               = $this->includes;
         $data['list_jawab'] = $this->first_penduduk_m->list_jawab($stat, $sb, $per);
         $data['indikator']  = $this->first_penduduk_m->get_indikator($stat);
@@ -362,6 +351,7 @@ class First extends Web_Controller
             show_404();
         }
 
+        $this->load->model('web_dokumen_model');
         $data = $this->includes;
 
         $data['kategori']       = $this->referensi_model->list_data('ref_dokumen', 1);
@@ -377,6 +367,7 @@ class First extends Web_Controller
 
     public function ajax_informasi_publik()
     {
+        $this->load->model('web_dokumen_model');
         $informasi_publik = $this->web_dokumen_model->get_informasi_publik();
         $data             = [];
         $no               = $_POST['start'];
@@ -438,6 +429,7 @@ class First extends Web_Controller
      */
     public function dokumen_unduh_berkas($id_dokumen, $id_pend = null, $tampil = false)
     {
+        $this->load->model('web_dokumen_model');
         // Ambil nama berkas dari database
         $data = $this->web_dokumen_model->get_dokumen($id_dokumen, $id_pend);
         ambilBerkas($data['satuan'], $this->controller, null, LOKASI_DOKUMEN, $tampil);
@@ -541,6 +533,7 @@ class First extends Web_Controller
 
     public function load_aparatur_wilayah($id = '', $kd_jabatan = 0)
     {
+        $this->load->model('penduduk_model');
         $data['penduduk'] = $this->penduduk_model->get_penduduk($id);
         $kepala_dusun     = 'Kepala ' . ucwords($this->setting->sebutan_dusun);
 
@@ -575,6 +568,7 @@ class First extends Web_Controller
                 $this->session->inside_retry = true;
             }
             $this->session->google_form_id = $this->input->get('formId', true);
+            $this->load->model('analisis_import_model');
             $result                        = $this->analisis_import_model->import_gform($redirect_link);
 
             echo json_encode($result);
