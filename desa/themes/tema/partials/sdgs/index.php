@@ -3,7 +3,7 @@
 <div class="sdgs-container">
     <!-- Header Section -->
     <div class="mb-16 text-center">
-        <div class="flex items-center justify-center gap-2 mb-4 text-brand-600 font-bold tracking-[0.2em] uppercase text-[10px]">
+        <div class="flex items-center justify-center gap-2 mb-4 text-brand-600 dark:text-brand-400 font-bold tracking-[0.2em] uppercase text-[10px]">
             <span class="w-8 h-px bg-brand-600"></span>
             Sustainable Development Goals
             <span class="w-8 h-px bg-brand-600"></span>

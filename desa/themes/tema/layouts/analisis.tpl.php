@@ -28,7 +28,7 @@
 
                         <!-- [HEADER] -->
                         <header class="mb-16">
-                            <div class="flex items-center gap-2 mb-4 text-brand-600 font-bold tracking-[0.2em] uppercase text-[10px]">
+                            <div class="flex items-center gap-2 mb-4 text-brand-600 dark:text-brand-400 font-bold tracking-[0.2em] uppercase text-[10px]">
                                 <span class="w-8 h-px bg-brand-600"></span>
                                 Strategic Insight
                             </div>
@@ -97,7 +97,7 @@
                                     <!-- Chart Container -->
                                     <div class="bg-white dark:bg-slate-900 rounded-[3rem] p-8 md:p-12 border border-slate-100 dark:border-slate-800 shadow-2xl shadow-brand-900/5 overflow-hidden relative">
                                         <div class="relative z-10">
-                                            <div class="flex items-center gap-2 mb-4 text-brand-600 font-bold tracking-[0.2em] uppercase text-[10px]">
+                                            <div class="flex items-center gap-2 mb-4 text-brand-600 dark:text-brand-400 font-bold tracking-[0.2em] uppercase text-[10px]">
                                                 Data Visualisasi
                                             </div>
                                             <h3 class="font-display font-black text-3xl text-slate-900 dark:text-white tracking-tight mb-12 italic">

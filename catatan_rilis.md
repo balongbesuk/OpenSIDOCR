@@ -60,6 +60,10 @@ Rilis perbaikan efisiensi memori, performa akses publik, dan penguatan keamanan 
    - Melokalkan pustaka CSS & JS Leaflet, MarkerCluster, serta plugin Fullscreen ke direktori aset lokal, memutus ketergantungan CDN eksternal.
    - Memperbaiki rasio kontras warna teks badge peta sesuai standar WCAG AA untuk menyempurnakan skor Aksesibilitas.
 
+6. **Peningkatan Kontras Aksesibilitas Tema (WCAG AA Contrast >= 4.5:1):**
+   - Menerapkan aturan kontras global pada `app.css` untuk elemen teks brand (`.text-brand-600` dan `.text-brand-500`) saat mode gelap aktif agar rasio kontras warna selalu memenuhi standar WCAG AA (>= 4.5:1).
+   - Menambahkan varian eksplisit `dark:text-brand-400` pada badge dan label di seluruh layout tema (`analisis`, `arsip`, `dpt`, `gallery`, `sdgs`).
+
 ---
 
 ### Rilis v1.2.6 (Audit Keamanan, Performa Offline, dan Penyempurnaan UI/UX Siteman & Layanan Mandiri)

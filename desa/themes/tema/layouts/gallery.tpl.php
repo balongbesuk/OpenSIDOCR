@@ -34,7 +34,7 @@
 
                         <!-- [HEADER] -->
                         <header class="mb-16">
-                            <div class="flex items-center gap-2 mb-4 text-brand-600 font-bold tracking-[0.2em] uppercase text-[10px]">
+                            <div class="flex items-center gap-2 mb-4 text-brand-600 dark:text-brand-400 font-bold tracking-[0.2em] uppercase text-[10px]">
                                 <span class="w-8 h-px bg-brand-600"></span>
                                 Visual Village Journal
                             </div>

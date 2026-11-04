@@ -77,7 +77,7 @@
                         <div class="max-w-3xl">
                             <div class="flex items-center gap-3 mb-5">
                                 <span class="w-12 h-1 bg-brand-600 rounded-full"></span>
-                                <span class="text-brand-600 font-black tracking-[0.3em] uppercase text-[10px]">Transparansi Demokrasi</span>
+                                <span class="text-brand-600 dark:text-brand-400 font-black tracking-[0.3em] uppercase text-[10px]">Transparansi Demokrasi</span>
                             </div>
                             <h1 class="font-display font-[900] text-4xl md:text-6xl text-slate-900 dark:text-white leading-[1.1] tracking-tight mb-2">
                                 Daftar <span class="text-transparent bg-clip-text bg-gradient-to-r from-brand-600 to-emerald-500">Calon Pemilih</span>.

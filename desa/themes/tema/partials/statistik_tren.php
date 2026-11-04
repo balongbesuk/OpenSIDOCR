@@ -13,7 +13,7 @@
             <div class="max-w-2xl">
                 <div class="flex items-center gap-3 mb-6">
                     <span class="w-12 h-px bg-brand-600"></span>
-                    <span class="text-[10px] font-black text-brand-600 uppercase tracking-[0.3em]">Visualisasi Data</span>
+                    <span class="text-[10px] font-black text-brand-600 dark:text-brand-400 uppercase tracking-[0.3em]">Visualisasi Data</span>
                 </div>
                 <h2 class="font-display font-black text-3xl md:text-5xl text-slate-900 dark:text-white leading-tight">
                     Tren <span class="text-transparent bg-clip-text bg-gradient-to-r from-brand-600 to-accent">Pertumbuhan</span> Desa.

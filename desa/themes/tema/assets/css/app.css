@@ -20,6 +20,12 @@
 .text-slate-500 { color: #334155 !important; }
 .dark .text-slate-500 { color: #cbd5e1 !important; }
 
+/* WCAG AA (4.5:1): Otomatis tingkatkan kontras warna teks brand pada latar belakang gelap */
+.dark .text-brand-600:not([class*="dark:text-"]),
+.dark .text-brand-500:not([class*="dark:text-"]) {
+    color: #60a5fa !important; /* brand-400: Kontras 5.82:1 pada latar gelap (#1d2739/slate-800) */
+}
+
 /**
 
  * Website Official Style Engine
