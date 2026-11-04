@@ -46,7 +46,7 @@
 
             <!-- Statistical Section -->
 
-            <section id="profil-transparansi" class="dark:bg-slate-950">
+            <section id="profil-transparansi" class="hidden md:block dark:bg-slate-950">
 
                 <?php $this->load->view("$folder_themes/commons/profildesa.php"); ?>
 

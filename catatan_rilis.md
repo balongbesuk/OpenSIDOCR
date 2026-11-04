@@ -47,7 +47,7 @@ Rilis perbaikan efisiensi memori, performa akses publik, dan penguatan keamanan 
    - Menyediakan kartu akses cepat visual untuk navigasi *Piramida & Rentang Umur* serta tren *Laju Perkembangan Penduduk* pada portal statistik.
 
 2. **Indikator Kesegaran Data & Insight Otomatis:**
-   - Menampilkan penanda tanggal pembaruan otomatis hari ini serta ringkasan naratif kelompok data mayoritas di atas tabel statistik.
+   - Menampilkan penanda tanggal pembaruan otomatis hari ini serta ringkasan naratif kelompok data mayoritas di atas tabel statistik dengan sanitasi format persentase ganda (%%).
 
 3. **Fitur Salin Data Tabel Sekali Klik:**
    - Menambahkan tombol salin ke clipboard untuk memudahkan staf desa menyalin data tabel statistik ke dokumen laporan kantor secara instan.
@@ -63,6 +63,9 @@ Rilis perbaikan efisiensi memori, performa akses publik, dan penguatan keamanan 
 6. **Peningkatan Kontras Aksesibilitas Tema (WCAG AA Contrast >= 4.5:1):**
    - Menerapkan aturan kontras global pada `app.css` untuk elemen teks brand (`.text-brand-600` dan `.text-brand-500`) saat mode gelap aktif agar rasio kontras warna selalu memenuhi standar WCAG AA (>= 4.5:1).
    - Menambahkan varian eksplisit `dark:text-brand-400` pada badge dan label di seluruh layout tema (`analisis`, `arsip`, `dpt`, `gallery`, `sdgs`).
+
+7. **Penyederhanaan Layout Beranda Mobile:**
+   - Menyembunyikan seksi ringkasan profil statistik (*Data Desa Secara Real-Time*) pada tampilan layar ponsel (`hidden md:block`) untuk mempercepat waktu gulir dan meringkas fokus konten berita utama bagi pengguna mobile.
 
 ---
 

@@ -52,7 +52,7 @@ $persen_perm = ($penduduk > 0) ? round(($perm / $penduduk) * 100, 1) : 0;
 
 
 
-<section class="py-10 md:py-20 bg-white dark:bg-slate-950 relative transition-colors duration-500 overflow-hidden">
+<section class="hidden md:block py-10 md:py-20 bg-white dark:bg-slate-950 relative transition-colors duration-500 overflow-hidden">
 
     <!-- Floating Background Decor -->
 

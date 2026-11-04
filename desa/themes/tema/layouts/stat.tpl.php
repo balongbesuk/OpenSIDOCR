@@ -396,7 +396,7 @@
                                     </div>
                                     <div>
                                         <span class="font-bold text-brand-700 dark:text-brand-300">Sekilas Data:</span>
-                                        Kategori terbanyak adalah <strong><?= html_escape($top_item['nama']) ?></strong> sebanyak <strong><?= number_format($top_item['jumlah'], 0, ',', '.') ?> jiwa</strong> (<?= html_escape($top_item['persen'] ?? round(((int)$top_item['jumlah'] / (int)$total_item['jumlah']) * 100, 1)) ?>% dari total populasi).
+                                        Kategori terbanyak adalah <strong><?= html_escape($top_item['nama']) ?></strong> sebanyak <strong><?= number_format($top_item['jumlah'], 0, ',', '.') ?> jiwa</strong> (<?= html_escape(rtrim((string)($top_item['persen'] ?? round(((int)$top_item['jumlah'] / (int)$total_item['jumlah']) * 100, 1)), '%')) ?>% dari total populasi).
                                     </div>
                                 </div>
                             <?php endif; ?>

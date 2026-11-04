@@ -17,7 +17,7 @@
                             <span class="text-sm font-black text-slate-900 dark:text-white"><?= $data['jumlah'] ?></span>
                         </div>
                         <div class="h-2.5 w-full bg-slate-50 dark:bg-slate-800/50 rounded-full overflow-hidden border border-slate-100 dark:border-slate-800 shadow-inner">
-                            <div class="h-full bg-gradient-to-r from-brand-500 to-brand-700 rounded-full transition-all duration-[1.5s] group-hover/item:scale-x-105 origin-left" style="width: <?= $data['persen'] ?>%"></div>
+                            <div class="h-full bg-gradient-to-r from-brand-500 to-brand-700 rounded-full transition-all duration-[1.5s] group-hover/item:scale-x-105 origin-left" style="width: <?= str_replace(',', '.', rtrim((string)$data['persen'], '%')) ?>%"></div>
                         </div>
                     </div>
                 <?php endforeach; ?>
