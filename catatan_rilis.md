@@ -1,5 +1,15 @@
 Aplikasi **OpenSIDOCR** merupakan pengembangan lanjutan dari **OpenSID versi 2403.0.0** dan seterusnya oleh Pemerintah Desa Balongbesuk ([balongbesuk/OpenSIDOCR](https://github.com/balongbesuk/OpenSIDOCR)).
 
+### Rilis v1.2.8 (Perbaikan Kompatibilitas PHP 8+ Form Surat Keterangan Nikah)
+
+Rilis perbaikan kompatibilitas runtime PHP 8.x pada modul pelayanan persuratan:
+
+#### Perbaikan Bug (*Bug Fixes*)
+
+1. **Eliminasi Fatal Error String Offset pada Form Surat Nikah:**
+   - Memperbaiki fatal error `Exception: Cannot access offset of type string on string` pada `template-surat/surat_ket_nikah/surat_ket_nikah.php` dan `template-surat/surat_ket_nikah_non_muslim/surat_ket_nikah_non_muslim.php`.
+   - Menyelaraskan pemanggilan opsi dropdown `$kode['status_kawin_pria']` yang bertipe array string (`selected($data, ...)` menggantikan pemanggilan usang `$data['nama']`) agar kompatibel penuh dengan PHP 8.0, 8.1, dan 8.2+.
+
 ### Rilis v1.2.7 (Optimasi Performa Beranda, Kecepatan Modul Statistik, dan Kemandirian Aset Offline)
 
 Rilis perbaikan efisiensi memori, performa akses publik, dan penguatan keamanan pada Beranda Utama (`/first`) serta Portal Statistik Publik (`/data-statistik`):

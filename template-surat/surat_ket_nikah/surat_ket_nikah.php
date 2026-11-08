@@ -197,7 +197,7 @@
 											<select class="form-control input-sm select2 required" name="status_kawin_pria" id="status_kawin_pria" style ="width:100%;" onchange="status_beristri($(this).val())">
 												<option value="">-- Pilih Status Kawin --</option>
 												<?php foreach ($kode['status_kawin_pria'] as $data): ?>
-													<option value="<?= $data?>" <?= selected($data['nama'], $_SESSION['post']['status_kawin_pria']); ?>><?= ucwords($data)?></option>
+													<option value="<?= $data?>" <?= selected($data, $_SESSION['post']['status_kawin_pria']); ?>><?= ucwords($data)?></option>
 												<?php endforeach;?>
 											</select>
 										</div>
