@@ -14,6 +14,10 @@ Rilis perbaikan kompatibilitas runtime PHP 8.x pada modul pelayanan persuratan:
    - Memperbaiki potensi fatal error `TypeError: count(): Argument #1 ($value) must be of type Countable|array, null given` saat pemohon pindah mandiri tanpa pengikut di `template-surat/surat_ket_pindah_penduduk/` (`data_rtf_surat_ket_pindah_penduduk.php` & `get_data_lampiran.php`).
    - Normalisasi pencocokan format kode lampiran Disdukcapil (F-1.03, F-1.08, F-1.25, F-1.27) dan pembersihan berkas cadangan `f-1.03 backup.php`.
 
+3. **Pengabaian Arsip Surat Terhapus pada Penomoran Otomatis:**
+   - Memperbaiki query penomoran otomatis (`get_surat_terakhir_type()`) dan validasi nomor duplikat (`nomor_surat_duplikat()`) pada `donjo-app/models/Penomoran_surat_model.php`.
+   - Menambahkan filter `deleted_at IS NULL` agar arsip surat yang telah dihapus (*soft-delete*) tidak lagi menghalangi penggunaan kembali nomor urut surat yang dihapus tersebut.
+
 ### Rilis v1.2.7 (Optimasi Performa Beranda, Kecepatan Modul Statistik, dan Kemandirian Aset Offline)
 
 Rilis perbaikan efisiensi memori, performa akses publik, dan penguatan keamanan pada Beranda Utama (`/first`) serta Portal Statistik Publik (`/data-statistik`):
