@@ -1,6 +1,6 @@
 Aplikasi **OpenSIDOCR** merupakan pengembangan lanjutan dari **OpenSID versi 2403.0.0** dan seterusnya oleh Pemerintah Desa Balongbesuk ([balongbesuk/OpenSIDOCR](https://github.com/balongbesuk/OpenSIDOCR)).
 
-### Rilis v1.2.8 (Perbaikan Kompatibilitas PHP 8+ Form Surat Keterangan Nikah)
+### Rilis v1.2.8 (Perbaikan Kompatibilitas PHP 8+ Form Surat Keterangan Nikah & Pindah Penduduk)
 
 Rilis perbaikan kompatibilitas runtime PHP 8.x pada modul pelayanan persuratan:
 
@@ -9,6 +9,10 @@ Rilis perbaikan kompatibilitas runtime PHP 8.x pada modul pelayanan persuratan:
 1. **Eliminasi Fatal Error String Offset pada Form Surat Nikah:**
    - Memperbaiki fatal error `Exception: Cannot access offset of type string on string` pada `template-surat/surat_ket_nikah/surat_ket_nikah.php` dan `template-surat/surat_ket_nikah_non_muslim/surat_ket_nikah_non_muslim.php`.
    - Menyelaraskan pemanggilan opsi dropdown `$kode['status_kawin_pria']` yang bertipe array string (`selected($data, ...)` menggantikan pemanggilan usang `$data['nama']`) agar kompatibel penuh dengan PHP 8.0, 8.1, dan 8.2+.
+
+2. **Penanganan Aman Count Null Pengikut Surat Pindah Penduduk:**
+   - Memperbaiki potensi fatal error `TypeError: count(): Argument #1 ($value) must be of type Countable|array, null given` saat pemohon pindah mandiri tanpa pengikut di `template-surat/surat_ket_pindah_penduduk/` (`data_rtf_surat_ket_pindah_penduduk.php` & `get_data_lampiran.php`).
+   - Normalisasi pencocokan format kode lampiran Disdukcapil (F-1.03, F-1.08, F-1.25, F-1.27) dan pembersihan berkas cadangan `f-1.03 backup.php`.
 
 ### Rilis v1.2.7 (Optimasi Performa Beranda, Kecepatan Modul Statistik, dan Kemandirian Aset Offline)
 

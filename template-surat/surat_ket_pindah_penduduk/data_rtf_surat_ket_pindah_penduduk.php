@@ -1,5 +1,6 @@
 <?php if (!defined('BASEPATH')) exit('No direct script access allowed');
 
+	$input['id_cb'] = is_array($input['id_cb'] ?? null) ? $input['id_cb'] : [];
 	$buffer = str_replace("[jumlah_pengikut]", count($input['id_cb']), $buffer);
 	for ($i = 0; $i < MAX_PINDAH; $i++)
 	{
