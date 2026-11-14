@@ -34,11 +34,11 @@ Rilis perbaikan kompatibilitas runtime PHP 8.x pada modul pelayanan persuratan &
    - Memperbaiki komponen badge tren mutasi menjadi format pill ringkas (`.trend-pill`) agar teks tidak terlipat (*wrapping*), serta merapikan posisi tombol pengaturan pada kartu bantuan.
    - Mengoptimalkan responsivitas grafik statistik kependudukan Highcharts dan filter dropdown tahun (`.box-header-flex`) agar proporsional dan tidak terpotong pada layar ponsel.
 
-3. **Optimalisasi Tata Letak Mobile Tombol Aksi Toolbar & Form Filter:**
-   - Memperbaiki layout tombol aksi di `.box-header` pada layar ponsel (layar $\le 767\text{px}$) di seluruh modul admin (`Data Penduduk`, `Data Keluarga`, `Wilayah`, `Pemerintah Desa`, `Lembaga`, `Identitas Desa`, dll.).
-   - Menghilangkan tumpukan tombol barcode yang saling berhimpitan tanpa margin dan bersudut tajam (`margin: 0`, `border-radius: 0`) menjadi tombol kartu terpisah dengan *touch target* nyaman ($\ge 42\text{px}$, margin bawah $8\text{px}$, sudut tumpul $6\text{px}$, dan ikon terpusat).
-   - Mengisolasi tombol aksi destruktif (*Hapus Data Terpilih*) dengan margin pengaman untuk mencegah salah sentuh (*accidental tap*).
-   - Menyelaraskan form kontrol filter dropdown dan kotak pencarian agar memiliki tinggi sentuh ergonomis ($38\text{px}$) dan rapi saat reflow di perangkat mobile.
+3. **Tata Letak Tombol Aksi Toolbar & Filter Ergonomis Mobile (Global Card-Pill):**
+   - Memperbaiki tatanan tombol aksi pada `.box-header` di seluruh modul admin (`Data Penduduk`, `Data Keluarga`, `Wilayah Dusun`, `Buku Administrasi Desa`, `Pengelolaan Lembaga`, `Identitas Desa`, dsb.) pada layar ponsel ($\le 767\text{px}$).
+   - Mengeliminasi tampilan tombol vertikal yang saling menempel/menumpuk rapat tanpa jarak (`margin: 0`, `border-radius: 0`) menjadi format kartu mandiri ergonomis (*card-pill*) berjarak aman (`margin-bottom: 8px`, `border-radius: 6px`, `min-height: 42px`, dan padding sentuh ramah jari).
+   - Memberikan aksen pemisah khusus pada tombol aksi destruktif (*Hapus Data Terpilih*) untuk mencegah risiko salah pencet (*accidental tap*).
+   - Menyelaraskan filter dropdown, Select2, serta kotak pencarian di `.box-body` mobile agar memiliki area sentuh standar ($38\text{px}$) dan tersusun rapi.
 
 ### Rilis v1.2.7 (Optimasi Performa Beranda, Kecepatan Modul Statistik, dan Kemandirian Aset Offline)
 
