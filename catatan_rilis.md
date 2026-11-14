@@ -32,6 +32,13 @@ Rilis perbaikan kompatibilitas runtime PHP 8.x pada modul pelayanan persuratan &
    - Menerapkan CSS Flexbox Grid pada kontainer kartu ringkasan kependudukan (`.row-stat-boxes`) untuk mengeliminasi bug *float snagging* Bootstrap 3 yang menyebabkan celah/lubang kosong pada layar ponsel.
    - Menyelaraskan tinggi kartu (*equal height*) dan meratakan tombol *footer* aksi secara vertikal di setiap baris.
    - Memperbaiki komponen badge tren mutasi menjadi format pill ringkas (`.trend-pill`) agar teks tidak terlipat (*wrapping*), serta merapikan posisi tombol pengaturan pada kartu bantuan.
+   - Mengoptimalkan responsivitas grafik statistik kependudukan Highcharts dan filter dropdown tahun (`.box-header-flex`) agar proporsional dan tidak terpotong pada layar ponsel.
+
+3. **Optimalisasi Tata Letak Mobile Tombol Aksi Toolbar & Form Filter:**
+   - Memperbaiki layout tombol aksi di `.box-header` pada layar ponsel (layar $\le 767\text{px}$) di seluruh modul admin (`Data Penduduk`, `Data Keluarga`, `Wilayah`, `Pemerintah Desa`, `Lembaga`, `Identitas Desa`, dll.).
+   - Menghilangkan tumpukan tombol barcode yang saling berhimpitan tanpa margin dan bersudut tajam (`margin: 0`, `border-radius: 0`) menjadi tombol kartu terpisah dengan *touch target* nyaman ($\ge 42\text{px}$, margin bawah $8\text{px}$, sudut tumpul $6\text{px}$, dan ikon terpusat).
+   - Mengisolasi tombol aksi destruktif (*Hapus Data Terpilih*) dengan margin pengaman untuk mencegah salah sentuh (*accidental tap*).
+   - Menyelaraskan form kontrol filter dropdown dan kotak pencarian agar memiliki tinggi sentuh ergonomis ($38\text{px}$) dan rapi saat reflow di perangkat mobile.
 
 ### Rilis v1.2.7 (Optimasi Performa Beranda, Kecepatan Modul Statistik, dan Kemandirian Aset Offline)
 

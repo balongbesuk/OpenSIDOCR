@@ -163,6 +163,93 @@
                 line-height: 18px !important;
             }
         }
+
+        /* Statistik Kependudukan Header & Filter */
+        .box-header-flex {
+            display: flex !important;
+            align-items: center !important;
+            justify-content: space-between !important;
+            flex-wrap: wrap !important;
+            gap: 10px !important;
+            padding: 12px 15px !important;
+        }
+
+        .box-header-flex .box-title {
+            margin: 0 !important;
+            font-size: 16px !important;
+            font-weight: 700 !important;
+            color: #333 !important;
+        }
+
+        .box-header-flex .box-tools {
+            position: static !important;
+            float: none !important;
+            margin: 0 !important;
+        }
+
+        .box-header-flex #form-filter-tahun {
+            display: flex !important;
+            align-items: center !important;
+            gap: 8px !important;
+            margin: 0 !important;
+        }
+
+        .box-header-flex #form-filter-tahun .form-group {
+            display: flex !important;
+            align-items: center !important;
+            gap: 8px !important;
+            margin: 0 !important;
+        }
+
+        .box-header-flex #form-filter-tahun label {
+            margin: 0 !important;
+            font-weight: 600 !important;
+            color: #555 !important;
+            white-space: nowrap !important;
+        }
+
+        .box-header-flex #form-filter-tahun select {
+            border-radius: 6px !important;
+            font-weight: 500 !important;
+            height: 32px !important;
+            min-width: 160px !important;
+        }
+
+        .highcharts-figure {
+            margin: 0 0 15px 0 !important;
+        }
+
+        .custom-data-table {
+            border-radius: 6px !important;
+            overflow-x: auto !important;
+            -webkit-overflow-scrolling: touch !important;
+        }
+
+        @media (max-width: 767px) {
+            .box-header-flex {
+                flex-direction: column !important;
+                align-items: stretch !important;
+                padding: 10px 12px !important;
+                gap: 8px !important;
+            }
+
+            .box-header-flex .box-title {
+                font-size: 15px !important;
+            }
+
+            .box-header-flex .box-tools,
+            .box-header-flex #form-filter-tahun,
+            .box-header-flex #form-filter-tahun .form-group {
+                width: 100% !important;
+            }
+
+            .box-header-flex #form-filter-tahun select {
+                flex: 1 !important;
+                width: 100% !important;
+                height: 34px !important;
+                font-size: 13px !important;
+            }
+        }
     </style>
 
 @endpush
@@ -509,7 +596,7 @@
 
             <div class="box box-info">
 
-                <div class="box-header with-border">
+                <div class="box-header with-border box-header-flex">
 
                     <h3 class="box-title">Statistik Kependudukan</h3>
 
@@ -803,13 +890,59 @@
 
             var chartPindah;
 
+            var commonResponsive = {
+                rules: [{
+                    condition: {
+                        maxWidth: 600
+                    },
+                    chartOptions: {
+                        chart: {
+                            spacingLeft: 2,
+                            spacingRight: 6,
+                            spacingTop: 10,
+                            spacingBottom: 5
+                        },
+                        title: {
+                            style: {
+                                fontSize: '12px',
+                                fontWeight: 'bold'
+                            },
+                            margin: 18
+                        },
+                        yAxis: {
+                            title: {
+                                text: null
+                            },
+                            labels: {
+                                align: 'right',
+                                x: -2,
+                                style: { fontSize: '10px' }
+                            }
+                        },
+                        xAxis: {
+                            labels: {
+                                style: { fontSize: '9.5px' }
+                            }
+                        },
+                        plotOptions: {
+                            areaspline: {
+                                dataLabels: {
+                                    style: { fontSize: '9px', textOutline: 'none' },
+                                    padding: 2
+                                }
+                            }
+                        }
+                    }
+                }]
+            };
+
 
 
             function renderTable(containerId, title, categories, seriesData, filterTahun) {
 
                 var isRange = $('#filter_tahun').val().endsWith('_tahun');
 
-                var html = '<div class="custom-data-table">';
+                var html = '<div class="custom-data-table table-responsive">';
 
                 html += '<table class="table table-bordered table-hover">';
 
@@ -925,6 +1058,8 @@
 
                             chart: { type: 'areaspline' },
 
+                            responsive: commonResponsive,
+
                             title: { text: 'Perkembangan Jumlah Penduduk ' + titleSuffix },
 
                             xAxis: { categories: data.categories },
@@ -963,6 +1098,8 @@
 
                             chart: { type: 'areaspline' },
 
+                            responsive: commonResponsive,
+
                             title: { text: 'Perkembangan Jumlah Keluarga ' + titleSuffix },
 
                             xAxis: { categories: data.categories },
@@ -1000,6 +1137,8 @@
                         chartLahirMati = Highcharts.chart('container-grafik-lahir-mati', {
 
                             chart: { type: 'areaspline' },
+
+                            responsive: commonResponsive,
 
                             title: { text: 'Statistik Kelahiran dan Kematian ' + titleSuffix },
 
@@ -1088,6 +1227,8 @@
                         chartPindah = Highcharts.chart('container-grafik-pindah', {
 
                             chart: { type: 'areaspline' },
+
+                            responsive: commonResponsive,
 
                             title: { text: 'Statistik Pindah Datang dan Pindah Pergi ' + titleSuffix },
 
