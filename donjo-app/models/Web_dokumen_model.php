@@ -361,7 +361,7 @@ class Web_dokumen_model extends MY_Model
         $retval &= $this->db->insert('dokumen', $data);
         $insert_id = $this->db->insert_id();
 
-        if ($retval) {
+        if ($retval && ! empty($post['anggota_kk']) && is_array($post['anggota_kk'])) {
             $data['id_parent'] = $insert_id;
 
             foreach ($post['anggota_kk'] as $key => $value) {
@@ -478,7 +478,7 @@ class Web_dokumen_model extends MY_Model
         $retval = true;
 
         // cek jika dokumen ini juga ada di anggota yang lain
-        $anggota_kk   = $post['anggota_kk'];
+        $anggota_kk   = is_array($post['anggota_kk'] ?? null) ? $post['anggota_kk'] : [];
         $anggota_lain = array_column($this->get_dokumen_di_anggota_lain($id), 'id_pend');
 
         // cari intersect anggota
@@ -490,7 +490,7 @@ class Web_dokumen_model extends MY_Model
         }
 
         // cari diff anggota (jika ada anggota yang diuncheck - delete)
-        if (isset($anggota_kk)) {
+        if (! empty($anggota_kk)) {
             $diff_id_pend = array_diff($anggota_lain, $anggota_kk);
 
             foreach ($diff_id_pend as $key => $value) {
@@ -504,7 +504,7 @@ class Web_dokumen_model extends MY_Model
 
         // cari diff anggota (jika ada anggota tambahan yang dicheck -> insert)
         $diff_id_pend = array_diff($anggota_kk, $anggota_lain);
-        if (isset($diff_id_pend)) {
+        if (! empty($diff_id_pend)) {
             unset($data['updated_at']);
 
             foreach ($diff_id_pend as $key => $value) {

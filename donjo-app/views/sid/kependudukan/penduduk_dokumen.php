@@ -70,6 +70,7 @@
 															<?php endif; ?>
 														<?php endif ?>
 														<a href="<?= site_url("{$this->controller}/unduh_berkas/{$data->id}"); ?>" class="btn bg-purple btn-flat btn-sm" title="Unduh Dokumen"><i class="fa fa-download"></i></a>
+														<a href="<?= site_url("{$this->controller}/unduh_berkas/{$data->id}/1"); ?>" target="_blank" class="btn bg-info btn-flat btn-sm" title="Lihat Dokumen"><i class="fa fa-eye"></i></a>
 													</td>
 													<td width="40%"><?= $data->nama ?></td>
 													<td width="30%"><?= $data->jenis_dokumen->ref_syarat_nama ?></a></td>

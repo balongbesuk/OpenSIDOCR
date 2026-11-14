@@ -360,7 +360,7 @@
 																					<td class="padat"><?= $key + 1; ?></td>
 																					<td class="aksi">
 																						<a href="<?= site_url("{$this->controller}/unduh_berkas/{$data['id']}"); ?>" class="btn bg-purple btn-flat btn-sm" title="Unduh Dokumen"><i class="fa fa-download"></i></a>
-																						<a href="<?= site_url("{$this->controller}/unduh_berkas/{$data['id']}/1"); ?>" class="btn bg-info btn-flat btn-sm" title="Lihat Dokumen"><i class="fa fa-eye"></i></a>
+																						<a href="<?= site_url("{$this->controller}/unduh_berkas/{$data['id']}/1"); ?>" target="_blank" class="btn bg-info btn-flat btn-sm" title="Lihat Dokumen"><i class="fa fa-eye"></i></a>
 																					</td>
 																					<td><?= $data['nama']?></td>
 																					<td><?= tgl_indo2($data['tgl_upload']); ?></td>

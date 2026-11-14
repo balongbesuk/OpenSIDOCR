@@ -1,8 +1,8 @@
 Aplikasi **OpenSIDOCR** merupakan pengembangan lanjutan dari **OpenSID versi 2403.0.0** dan seterusnya oleh Pemerintah Desa Balongbesuk ([balongbesuk/OpenSIDOCR](https://github.com/balongbesuk/OpenSIDOCR)).
 
-### Rilis v1.2.8 (Perbaikan Kompatibilitas PHP 8+ Form Surat Keterangan Nikah & Pindah Penduduk)
+### Rilis v1.2.8 (Perbaikan Kompatibilitas PHP 8+, Penomoran Surat, dan Pratinjau Dokumen Penduduk)
 
-Rilis perbaikan kompatibilitas runtime PHP 8.x pada modul pelayanan persuratan:
+Rilis perbaikan kompatibilitas runtime PHP 8.x pada modul pelayanan persuratan & dokumen, serta penambahan fitur pratinjau berkas penduduk:
 
 #### Perbaikan Bug (*Bug Fixes*)
 
@@ -17,6 +17,16 @@ Rilis perbaikan kompatibilitas runtime PHP 8.x pada modul pelayanan persuratan:
 3. **Pengabaian Arsip Surat Terhapus pada Penomoran Otomatis:**
    - Memperbaiki query penomoran otomatis (`get_surat_terakhir_type()`) dan validasi nomor duplikat (`nomor_surat_duplikat()`) pada `donjo-app/models/Penomoran_surat_model.php`.
    - Menambahkan filter `deleted_at IS NULL` agar arsip surat yang telah dihapus (*soft-delete*) tidak lagi menghalangi penggunaan kembali nomor urut surat yang dihapus tersebut.
+
+4. **Penanganan Aman Array Intersect pada Pembaruan Dokumen Penduduk:**
+   - Memperbaiki fatal error `TypeError: array_intersect(): Argument #1 ($array) must be of type array, null given` di `donjo-app/models/Web_dokumen_model.php`.
+   - Menginisialisasi input `anggota_kk` sebagai array aman (`is_array(...) ? ... : []`) saat memperbarui atau menambah dokumen penduduk tanpa anggota keluarga tambahan.
+
+#### Fitur & Penyempurnaan Antarmuka (*Features & UI Improvements*)
+
+1. **Fitur Pratinjau Dokumen Penduduk (Preview, Cetak, dan Unduh):**
+   - Menambahkan tombol aksi pratinjau (*inline preview*) berikon mata (`fa-eye`) pada tabel kelengkapan dokumen penduduk (`donjo-app/views/sid/kependudukan/penduduk_dokumen.php`, `dokumen_ajax.php`, dan `penduduk_detail.php`).
+   - Dokumen dibuka pada tab baru memanfaatkan viewer native browser yang dilengkapi fitur cetak langsung (*print*) dan simpan berkas (*download*).
 
 ### Rilis v1.2.7 (Optimasi Performa Beranda, Kecepatan Modul Statistik, dan Kemandirian Aset Offline)
 
