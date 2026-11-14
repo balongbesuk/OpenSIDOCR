@@ -26,6 +26,143 @@
 
         }
 
+        /* Layout Mobile Antislop: Flexbox grid & card alignment */
+        .row-stat-boxes {
+            display: flex !important;
+            flex-wrap: wrap !important;
+            margin-left: -6px !important;
+            margin-right: -6px !important;
+        }
+
+        .row-stat-boxes > .col-stat-card {
+            display: flex !important;
+            flex-direction: column !important;
+            padding-left: 6px !important;
+            padding-right: 6px !important;
+            margin-bottom: 12px !important;
+        }
+
+        .row-stat-boxes .small-box {
+            flex: 1 1 auto !important;
+            display: flex !important;
+            flex-direction: column !important;
+            justify-content: space-between !important;
+            margin-bottom: 0 !important;
+            border-radius: 8px !important;
+            overflow: hidden !important;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08) !important;
+            position: relative !important;
+        }
+
+        .row-stat-boxes .small-box .inner {
+            flex: 1 0 auto !important;
+            padding: 12px 14px 8px 14px !important;
+        }
+
+        .row-stat-boxes .small-box h3 {
+            font-size: 32px !important;
+            font-weight: 700 !important;
+            margin: 0 0 4px 0 !important;
+            line-height: 1.15 !important;
+            letter-spacing: -0.5px !important;
+            white-space: nowrap !important;
+        }
+
+        .row-stat-boxes .small-box p {
+            font-size: 13px !important;
+            margin: 0 !important;
+            line-height: 1.35 !important;
+            font-weight: 500 !important;
+        }
+
+        .row-stat-boxes .trend-pill {
+            display: inline-flex !important;
+            align-items: center !important;
+            gap: 3px !important;
+            font-size: 11px !important;
+            font-weight: 600 !important;
+            margin-top: 4px !important;
+            padding: 2px 6px !important;
+            border-radius: 10px !important;
+            background: rgba(0, 0, 0, 0.22) !important;
+            white-space: nowrap !important;
+        }
+
+        .row-stat-boxes .small-box-footer {
+            padding: 6px 10px !important;
+            font-size: 12px !important;
+            font-weight: 500 !important;
+            text-align: center !important;
+            background: rgba(0, 0, 0, 0.15) !important;
+            transition: background 0.15s ease !important;
+            display: block !important;
+            min-height: 32px !important;
+            line-height: 20px !important;
+        }
+
+        .row-stat-boxes .small-box-footer:hover {
+            background: rgba(0, 0, 0, 0.25) !important;
+            color: #fff !important;
+        }
+
+        .row-stat-boxes .small-box-footer-flex {
+            display: flex !important;
+            align-items: center !important;
+            justify-content: space-between !important;
+            padding: 6px 12px !important;
+        }
+
+        .row-stat-boxes .small-box-footer-flex a {
+            display: inline-flex !important;
+            align-items: center !important;
+            gap: 4px !important;
+        }
+
+        @media (max-width: 767px) {
+            .row-stat-boxes {
+                margin-left: -4px !important;
+                margin-right: -4px !important;
+            }
+
+            .row-stat-boxes > .col-stat-card {
+                padding-left: 4px !important;
+                padding-right: 4px !important;
+                margin-bottom: 8px !important;
+            }
+
+            .row-stat-boxes .small-box .inner {
+                padding: 10px 10px 6px 10px !important;
+            }
+
+            .row-stat-boxes .small-box h3 {
+                font-size: 24px !important;
+                margin-bottom: 2px !important;
+            }
+
+            .row-stat-boxes .small-box p {
+                font-size: 11.5px !important;
+            }
+
+            .row-stat-boxes .small-box .icon {
+                font-size: 42px !important;
+                right: 6px !important;
+                top: 4px !important;
+                opacity: 0.16 !important;
+            }
+
+            .row-stat-boxes .trend-pill {
+                font-size: 9.5px !important;
+                padding: 1px 5px !important;
+                margin-top: 3px !important;
+            }
+
+            .row-stat-boxes .small-box-footer {
+                padding: 5px 8px !important;
+                font-size: 11px !important;
+                min-height: 28px !important;
+                line-height: 18px !important;
+            }
+        }
     </style>
 
 @endpush
@@ -74,11 +211,11 @@
 
 
 
-    <div class="row">
+    <div class="row row-stat-boxes">
 
         @if (can('b', 'wilayah'))
 
-            <div class="col-lg-3 col-sm-6 col-xs-6">
+            <div class="col-lg-3 col-sm-6 col-xs-6 col-stat-card">
 
                 <div class="small-box bg-purple">
 
@@ -110,7 +247,7 @@
 
         @if (can('b', 'penduduk'))
 
-            <div class="col-lg-3 col-sm-6 col-xs-6">
+            <div class="col-lg-3 col-sm-6 col-xs-6 col-stat-card">
 
                 <div class="small-box bg-aqua">
 
@@ -122,9 +259,9 @@
 
                             @if (isset($trend_penduduk) && $trend_penduduk != 0)
 
-                                <span style="font-size: 12px; margin-left: 5px; background: rgba(0,0,0,0.2); padding: 2px 6px; border-radius: 4px;" title="Perubahan bulan ini">
+                                <span class="trend-pill" title="Perubahan bulan ini">
 
-                                    <i class="fa {{ $trend_penduduk > 0 ? 'fa-arrow-up' : 'fa-arrow-down' }}"></i> {{ abs($trend_penduduk) }} bulan ini
+                                    <i class="fa {{ $trend_penduduk > 0 ? 'fa-arrow-up' : 'fa-arrow-down' }}"></i> {{ abs($trend_penduduk) }} bln ini
 
                                 </span>
 
@@ -154,7 +291,7 @@
 
         @if (can('b', 'keluarga'))
 
-            <div class="col-lg-3 col-sm-6 col-xs-6">
+            <div class="col-lg-3 col-sm-6 col-xs-6 col-stat-card">
 
                 <div class="small-box bg-green">
 
@@ -166,9 +303,9 @@
 
                             @if (isset($trend_keluarga) && $trend_keluarga != 0)
 
-                                <span style="font-size: 12px; margin-left: 5px; background: rgba(0,0,0,0.2); padding: 2px 6px; border-radius: 4px;" title="Perubahan bulan ini">
+                                <span class="trend-pill" title="Perubahan bulan ini">
 
-                                    <i class="fa {{ $trend_keluarga > 0 ? 'fa-arrow-up' : 'fa-arrow-down' }}"></i> {{ abs($trend_keluarga) }} bulan ini
+                                    <i class="fa {{ $trend_keluarga > 0 ? 'fa-arrow-up' : 'fa-arrow-down' }}"></i> {{ abs($trend_keluarga) }} bln ini
 
                                 </span>
 
@@ -198,7 +335,7 @@
 
         @if (can('b', 'keluar'))
 
-            <div class="col-lg-3 col-sm-6 col-xs-6">
+            <div class="col-lg-3 col-sm-6 col-xs-6 col-stat-card">
 
                 <div class="small-box bg-blue">
 
@@ -230,7 +367,7 @@
 
         @if (can('b', 'kelompok'))
 
-            <div class="col-lg-3 col-sm-6 col-xs-6">
+            <div class="col-lg-3 col-sm-6 col-xs-6 col-stat-card">
 
                 <div class="small-box bg-red">
 
@@ -262,7 +399,7 @@
 
         @if (can('b', 'rtm'))
 
-            <div class="col-lg-3 col-sm-6 col-xs-6">
+            <div class="col-lg-3 col-sm-6 col-xs-6 col-stat-card">
 
                 <div class="small-box bg-gray">
 
@@ -294,7 +431,7 @@
 
         @if (can('b', 'program_bantuan'))
 
-            <div class="col-lg-3 col-sm-6 col-xs-6">
+            <div class="col-lg-3 col-sm-6 col-xs-6 col-stat-card">
 
                 <div class="small-box bg-yellow">
 
@@ -312,11 +449,11 @@
 
                     </div>
 
-                    <div class="small-box-footer">
+                    <div class="small-box-footer small-box-footer-flex">
 
                         <a href="#" class="inner text-white rilis_pengaturan" data-remote="false" data-toggle="modal"
 
-                            data-target="#pengaturan-bantuan"><i class="fa fa-gear"></i></a>
+                            data-target="#pengaturan-bantuan" title="Pengaturan Bantuan"><i class="fa fa-gear"></i></a>
 
                         <a href="{{ route($bantuan['link_detail']) }}" class="inner text-white">Lihat Detail <i
 
@@ -334,7 +471,7 @@
 
         @if (can('b', 'mandiri'))
 
-            <div class="col-lg-3 col-sm-6 col-xs-6">
+            <div class="col-lg-3 col-sm-6 col-xs-6 col-stat-card">
 
                 <div class="small-box" style="background-color: #39CCCC;">
 

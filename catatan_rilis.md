@@ -1,8 +1,8 @@
 Aplikasi **OpenSIDOCR** merupakan pengembangan lanjutan dari **OpenSID versi 2403.0.0** dan seterusnya oleh Pemerintah Desa Balongbesuk ([balongbesuk/OpenSIDOCR](https://github.com/balongbesuk/OpenSIDOCR)).
 
-### Rilis v1.2.8 (Perbaikan Kompatibilitas PHP 8+, Penomoran Surat, dan Pratinjau Dokumen Penduduk)
+### Rilis v1.2.8 (Perbaikan Kompatibilitas PHP 8+, Penomoran Surat, Pratinjau Dokumen, & Desain Mobile Dashboard)
 
-Rilis perbaikan kompatibilitas runtime PHP 8.x pada modul pelayanan persuratan & dokumen, serta penambahan fitur pratinjau berkas penduduk:
+Rilis perbaikan kompatibilitas runtime PHP 8.x pada modul pelayanan persuratan & dokumen, penambahan fitur pratinjau berkas penduduk, serta optimalisasi responsivitas mobile dashboard:
 
 #### Perbaikan Bug (*Bug Fixes*)
 
@@ -27,6 +27,11 @@ Rilis perbaikan kompatibilitas runtime PHP 8.x pada modul pelayanan persuratan &
 1. **Fitur Pratinjau Dokumen Penduduk (Preview, Cetak, dan Unduh):**
    - Menambahkan tombol aksi pratinjau (*inline preview*) berikon mata (`fa-eye`) pada tabel kelengkapan dokumen penduduk (`donjo-app/views/sid/kependudukan/penduduk_dokumen.php`, `dokumen_ajax.php`, dan `penduduk_detail.php`).
    - Dokumen dibuka pada tab baru memanfaatkan viewer native browser yang dilengkapi fitur cetak langsung (*print*) dan simpan berkas (*download*).
+
+2. **Optimalisasi Tata Letak Mobile Dashboard Admin (`/hom_sid`):**
+   - Menerapkan CSS Flexbox Grid pada kontainer kartu ringkasan kependudukan (`.row-stat-boxes`) untuk mengeliminasi bug *float snagging* Bootstrap 3 yang menyebabkan celah/lubang kosong pada layar ponsel.
+   - Menyelaraskan tinggi kartu (*equal height*) dan meratakan tombol *footer* aksi secara vertikal di setiap baris.
+   - Memperbaiki komponen badge tren mutasi menjadi format pill ringkas (`.trend-pill`) agar teks tidak terlipat (*wrapping*), serta merapikan posisi tombol pengaturan pada kartu bantuan.
 
 ### Rilis v1.2.7 (Optimasi Performa Beranda, Kecepatan Modul Statistik, dan Kemandirian Aset Offline)
 
