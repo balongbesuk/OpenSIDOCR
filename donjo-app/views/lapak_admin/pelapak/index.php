@@ -7,7 +7,6 @@ defined('BASEPATH') || exit('No direct script access allowed');
  *
  * View untuk Modul Lapak Admin > Pelapak
  *
- *
  * donjo-app/views/lapak_admin/pelapak/index.php
  *
  */
@@ -60,25 +59,19 @@ defined('BASEPATH') || exit('No direct script access allowed');
 		<?php $this->load->view("{$this->controller}/navigasi", $navigasi); ?>
 		<div id="maincontent"></div>
 		<div class="box box-info">
-			<div class="box-header with-border">
-				<?php if ($this->CI->cek_hak_akses('u')): ?>
-					<a href="<?= site_url("{$this->controller}/pelapak_form/{$main->id}"); ?>" class="btn btn-social btn-flat btn-success btn-sm btn-sm visible-xs-block visible-sm-inline-block visible-md-inline-block visible-lg-inline-block" title="Tambah" data-target="#modalBox" data-remote="false" data-toggle="modal" data-backdrop="false" data-keyboard="false" data-title="Tambah Data"><i class="fa fa fa-plus"></i> Tambah Data</a>
-				<?php endif; ?>
-				<?php if ($this->CI->cek_hak_akses('h')): ?>
-					<a href="#confirm-delete" title="Hapus Data" onclick="deleteAllBox('mainform','<?=site_url("{$this->controller}/pelapak_delete_all"); ?>')" class="btn btn-social btn-flat btn-danger btn-sm visible-xs-block visible-sm-inline-block visible-md-inline-block visible-lg-inline-block hapus-terpilih"><i class='fa fa-trash-o'></i> Hapus Data Terpilih</a>
-				<?php endif; ?>
-			</div>
 			<form id="mainform" name="mainform" method="post">
-				<div class="box-header with-border form-inline">
-					<div class="row">
-						<div class="col-sm-2">
-							<select class="form-control input-sm select2" id="status" name="status">
-								<option value="">Semua Status</option>
-								<option value="1">Aktif</option>
-								<option value="2">Non Aktif</option>
-							</select>
-						</div>
-					</div>
+				<div class="box-header with-border">
+					<?php if ($this->CI->cek_hak_akses('u')): ?>
+						<a href="<?= site_url("{$this->controller}/pelapak_form"); ?>" class="btn btn-social btn-flat btn-success btn-sm visible-xs-block visible-sm-inline-block visible-md-inline-block visible-lg-inline-block" title="Tambah Data" data-target="#modalBox" data-remote="false" data-toggle="modal" data-backdrop="false" data-keyboard="false" data-title="Tambah Data"><i class="fa fa-plus"></i> Tambah Data</a>
+					<?php endif; ?>
+					<?php if ($this->CI->cek_hak_akses('h')): ?>
+						<a href="#confirm-delete" title="Hapus Data" onclick="deleteAllBox('mainform','<?=site_url("{$this->controller}/pelapak_delete_all"); ?>')" class="btn btn-social btn-flat btn-danger btn-sm visible-xs-block visible-sm-inline-block visible-md-inline-block visible-lg-inline-block hapus-terpilih"><i class='fa fa-trash-o'></i> Hapus Data Terpilih</a>
+					<?php endif; ?>
+					<select class="form-control input-sm select2" id="status" name="status">
+						<option value="">Semua Status</option>
+						<option value="1">Aktif</option>
+						<option value="2">Non Aktif</option>
+					</select>
 				</div>
 				<div class="box-body">
 					<div class="table-responsive">
@@ -89,7 +82,7 @@ defined('BASEPATH') || exit('No direct script access allowed');
 									<th>No</th>
 									<th>Aksi</th>
 									<th>Pelapak</th>
-									<th>No. Telelpon</th>
+									<th>No. Telepon</th>
 									<th>Jumlah Produk</th>
 								</tr>
 							</thead>
@@ -110,7 +103,7 @@ defined('BASEPATH') || exit('No direct script access allowed');
 			'pageLength': 10,
 			'order': [[3, 'desc']],
 			'columnDefs': [
-				{ 'orderable': false, 'targets': [0, 1, 2] },
+				{ 'orderable': false, 'targets': [0, 1, 2, 5] },
 				{ 'className' : 'padat', 'targets': [0, 1, 4, 5] },
 				{ 'className' : 'aksi', 'targets': [2] }
 			],

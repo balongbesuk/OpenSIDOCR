@@ -159,10 +159,14 @@ class Setting extends Admin_Controller
 
     public function qrcode($aksi = '')
     {
+        if ($aksi === 'clear') {
+            redirect('setting/qrcode');
+        }
+
         $this->modul_ini     = 'pengaturan';
         $this->sub_modul_ini = 'qr-code';
 
-        $data['qrcode']        = ['changeqr' => '1', 'sizeqr' => '6', 'foreqr' => '#000000']; // Default
+        $data['qrcode']        = ['isiqr' => '', 'changeqr' => '1', 'logoqr' => '', 'sizeqr' => '6', 'foreqr' => '#000000']; // Default
         $data['list_changeqr'] = ['Otomatis (Logo Desa)', 'Manual'];
         $data['list_sizeqr']   = ['25', '50', '75', '100', '125', '150', '175', '200', '225', '250'];
 

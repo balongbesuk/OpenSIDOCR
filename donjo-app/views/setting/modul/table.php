@@ -108,48 +108,39 @@
 	<section class="content" id="maincontent">
 		<div class="box box-info">
 			<?php if (! $sub_modul): ?>
-				<div class="box-body">
-					<h4>Pengaturan Modul</h4>
+				<div class="box-header with-border">
 					<?php if (can('u')): ?>
-						<div class="row">
-							<div class="col-xs-12 text-center">
-								<a href="<?= site_url('modul/default_server')?>" class="btn btn-social btn-flat btn-success btn-sm" <?php $this->setting->penggunaan_server || print "disabled='disabled'"?>><i class="fa fa-refresh"></i>Kembalikan ke default penggunaan server</a>
-							</div>
-						</div>
+						<a href="<?= site_url('modul/default_server')?>" class="btn btn-social btn-flat btn-success btn-sm visible-xs-block visible-sm-inline-block visible-md-inline-block visible-lg-inline-block" <?php $this->setting->penggunaan_server || print "disabled='disabled'"?>><i class="fa fa-refresh"></i> Kembalikan ke default penggunaan server</a>
 					<?php endif; ?>
-					<div class="row">
-						<div class="col-sm-12">
-							<div class="dataTables_wrapper form-inline dt-bootstrap no-footer">
-								<form id="mainform" name="mainform" method="post">
-									<div class="row">
-										<div class="col-sm-6">
-											<select class="form-control input-sm " name="status" onchange="formAction('mainform','<?=site_url('modul/filter/status/')?>')">
-												<option value="">Semua</option>
-												<option value="1" <?php selected($status, 1); ?>>Aktif</option>
-												<option value="2" <?php selected($status, 2); ?>>Tidak Aktif</option>
-											</select>
-										</div>
-										<div class="col-sm-6">
-											<div class="box-tools">
-												<div class="input-group input-group-sm pull-right">
-													<input name="cari" id="cari" class="form-control" placeholder="Cari..." type="text" value="<?=html_escape($cari)?>" onkeypress="if (event.keyCode == 13):$('#'+'mainform').attr('action','<?=site_url('modul/search')?>');$('#'+'mainform').submit();endif;">
-													<div class="input-group-btn">
-														<button type="submit" class="btn btn-default" onclick="$('#'+'mainform').attr('action','<?= site_url('modul/filter/cari')?>');$('#'+'mainform').submit();"><i class="fa fa-search"></i></button>
-													</div>
-												</div>
-											</div>
+				</div>
+				<div class="box-body">
+					<form id="mainform" name="mainform" method="post">
+						<div class="row" style="margin-bottom: 10px;">
+							<div class="col-sm-6 col-xs-12" style="margin-bottom: 8px;">
+								<select class="form-control input-sm" name="status" onchange="formAction('mainform','<?=site_url('modul/filter/status/')?>')">
+									<option value="">Semua Status</option>
+									<option value="1" <?php selected($status, 1); ?>>Aktif</option>
+									<option value="2" <?php selected($status, 2); ?>>Tidak Aktif</option>
+								</select>
+							</div>
+							<div class="col-sm-6 col-xs-12" style="margin-bottom: 8px;">
+								<div class="box-tools">
+									<div class="input-group input-group-sm pull-right">
+										<input name="cari" id="cari" class="form-control" placeholder="Cari..." type="text" value="<?=html_escape($cari)?>" onkeypress="if (event.keyCode == 13):$('#'+'mainform').attr('action','<?=site_url('modul/search')?>');$('#'+'mainform').submit();endif;">
+										<div class="input-group-btn">
+											<button type="submit" class="btn btn-default" onclick="$('#'+'mainform').attr('action','<?= site_url('modul/filter/cari')?>');$('#'+'mainform').submit();"><i class="fa fa-search"></i></button>
 										</div>
 									</div>
-								</form>
+								</div>
 							</div>
 						</div>
-					</div>
+					</form>
 			<?php else: ?>
 				<div class="box-header with-border">
 					<a href="<?= site_url('modul/clear')?>" class="btn btn-social btn-flat btn-info btn-sm visible-xs-block visible-sm-inline-block visible-md-inline-block visible-lg-inline-block"><i class="fa fa-arrow-circle-o-left"></i> Kembali Ke Daftar Modul</a>
 				</div>
-				<div class="box-header with-border">
-				<strong> Modul Utama : <?= SebutanDesa($sub_modul['modul']) ?></strong>
+				<div class="box-header">
+					<h4 class="text-center" style="margin-top: 5px; margin-bottom: 5px;"><strong>MODUL UTAMA : <?= strtoupper(SebutanDesa($sub_modul['modul'] ?? '')) ?></strong></h4>
 				</div>
 				<div class="box-body">
 			<?php endif; ?>
@@ -181,10 +172,10 @@
 													<?php elseif ($sub_modul && $sub_modul['aktif'] != '1'): ?>
 														<!-- Jika parrent menu tdk aktif, maka tdk ada aksi lock -->
 													<?php else: ?>
-														<a href="<?= site_url("modul/lock/{$data['id']}/1")?>" class="btn bg-navy btn-flat btn-sm"  title="Aktifkan"><i class="fa fa-lock">&nbsp;</i></a>
+														<a href="<?= site_url("modul/lock/{$data['id']}/1")?>" class="btn bg-navy btn-flat btn-sm"  title="Aktifkan"><i class="fa fa-lock"></i></a>
 													<?php endif ?>
 												<?php endif; ?>
-												<?php if (count($data['submodul']) > 0): ?>
+												<?php if (!empty($data['submodul'])): ?>
 													<a href="<?=site_url("modul/sub_modul/{$data['id']}")?>" class="btn bg-olive btn-flat btn-sm" title="Lihat Sub Modul" ><i class="fa fa-list"></i></a>
 												<?php endif; ?>
 											</td>
@@ -200,7 +191,8 @@
 				</div>
 			</div>
 		</div>
-	</section>
+	</div>
+</section>
 </div>
 
 <div class='modal fade' id='confirm-acak' tabindex='-1' role='dialog' aria-labelledby='myModalLabel' aria-hidden='true'>

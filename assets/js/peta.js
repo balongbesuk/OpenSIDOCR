@@ -943,13 +943,27 @@ function addPetaPoly(layerpeta) {
     } else latLngs = layer.getLatLngs();
 
     var p = latLngs;
+    var current_warna = $("#warna").val() || "#A9AAAA";
     var polygon = L.polygon(p, {
-      color: "#A9AAAA",
+      color: current_warna,
+      fillColor: current_warna,
       weight: 4,
       opacity: 1,
       showMeasurements: true,
       measurementOptions: { showSegmentLength: false },
     }).addTo(layerpeta);
+
+    var updateWarnaBaru = function (c) {
+      if (c) {
+        polygon.setStyle({ color: c, fillColor: c });
+      }
+    };
+    $(".my-colorpicker2").on("changeColor", function (e) {
+      updateWarnaBaru(e.color ? e.color.toString() : $("#warna").val());
+    });
+    $("#warna").on("input change", function () {
+      updateWarnaBaru($(this).val());
+    });
 
     polygon.on("pm:edit", function (e) {
       document.getElementById("path").value = getLatLong(
@@ -1065,10 +1079,27 @@ function showCurrentPolygon(wilayah, layerpeta, warna, tampil_luas) {
 
   var daerah_wilayah = wilayah;
   daerah_wilayah[0].push(daerah_wilayah[0][0]);
-  var poligon_wilayah = L.polygon(wilayah, {
+  var poly_options = {
     showMeasurements: true,
     measurementOptions: { showSegmentLength: false },
-  }).addTo(layerpeta);
+  };
+  if (warna) {
+    poly_options.color = warna;
+    poly_options.fillColor = warna;
+  }
+  var poligon_wilayah = L.polygon(wilayah, poly_options).addTo(layerpeta);
+
+  var updateWarna = function (c) {
+    if (c) {
+      poligon_wilayah.setStyle({ color: c, fillColor: c });
+    }
+  };
+  $(".my-colorpicker2").on("changeColor", function (e) {
+    updateWarna(e.color ? e.color.toString() : $("#warna").val());
+  });
+  $("#warna").on("input change", function () {
+    updateWarna($(this).val());
+  });
 
   luas(poligon_wilayah, tampil_luas);
 
@@ -1109,15 +1140,22 @@ function showCurrentMultiPolygon(wilayah, layerpeta, warna, tampil_luas) {
 
   var area_wilayah = JSON.parse(JSON.stringify(wilayah));
   var bounds = new Array();
+  var poly_list = [];
 
   var path = new Array();
   for (var i = 0; i < wilayah.length; i++) {
     var daerah_wilayah = area_wilayah[i];
     daerah_wilayah[0].push(daerah_wilayah[0][0]);
-    var poligon_wilayah = L.polygon(daerah_wilayah, {
+    var poly_options = {
       showMeasurements: true,
       measurementOptions: { showSegmentLength: false },
-    }).addTo(layerpeta);
+    };
+    if (warna) {
+      poly_options.color = warna;
+      poly_options.fillColor = warna;
+    }
+    var poligon_wilayah = L.polygon(daerah_wilayah, poly_options).addTo(layerpeta);
+    poly_list.push(poligon_wilayah);
 
     luas(poligon_wilayah, tampil_luas);
 
@@ -1155,6 +1193,20 @@ function showCurrentMultiPolygon(wilayah, layerpeta, warna, tampil_luas) {
     // set value setelah create masing2 polygon
     path.push(layer._latlngs);
   }
+
+  var updateMultiWarna = function (c) {
+    if (c) {
+      poly_list.forEach(function (p) {
+        p.setStyle({ color: c, fillColor: c });
+      });
+    }
+  };
+  $(".my-colorpicker2").on("changeColor", function (e) {
+    updateMultiWarna(e.color ? e.color.toString() : $("#warna").val());
+  });
+  $("#warna").on("input change", function () {
+    updateMultiWarna($(this).val());
+  });
 
   layerpeta.fitBounds(bounds);
   document.getElementById("path").value = getLatLong("multi", path).toString();

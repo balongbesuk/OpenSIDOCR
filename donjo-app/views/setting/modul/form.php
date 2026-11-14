@@ -37,7 +37,7 @@
 								<div class="col-sm-6">
 									<input type="hidden" name="modul" value="1">
 									<input type="hidden" name="parent" value="<?=($modul['parent'])?>">
-									<input id="modul" name="modul" class="form-control input-sm strip_tags required" type="text" placeholder="Nama Modul/Sub Modul" value="<?=($modul['modul'])?>" minlength="3" maxlength="50"></input>
+									<input id="modul" name="modul" class="form-control input-sm strip_tags required" type="text" placeholder="Nama Modul/Sub Modul" value="<?=($modul['modul'])?>" minlength="3" maxlength="50">
 									<label class="error" id="tag_error" style="display: none;">Tidak boleh ada tag.</label>
 									<label class="error">Isi dengan [Desa] untuk menyesuaikan sebutan desa berdasarkan pengaturan aplikasi.</label>
 								</div>
@@ -53,14 +53,16 @@
 								</div>
 							</div>
 							<div class="form-group">
-								<label class="col-xs-12 col-sm-4 col-lg-4 control-label" for="status">Status</label>
-								<div class="btn-group col-xs-12 col-sm-7" data-toggle="buttons">
-									<label id="sx3" class="btn btn-info btn-flat btn-sm col-xs-6 col-sm-4 col-lg-2 form-check-label <?php ($modul['aktif'] == '1' || $modul['aktif'] == null) && print 'active'; ?>">
-										<input id="g1" type="radio" name="aktif" class="form-check-input" type="radio" value="1" <?php ($modul['aktif'] == '1' || $modul['aktif'] == null) && print 'checked'; ?> autocomplete="off"> Aktif
-									</label>
-									<label id="sx4" class="btn btn-info btn-flat btn-sm col-xs-6 col-sm-4 col-lg-2 form-check-label <?php ($modul['aktif'] == '2') && print 'active'; ?>">
-										<input id="g2" type="radio" name="aktif" class="form-check-input" type="radio" value="2" <?php selected($modul['aktif'], '2', true); ?> autocomplete="off"> Tidak Aktif
-									</label>
+								<label class="col-sm-4 control-label" for="status">Status</label>
+								<div class="col-sm-6">
+									<div class="btn-group btn-group-justified" data-toggle="buttons">
+										<label id="sx3" class="btn btn-info btn-flat btn-sm form-check-label <?php ($modul['aktif'] == '1' || $modul['aktif'] == null) && print 'active'; ?>">
+											<input id="g1" type="radio" name="aktif" class="form-check-input" value="1" <?php ($modul['aktif'] == '1' || $modul['aktif'] == null) && print 'checked'; ?> autocomplete="off"> Aktif
+										</label>
+										<label id="sx4" class="btn btn-info btn-flat btn-sm form-check-label <?php ($modul['aktif'] == '2') && print 'active'; ?>">
+											<input id="g2" type="radio" name="aktif" class="form-check-input" value="2" <?php selected($modul['aktif'], '2', true); ?> autocomplete="off"> Tidak Aktif
+										</label>
+									</div>
 								</div>
 							</div>
 

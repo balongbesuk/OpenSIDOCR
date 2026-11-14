@@ -1,7 +1,7 @@
 @foreach ($list_setting as $key => $pengaturan)
     @if ($pengaturan->jenis != 'upload' && in_array($pengaturan->kategori, $pengaturan_kategori))
         <div class="form-group" id="form_{{ $pengaturan->key }}">
-            <label class="col-sm-12 col-md-3" for="nama">{{ $pengaturan->judul }}</label>
+            <label class="col-sm-12 col-md-3 control-label" for="{{ $pengaturan->key }}" style="text-align: left;">{{ $pengaturan->judul }}</label>
             @if ($pengaturan->jenis == 'option' || $pengaturan->jenis == 'boolean')
                 <div class="col-sm-12 col-md-4">
                     <select {!! $pengaturan->attribute
@@ -47,7 +47,7 @@
                         type="text" value="{{ $pengaturan->value }}" />
                 </div>
             @endif
-            <label class="col-sm-12 col-md-5 pull-left" for="nama">{!! $pengaturan->keterangan !!}</label>
+            <div class="col-sm-12 col-md-5 text-muted" style="font-size: 13px; line-height: 1.4; padding-top: 5px;">{!! $pengaturan->keterangan !!}</div>
         </div>
     @endif
 @endforeach

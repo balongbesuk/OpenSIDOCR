@@ -55,12 +55,12 @@
                     title="Lokasi Kantor {{ ucwords($setting->sebutan_desa) }}"><i class='fa fa-map-marker'></i> Lokasi
                     Kantor {{ ucwords($setting->sebutan_desa) }}</a>
                 <a href="{{ route('identitas_desa.maps.wilayah') }}"
-                    class="btn btn-social btn-info btn-sm btn-sm visible-xs-block visible-sm-inline-block visible-md-inline-block visible-lg-inline-block"
+                    class="btn btn-social btn-info btn-sm visible-xs-block visible-sm-inline-block visible-md-inline-block visible-lg-inline-block"
                     title="Peta Wilayah {{ ucwords($setting->sebutan_desa) }}"><i class='fa fa-map'></i> Peta Wilayah
                     {{ ucwords($setting->sebutan_desa) }}</a>
                 @if (!$main)
                     <a href="{{ route('identitas_desa.reset') }}"
-                        class="btn btn-social btn-danger btn-sm btn-sm visible-xs-block visible-sm-inline-block visible-md-inline-block visible-lg-inline-block"
+                        class="btn btn-social btn-danger btn-sm visible-xs-block visible-sm-inline-block visible-md-inline-block visible-lg-inline-block"
                         title="Reset AppKey"><i class="fa fa-times"></i> Reset AppKey</a>
                 @endif
             </div>

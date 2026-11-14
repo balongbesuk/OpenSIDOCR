@@ -102,7 +102,7 @@
 
 							<div class="table-responsive">
 
-								<table class="table table-bordered table-striped table-hover nowrap">
+								<table class="table table-bordered table-striped table-hover nowrap lap-rentan">
 
 									<thead class="bg-gray">
 

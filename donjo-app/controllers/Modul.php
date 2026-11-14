@@ -70,6 +70,10 @@ class Modul extends Admin_Controller
             $data['keyword']   = $this->modul_model->autocomplete();
         } else {
             $data['sub_modul'] = $this->modul_model->get_data($id);
+            if (! $data['sub_modul']) {
+                $this->clear();
+                return;
+            }
             $data['main']      = $this->modul_model->list_sub_modul($id);
         }
 

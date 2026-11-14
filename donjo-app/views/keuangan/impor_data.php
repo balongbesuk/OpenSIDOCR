@@ -13,20 +13,22 @@
 			<div class="box box-info">
 				<?php if ($this->CI->cek_hak_akses('u')): ?>
 					<div class="box-header with-border">
-						<div class="col-sm-6">
-							<div class="form-group">
-								<label for="file"  class="control-label">Berkas Database Siskuedes :</label>
-								<div class="input-group input-group-sm">
-									<input type="text" class="form-control" id="file_path2">
-									<input type="file" class="hidden" id="file2" name="keuangan">
-									<span class="input-group-btn">
-										<button type="button" class="btn btn-info btn-flat"  id="file_browser2"><i class="fa fa-search"></i> Browse</button>
-									</span>
+						<div class="row">
+							<div class="col-md-6 col-sm-12">
+								<div class="form-group">
+									<label for="file"  class="control-label">Berkas Database Siskeudes :</label>
+									<div class="input-group input-group-sm">
+										<input type="text" class="form-control" id="file_path2">
+										<input type="file" class="hidden" id="file2" name="keuangan">
+										<span class="input-group-btn">
+											<button type="button" class="btn btn-info btn-flat"  id="file_browser2"><i class="fa fa-search"></i> Browse</button>
+										</span>
+									</div>
+									<p class="help-block small">Pastikan format berkas .zip berisi data Siskeudes dalam format .csv</p>
 								</div>
-								<p class="help-block small">Pastikan format berkas .zip berisi data Siskeudes dalam format .csv</p>
-							</div>
-							<div class="form-group">
-								<button type="button" class="btn btn-social btn-flat btn-info btn-sm" id="ok" onclick="simpan()"><i class='fa fa-check'></i> Simpan</button>
+								<div class="form-group">
+									<button type="button" class="btn btn-social btn-flat btn-info btn-sm" id="ok" onclick="simpan()"><i class='fa fa-check'></i> Simpan</button>
+								</div>
 							</div>
 						</div>
 					</div>

@@ -55,23 +55,28 @@ class Optimasi_gambar extends Admin_Controller
         return view('admin.optimasi_gambar.index', compact('folders'));
     }
 
-    public function get_image($dir = null)
+    public function get_image(...$dirs)
     {
-        if (! $dir) {
-            $folders = $this->get_folders(LOKASI_UPLOAD)->map(static fn ($dir) => LOKASI_UPLOAD . $dir);
-        } else {
-            $folders = [LOKASI_UPLOAD . $dir];
-        }
-        $files = collect();
+        $dir    = ! empty($dirs) ? implode('/', $dirs) : null;
+        $base   = rtrim(LOKASI_UPLOAD, '/\\') . DIRECTORY_SEPARATOR;
+        $target = $dir ? $base . str_replace(['/', '\\'], DIRECTORY_SEPARATOR, $dir) : $base;
 
-        foreach ($folders as $path) {
-            $images = collect(array_diff(scandir($path), ['.', '..']))->filter(static function ($file) use ($path) {
-                $image_size = getimagesize($path . DIRECTORY_SEPARATOR . $file);
-                if ($image_size != false && ($image_size[0] > '880' || $image_size[1] > '880')) {
-                    return $file;
+        $files = collect();
+        if (is_dir($target)) {
+            $iterator = new RecursiveIteratorIterator(
+                new RecursiveDirectoryIterator($target, RecursiveDirectoryIterator::SKIP_DOTS),
+                RecursiveIteratorIterator::SELF_FIRST
+            );
+
+            foreach ($iterator as $item) {
+                if ($item->isFile()) {
+                    $file_path  = str_replace('\\', '/', $item->getPathname());
+                    $image_size = @getimagesize($file_path);
+                    if ($image_size !== false && ($image_size[0] > 880 || $image_size[1] > 880)) {
+                        $files->push($file_path);
+                    }
                 }
-            })->map(static fn ($file) => $path . DIRECTORY_SEPARATOR . $file);
-            $files = $files->merge($images);
+            }
         }
 
         return json([
@@ -80,10 +85,34 @@ class Optimasi_gambar extends Admin_Controller
         ]);
     }
 
-    public function get_folders($path)
+    public function get_folders($path, $relative = '', $depth = 0)
     {
-        return collect(array_diff(scandir($path), ['.', '..']))
-            ->filter(static fn ($dir) => is_dir($path . DIRECTORY_SEPARATOR . $dir));
+        $folders = collect();
+        $base    = rtrim($path, '/\\') . DIRECTORY_SEPARATOR;
+        $current = $relative ? $base . str_replace(['/', '\\'], DIRECTORY_SEPARATOR, $relative) : $base;
+
+        if (! is_dir($current)) {
+            return $folders;
+        }
+
+        $items = array_diff(scandir($current), ['.', '..']);
+        natcasesort($items);
+
+        foreach ($items as $item) {
+            $item_path = $current . DIRECTORY_SEPARATOR . $item;
+            if (is_dir($item_path)) {
+                $sub_relative = $relative ? $relative . '/' . $item : $item;
+                $folders->push([
+                    'path'   => $sub_relative,
+                    'name'   => $item,
+                    'depth'  => $depth,
+                    'parent' => $relative,
+                ]);
+                $folders = $folders->merge($this->get_folders($path, $sub_relative, $depth + 1));
+            }
+        }
+
+        return $folders;
     }
 
     public function resize()

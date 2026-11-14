@@ -19,8 +19,8 @@ class Html5QrcodeScanner {
     static STATUS_WARNING = "STATUS_WARNING";
     static STATUS_DEFAULT = "STATUS_DEFAULT";
 
-    static ASSET_FILE_SCAN = "../assets/images/file-scan.gif";
-    static ASSET_CAMERA_SCAN = "../assets/images/camera-scan.gif";
+    static ASSET_FILE_SCAN = (typeof BASE_URL !== "undefined" ? BASE_URL.replace(/\/?$/, "/") : "") + "assets/images/file-scan.gif";
+    static ASSET_CAMERA_SCAN = (typeof BASE_URL !== "undefined" ? BASE_URL.replace(/\/?$/, "/") : "") + "assets/images/camera-scan.gif";
 
     /**
      * Creates instance of this class.
@@ -164,7 +164,10 @@ class Html5QrcodeScanner {
     __createBasicLayout(parent) {
         parent.style.position = "relative";
         parent.style.padding = "0px";
-        parent.style.border = "1px solid silver";
+        parent.style.border = "1px solid #cbd5e1";
+        parent.style.borderRadius = "6px";
+        parent.style.overflow = "hidden";
+        parent.style.background = "#ffffff";
         this.__createHeader(parent);
 
         const qrCodeScanRegion = document.createElement("div");
@@ -199,9 +202,11 @@ class Html5QrcodeScanner {
         const header = document.createElement("div");
         header.style.textAlign = "left";
         header.style.margin = "0px";
-        header.style.padding = "5px";
-        header.style.fontSize = "16px";
-        header.style.borderBottom = "1px solid rgba(192, 192, 192, 0.18)";
+        header.style.padding = "8px 12px";
+        header.style.fontSize = "14px";
+        header.style.fontWeight = "600";
+        header.style.borderBottom = "1px solid #e2e8f0";
+        header.style.background = "#f8fafc";
         dashboard.appendChild(header);
 
         const titleSpan = document.createElement("span");
@@ -211,8 +216,9 @@ class Html5QrcodeScanner {
         const statusSpan = document.createElement("span");
         statusSpan.id = this.__getStatusSpanId();
         statusSpan.style.float = "right";
-        statusSpan.style.padding = "5px 7px";
-        statusSpan.style.fontSize = "10px";
+        statusSpan.style.padding = "3px 8px";
+        statusSpan.style.fontSize = "11px";
+        statusSpan.style.borderRadius = "3px";
         statusSpan.style.background = "#dedede6b";
         statusSpan.style.border = "1px solid #00000000";
         statusSpan.style.color = "rgb(17, 17, 17)";
@@ -284,22 +290,35 @@ class Html5QrcodeScanner {
         const fileBasedScanRegion = document.createElement("div");
         fileBasedScanRegion.id = this.__getDashboardSectionFileScanRegionId();
         fileBasedScanRegion.style.textAlign = "center";
+        fileBasedScanRegion.style.padding = "10px 0 14px 0";
         fileBasedScanRegion.style.display
             = this.currentScanType == Html5QrcodeScanner.SCAN_TYPE_CAMERA
                 ? "none" : "block";
         sectionControlPanel.appendChild(fileBasedScanRegion);
 
+        const fileScanLabel = document.createElement("div");
+        fileScanLabel.innerHTML = "Pilih Berkas Gambar QR Code :";
+        fileScanLabel.style.fontWeight = "600";
+        fileScanLabel.style.fontSize = "13px";
+        fileScanLabel.style.marginBottom = "8px";
+        fileScanLabel.style.color = "#334155";
+
         const fileScanInput = document.createElement("input");
         fileScanInput.id = this.__getFileScanInputId();
         fileScanInput.accept = "image/*";
         fileScanInput.type = "file";
-        fileScanInput.style.width = "200px";
+        fileScanInput.style.display = "inline-block";
+        fileScanInput.style.margin = "0 auto";
+        fileScanInput.style.padding = "5px 10px";
+        fileScanInput.style.border = "1px solid #cbd5e1";
+        fileScanInput.style.borderRadius = "4px";
+        fileScanInput.style.background = "#f8fafc";
+        fileScanInput.style.cursor = "pointer";
         fileScanInput.disabled
             = this.currentScanType == Html5QrcodeScanner.SCAN_TYPE_CAMERA;
-        const fileScanLabel = document.createElement("span");
-        fileScanLabel.innerHTML = "&nbsp; Select Image";
-        fileBasedScanRegion.appendChild(fileScanInput);
+
         fileBasedScanRegion.appendChild(fileScanLabel);
+        fileBasedScanRegion.appendChild(fileScanInput);
         fileScanInput.addEventListener('change', e => {
             if ($this.currentScanType !== Html5QrcodeScanner.SCAN_TYPE_FILE) {
                 return;

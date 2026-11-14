@@ -10,10 +10,10 @@
 <div class="box box-info">
     <div class="box-header with-border">
         <?php if (can('u')): ?>
-            <a href="<?= site_url('pengurus/form')?>" class="btn btn-social btn-flat btn-success btn-sm btn-sm visible-xs-block visible-sm-inline-block visible-md-inline-block visible-lg-inline-block" title="Tambah">
+            <a href="<?= site_url('pengurus/form')?>" class="btn btn-social btn-flat btn-success btn-sm visible-xs-block visible-sm-inline-block visible-md-inline-block visible-lg-inline-block" title="Tambah">
                 <i class="fa fa-plus"></i>Tambah
             </a>
-            <div class="btn-group btn-group-vertical">
+            <div class="btn-group">
                 <a class="btn btn-social btn-flat btn-info btn-sm" data-toggle="dropdown"><i class='fa fa-arrow-circle-down'></i> Aksi Data Terpilih</a>
                 <ul class="dropdown-menu" role="menu">
                     <li>
@@ -26,7 +26,7 @@
                     <?php endif; ?>
                 </ul>
             </div>
-            <div class="btn-group btn-group-vertical">
+            <div class="btn-group">
                 <a class="btn btn-social btn-flat bg-purple btn-sm" data-toggle="dropdown"><i class='fa fa-arrow-circle-down'></i> Pilih Aksi Lainnya</a>
                 <ul class="dropdown-menu" role="menu">
                     <li>
@@ -37,7 +37,7 @@
                     </li>
                 </ul>
             </div>
-            <div class="btn-group btn-group-vertical">
+            <div class="btn-group">
                 <a class="btn btn-social btn-flat bg-olive btn-sm visible-xs-block visible-sm-inline-block visible-md-inline-block visible-lg-inline-block" data-toggle="dropdown"><i class='fa fa-arrow-circle-down'></i> Bagan Organisasi</a>
                 <ul class="dropdown-menu" role="menu">
                     <li>
@@ -53,12 +53,12 @@
                     <?php endif; ?>
                 </ul>
             </div>
-            <a href="<?= site_url('pengurus/jabatan')?>" class="btn btn-social btn-flat bg-navy btn-sm btn-sm visible-xs-block visible-sm-inline-block visible-md-inline-block visible-lg-inline-block" title="Jabatan">
-                <i class="fa fa fa-list"></i>Jabatan
+            <a href="<?= site_url('pengurus/jabatan')?>" class="btn btn-social btn-flat bg-navy btn-sm visible-xs-block visible-sm-inline-block visible-md-inline-block visible-lg-inline-block" title="Jabatan">
+                <i class="fa fa-list"></i>Jabatan
             </a>
         <?php endif; ?>
         <?php if (can('u', 'kehadiran_jam_kerja') || can('u', 'kehadiran_hari_libur') || can('u', 'kehadiran_rekapitulasi') || can('u', 'kehadiran_pengaduan')): ?>
-        <div class="btn-group btn-group-vertical">
+        <div class="btn-group">
             <a class="btn btn-social btn-flat bg-orange btn-sm visible-xs-block visible-sm-inline-block visible-md-inline-block visible-lg-inline-block" data-toggle="dropdown"><i class='fa fa-arrow-circle-down'></i> Kehadiran</a>
             <ul class="dropdown-menu" role="menu">
                 <?php if (can('u', 'kehadiran_jam_kerja')): ?>

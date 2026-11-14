@@ -1,26 +1,22 @@
 <form id="mainform" name="mainform" method="post" class="">
 	<div class="box box-info">
 		<div class="box-header with-border">
-			<div class="row">
-				<div class="col-sm-2">
-					<select class="form-control input-sm select2" name="tahun" onchange="formAction('mainform','<?= site_url($this->controller . '/filter/tahun') ?>')">
-						<option value="semua" selected>Semua Tahun</option>
-						<?php if ($min_tahun): ?>
-							<?php for ($i = date('Y'); $i >= $min_tahun; $i--) : ?>
-								<option value="<?= $i ?>" <?= selected($tahun, $i) ?>><?= $i ?></option>
-							<?php endfor; ?>
-						<?php endif; ?>
-					</select>
-				</div>
-				<div class="col-sm-10">
-					<a href="<?= site_url('laporan_inventaris/permendagri_47_dialog/cetak') ?>" target="_blank" class="btn btn-social btn-flat bg-purple btn-sm btn-sm visible-xs-block visible-sm-inline-block visible-md-inline-block visible-lg-inline-block" title="Cetak Inventaris">
-						<i class="fa fa-print"></i>Cetak
-					</a>
-					<a href="<?= site_url('laporan_inventaris/permendagri_47_dialog/cetak') ?>" target="_blank" class="btn btn-social btn-flat bg-navy btn-sm btn-sm visible-xs-block visible-sm-inline-block visible-md-inline-block visible-lg-inline-block" title="Unduh Inventaris">
-						<i class="fa fa-download"></i>Unduh
-					</a>
-				</div>
-			</div>
+			<select class="form-control input-sm select2" name="tahun" onchange="formAction('mainform','<?= site_url($this->controller . '/filter/tahun') ?>')">
+				<option value="semua" selected>Semua Tahun</option>
+				<?php if ($min_tahun): ?>
+					<?php for ($i = date('Y'); $i >= $min_tahun; $i--) : ?>
+						<option value="<?= $i ?>" <?= selected($tahun, $i) ?>><?= $i ?></option>
+					<?php endfor; ?>
+				<?php endif; ?>
+			</select>
+			<a href="<?= site_url('laporan_inventaris/permendagri_47_dialog/cetak') ?>" target="_blank" class="btn btn-social btn-flat bg-purple btn-sm visible-xs-block visible-sm-inline-block visible-md-inline-block visible-lg-inline-block" title="Cetak Inventaris">
+				<i class="fa fa-print"></i>Cetak
+			</a>
+			<a href="<?= site_url('laporan_inventaris/permendagri_47_dialog/cetak') ?>" target="_blank" class="btn btn-social btn-flat bg-navy btn-sm visible-xs-block visible-sm-inline-block visible-md-inline-block visible-lg-inline-block" title="Unduh Inventaris">
+				<i class="fa fa-download"></i>Unduh
+			</a>
+		</div>
+		<div class="box-body">
 			<div class="row">
 				<div class="col-sm-12">
 					<div class="dataTables_wrapper form-inline dt-bootstrap">

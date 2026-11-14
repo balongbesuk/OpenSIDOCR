@@ -7,8 +7,7 @@ defined('BASEPATH') || exit('No direct script access allowed');
  *
  * View modal form untuk Modul Lapak Admin > Pelapak
  *
- *
- * donjo-app/views/lapak/pelapak/modal_form.php
+ * donjo-app/views/lapak_admin/pelapak/modal_form.php
  *
  */
 
@@ -49,17 +48,17 @@ defined('BASEPATH') || exit('No direct script access allowed');
 <form id="validasi" action="<?= $form_action; ?>" method="POST">
 	<div class="modal-body">
 		<div class="form-group">
-			<label class="control-label" for="kategori">Nama Pelapak</label>
-			<select class="form-control input-sm select2 required" id="id_pend" name="id_pend" onchange="tampil_telepon($(this).find(':selected'))">
+			<label class="control-label" for="id_pend">Nama Pelapak</label>
+			<select class="form-control input-sm select2 required" id="id_pend" name="id_pend" style="width: 100%;" onchange="tampil_telepon($(this).find(':selected'))">
 				<option value="">-- Silahkan Cari NIK - Nama Penduduk --</option>
 				<?php foreach ($list_penduduk as $penduduk): ?>
-					<option value="<?= $penduduk->id; ?>" <?= selected($main->id_pend, $penduduk->id); ?> data-telepon="<?= $penduduk->telepon; ?>"><?= $penduduk->nik . ' - ' . $penduduk->nama; ?></option>
+					<option value="<?= $penduduk->id; ?>" <?= selected($main->id_pend ?? null, $penduduk->id); ?> data-telepon="<?= $penduduk->telepon; ?>"><?= $penduduk->nik . ' - ' . $penduduk->nama; ?></option>
 				<?php endforeach ?>
 			</select>
 		</div>
 		<div class="form-group">
-			<label class="control-label" for="nama">No. Telepon</label>
-			<input class="form-control input-sm number required" type="text" name="telepon" id="telepon" placeholder="Nomer Telepon" value="<?= $main->telepon; ?>"/>
+			<label class="control-label" for="telepon">No. Telepon</label>
+			<input class="form-control input-sm number required" type="text" name="telepon" id="telepon" placeholder="Nomor Telepon" value="<?= $main->telepon ?? ''; ?>"/>
 		</div>
 	</div>
 	<div class="modal-footer">

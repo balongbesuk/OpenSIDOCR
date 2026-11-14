@@ -34,21 +34,24 @@
 				</div>
 				<div class="col-md-8 col-lg-9">
 					<div class="box box-info">
-						<div class="box-header">
-							<h4 class="text-center"><strong>DAFTAR C-DESA</strong></h4>
+						<div class="box-header with-border">
+							<h4 class="text-center" style="margin-top: 5px; margin-bottom: 15px;"><strong>DAFTAR C-DESA</strong></h4>
+							<div class="row">
+								<div class="col-sm-12">
+									<a href='<?= site_url('cdesa/cetak')?>' class="btn btn-social btn-flat bg-purple btn-sm visible-xs-block visible-sm-inline-block visible-md-inline-block visible-lg-inline-block" title="Cetak Data" target="_blank">
+										<i class="fa fa-print"></i>Cetak
+									</a>
+									<a href="<?= site_url('cdesa/unduh')?>" class="btn btn-social btn-flat bg-navy btn-sm visible-xs-block visible-sm-inline-block visible-md-inline-block visible-lg-inline-block" title="Unduh Data" target="_blank">
+										<i class="fa fa-download"></i>Unduh
+									</a>
+									<a href="<?= site_url('cdesa/clear')?>" class="btn btn-social btn-flat bg-purple btn-sm visible-xs-block visible-sm-inline-block visible-md-inline-block visible-lg-inline-block"><i class="fa fa-refresh"></i>Bersihkan</a>
+								</div>
+							</div>
 						</div>
 						<div class="box-body">
 							<div class="row">
 								<div class="col-sm-12">
 									<div class="dataTables_wrapper form-inline dt-bootstrap no-footer">
-										<a href='<?= site_url('cdesa/cetak')?>' class="btn btn-social btn-flat bg-purple btn-sm btn-sm visible-xs-block visible-sm-inline-block visible-md-inline-block visible-lg-inline-block" title="Cetak Data" target="_blank">
-											<i class="fa fa-print"></i>Cetak
-										</a>
-										<a href="<?= site_url('cdesa/unduh')?>" class="btn btn-social btn-flat bg-navy btn-sm btn-sm visible-xs-block visible-sm-inline-block visible-md-inline-block visible-lg-inline-block" title="Unduh Data" target="_blank">
-											<i class="fa fa-download"></i>Unduh
-										</a>
-										<a href="<?= site_url('cdesa/clear')?>" class="btn btn-social btn-flat bg-purple btn-sm visible-xs-block visible-sm-inline-block visible-md-inline-block visible-lg-inline-block"><i class="fa fa-refresh"></i>Bersihkan</a>
-										<form id="mainform" name="mainform" method="post">
 											<div class="row">
 												<div class="col-sm-12">
 													<div class="box-tools">
@@ -102,7 +105,6 @@
 													</div>
 												</div>
 											</div>
-										</form>
 										<?php $this->load->view('global/paging'); ?>
 									</div>
 								</div>

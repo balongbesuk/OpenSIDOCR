@@ -1,5 +1,47 @@
 Aplikasi **OpenSIDOCR** merupakan pengembangan lanjutan dari **OpenSID versi 2403.0.0** dan seterusnya oleh Pemerintah Desa Balongbesuk ([balongbesuk/OpenSIDOCR](https://github.com/balongbesuk/OpenSIDOCR)).
 
+### Rilis v1.2.9 (Optimalisasi Komprehensif Responsivitas Mobile, Navigasi Sidebar, Layanan Mandiri, dan Cetak Surat)
+
+Rilis pembaruan antarmuka responsif mobile terpadu di seluruh modul admin OpenSID, pemulihan panel identitas desa dan navigasi sidebar di ponsel, penyempurnaan modul layanan persuratan, pengaturan mandiri, optimasi gambar, dan survei kepuasan layanan:
+
+#### Antarmuka & Responsivitas Mobile (*Mobile UI & Ergonomics*)
+
+1. **Pemulihan Identitas Desa & Sinkronisasi Navigasi Sidebar Ponsel:**
+   - Membatasi seluruh aturan mini-sidebar collapse desktop (`.sidebar-collapse`) agar hanya berjalan pada layar PC (`@media (min-width: 768px)`), mengeliminasi bug logo desa menciut (30px) dan teks nama desa/wilayah yang hilang di layar ponsel.
+   - Menambahkan aturan khusus mobile (`@media (max-width: 767px)`) untuk `.sidebar-open .main-sidebar .user-panel` sehingga logo desa (44x44px) dan identitas desa/kecamatan/kabupaten tampil utuh berdampingan secara horizontal.
+   - Mengatasi masalah sidebar macet (*state desync* toggle): membersihkan class `sidebar-collapse` otomatis di layar ponsel (< 768px) dan mengikat persistensi `localStorage` hanya pada layar desktop melalui event resmi AdminLTE (`collapsed.pushMenu` & `expanded.pushMenu`).
+   - Peningkatan touch target ergonomis menu sidebar di ponsel: menu utama min-height 44px, submenu min-height 42px (mencegah salah sentuh jempol), form pencarian menu `#cari-menu` proporsional 38px, pergeseran konten sinkron 270px dengan backdrop overlay semi-transparan, serta aktivasi smooth momentum touch scrolling.
+
+2. **Standardisasi Tombol Aksi Mobile & Filter Global (Card-Pill System):**
+   - Mengubah susunan tombol aksi toolbar `.box-header` yang sebelumnya menumpuk vertikal kaku menjadi kartu mandiri ergonomis (*card-pill*) berjarak aman (`min-height: 42px`, `border-radius: 6px`, margin 8px) di seluruh modul admin (Kependudukan, Keluarga, Wilayah, Pengaturan, Buku Administrasi, dsb.).
+   - Memberi aksen pemisah khusus pada tombol aksi destruktif (Hapus Data Terpilih) untuk mencegah risiko salah pencet (*accidental tap*).
+   - Menyelaraskan filter dropdown, Select2, serta kotak pencarian agar memiliki tinggi sentuh standar (38px) dan tersusun rapi tanpa patah (*no float snagging*).
+
+3. **Modul Cetak Layanan Surat (`/surat`):**
+   - Memperbaiki tabrakan tombol aksi mobile: mengelompokkan tombol *Buat Surat* dan bintang favorit dalam `.btn-group-aksi` (lebar otomatis) dengan tombol favorit simetris 32x32px agar tidak menabrak kolom *NAMA SURAT*.
+   - Mengoptimalkan dropdown pencarian judul surat di header (`#cetak-surat` Select2) dengan pembungkus grid responsif penuh sehingga teks placeholder tidak terpotong di PC maupun ponsel.
+   - Memperbarui warna sorotan baris template surat desa (`.select-row`) dari oranye pekat menjadi amber pastel lembut (`#fffbeb` / hover `#fef3c7`), serta menambahkan badge penanda status jenis surat (`RTF (Desa)` / `TinyMCE (Desa)`).
+
+4. **Modul Pengaturan Layanan Mandiri (`/setting/mandiri`):**
+   - Membersihkan tag penutup liar yang merusak layout form pengaturan.
+   - Menstandarkan card header, atribut semantik `for="{{ $pengaturan->key }}"` pada label, dan teks keterangan `text-muted`.
+   - Memperbaiki input group pemilih berkas desktop: tinggi seragam 34px, batas rapat (*flush*), tombol berlabel `<i class="fa fa-folder-open"></i> Browse`, dan memindahkan input berkas hidden ke luar `.input-group`.
+   - Ketahanan PHP 8: validasi `!empty($data['latar_*'])` dan safe JSON encoding pada array input untuk mencegah peringatan undefined key dan type error.
+
+5. **Modul Indeks Kepuasan Layanan / Pendapat (`/pendapat`):**
+   - Menyelaraskan ikon emotikon survei kepuasan dengan modul Layanan Mandiri (*Sangat Puas*, *Puas*, *Cukup*, *Buruk*).
+   - Memperbaiki posisi dropdown filter `Periode` di layar ponsel agar tidak bentrok atau menimpa judul modul.
+
+6. **Modul Optimasi Gambar (`/optimasi_gambar`) & Pengaturan Web Slider (`/web/slider`):**
+   - Merapikan visualisasi hierarki direktori penyimpanan folder dan subfolder upload dengan badge penanda bertingkat (`L__`) dan tombol resize responsif tanpa overlap.
+   - Menstandarkan opsi radio button sumber gambar slider dan tombol simpan pill responsif di ponsel.
+
+#### Perbaikan Bug & Ketahanan Backend (*Bug Fixes & Backend Resilience*)
+
+1. **Kompatibilitas PHP 8.x pada Pengaturan Modul & Setting:**
+   - Memperbaiki penanganan query dan data array pada `Modul_model.php`, `Setting_model.php`, dan `Lapak_model.php`.
+   - Menghindari PHP notices pada variabel tidak terdefinisi dan penanganan aman nilai kosong (*null safety*).
+
 ### Rilis v1.2.8 (Perbaikan Kompatibilitas PHP 8+, Penomoran Surat, Pratinjau Dokumen, & Desain Mobile Dashboard)
 
 Rilis perbaikan kompatibilitas runtime PHP 8.x pada modul pelayanan persuratan & dokumen, penambahan fitur pratinjau berkas penduduk, serta optimalisasi responsivitas mobile dashboard:
@@ -32,13 +74,6 @@ Rilis perbaikan kompatibilitas runtime PHP 8.x pada modul pelayanan persuratan &
    - Menerapkan CSS Flexbox Grid pada kontainer kartu ringkasan kependudukan (`.row-stat-boxes`) untuk mengeliminasi bug *float snagging* Bootstrap 3 yang menyebabkan celah/lubang kosong pada layar ponsel.
    - Menyelaraskan tinggi kartu (*equal height*) dan meratakan tombol *footer* aksi secara vertikal di setiap baris.
    - Memperbaiki komponen badge tren mutasi menjadi format pill ringkas (`.trend-pill`) agar teks tidak terlipat (*wrapping*), serta merapikan posisi tombol pengaturan pada kartu bantuan.
-   - Mengoptimalkan responsivitas grafik statistik kependudukan Highcharts dan filter dropdown tahun (`.box-header-flex`) agar proporsional dan tidak terpotong pada layar ponsel.
-
-3. **Tata Letak Tombol Aksi Toolbar & Filter Ergonomis Mobile (Global Card-Pill):**
-   - Memperbaiki tatanan tombol aksi pada `.box-header` di seluruh modul admin (`Data Penduduk`, `Data Keluarga`, `Wilayah Dusun`, `Buku Administrasi Desa`, `Pengelolaan Lembaga`, `Identitas Desa`, dsb.) pada layar ponsel ($\le 767\text{px}$).
-   - Mengeliminasi tampilan tombol vertikal yang saling menempel/menumpuk rapat tanpa jarak (`margin: 0`, `border-radius: 0`) menjadi format kartu mandiri ergonomis (*card-pill*) berjarak aman (`margin-bottom: 8px`, `border-radius: 6px`, `min-height: 42px`, dan padding sentuh ramah jari).
-   - Memberikan aksen pemisah khusus pada tombol aksi destruktif (*Hapus Data Terpilih*) untuk mencegah risiko salah pencet (*accidental tap*).
-   - Menyelaraskan filter dropdown, Select2, serta kotak pencarian di `.box-body` mobile agar memiliki area sentuh standar ($38\text{px}$) dan tersusun rapi.
 
 ### Rilis v1.2.7 (Optimasi Performa Beranda, Kecepatan Modul Statistik, dan Kemandirian Aset Offline)
 

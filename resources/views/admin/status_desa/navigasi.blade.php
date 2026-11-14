@@ -1,6 +1,6 @@
-<div class="row">
+<div class="row nav-status-desa">
     <a href="{{ route('status_desa.navigasi', 'idm') }}">
-        <div class="col-md-6 col-sm-6 col-xs-12">
+        <div class="col-md-6 col-sm-6 col-xs-6">
             <div class="info-box bg-blue radius">
                 <span class="info-box-icon"><i class="fa fa-bar-chart-o fa-nav"></i></span>
                 <div class="info-box-content">
@@ -10,7 +10,7 @@
         </div>
     </a>
     <a href="{{ route('status_desa.navigasi', 'sdgs') }}">
-        <div class="col-md-6 col-sm-6 col-xs-12">
+        <div class="col-md-6 col-sm-6 col-xs-6">
             <div class="info-box bg-green radius">
                 <span class="info-box-icon"><i class="fa fa-recycle fa-nav"></i></span>
                 <div class="info-box-content">

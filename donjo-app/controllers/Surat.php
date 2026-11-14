@@ -79,24 +79,30 @@ class Surat extends Admin_Controller
                     $aksi = '';
 
                     if (can('u')) {
-                        if ($row->favorit) {
-                            $aksi .= '<a href="' . site_url("surat/form/{$row->url_surat}") . '" class="btn btn-social bg-olive btn-sm" title="Buat Surat"><i class="fa fa-file-word-o"></i>Buat Surat</a> ';
-                            $aksi .= '<a href="' . site_url("surat/favorit/{$row->id}/1") . '" class="btn bg-olive btn-sm" title="Keluarkan dari Daftar Favorit"><i class="fa fa-star"></i></a> ';
-                        } else {
-                            $aksi .= '<a href="' . site_url("surat/form/{$row->url_surat}") . '" class="btn btn-social bg-purple btn-sm" title="Buat Surat"><i class="fa fa-file-word-o"></i>Buat Surat</a> ';
-                            $aksi .= '<a href="' . site_url("surat/favorit/{$row->id}/0") . '" class="btn bg-purple btn-sm" title="Tambahkan ke Daftar Favorit"><i class="fa fa-star-o"></i></a> ';
-                        }
+                        $color     = $row->favorit ? 'bg-olive' : 'bg-purple';
+                        $fav_id    = $row->favorit ? '1' : '0';
+                        $fav_icon  = $row->favorit ? 'fa-star' : 'fa-star-o';
+                        $fav_title = $row->favorit ? 'Keluarkan dari Daftar Favorit' : 'Tambahkan ke Daftar Favorit';
+
+                        $aksi .= '<div class="btn-group-aksi">';
+                        $aksi .= '<a href="' . site_url("surat/form/{$row->url_surat}") . '" class="btn btn-social ' . $color . ' btn-sm" title="Buat Surat"><i class="fa fa-file-word-o"></i>Buat Surat</a>';
+                        $aksi .= '<a href="' . site_url("surat/favorit/{$row->id}/{$fav_id}") . '" class="btn ' . $color . ' btn-sm btn-favorit" title="' . $fav_title . '"><i class="fa ' . $fav_icon . '"></i></a>';
+                        $aksi .= '</div>';
                     }
 
                     return $aksi;
                 })
                 ->addColumn('jenis_label', static function ($row) {
-                    return in_array($row->jenis, FormatSurat::RTF) ? 'RTF' : 'TinyMCE';
+                    $jenis = in_array($row->jenis, FormatSurat::RTF) ? 'RTF' : 'TinyMCE';
+                    if ($row->jenis == FormatSurat::RTF_DESA || $row->jenis == FormatSurat::TINYMCE_DESA) {
+                        return '<span class="label label-warning" title="Surat Ubahan Desa" style="font-size: 11px;">' . $jenis . ' (Desa)</span>';
+                    }
+                    return '<span class="label label-default" title="Surat Bawaan Sistem" style="font-size: 11px;">' . $jenis . '</span>';
                 })
                 ->editColumn('lampiran', static function ($row) {
                     return kode_format($row->lampiran);
                 })
-                ->rawColumns(['aksi', 'template_surat'])
+                ->rawColumns(['aksi', 'template_surat', 'jenis_label'])
                 ->make();
         }
 

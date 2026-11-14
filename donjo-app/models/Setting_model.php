@@ -196,15 +196,15 @@ class Setting_model extends MY_Model
         $hasil = true;
 
         // TODO : Jika sudah dipisahkan, buat agar upload gambar dinamis/bisa menyesuaikan dengan kebutuhan tema (u/ Modul Pengaturan Tema)
-        if ($data['latar_website'] != '') {
+        if (!empty($data['latar_website'])) {
             $hasil = $hasil && $this->upload_img('latar_website', $this->theme_model->lokasi_latar_website(str_replace('desa/', '', $this->setting->web_theme)), $this->setting->latar_website);
         }
 
-        if ($data['latar_login'] != '') {
+        if (!empty($data['latar_login'])) {
             $hasil = $hasil && $this->upload_img('latar_login', LATAR_LOGIN, $this->setting->latar_login);
         }
 
-        if ($data['latar_login_mandiri'] != '') {
+        if (!empty($data['latar_login_mandiri'])) {
             $hasil = $hasil && $this->upload_img('latar_login_mandiri', LATAR_LOGIN, $this->setting->latar_login_mandiri);
         }
 
@@ -227,7 +227,11 @@ class Setting_model extends MY_Model
                     continue;
                 }
 
-                $value = strip_tags($value);
+                if (is_array($value)) {
+                    $value = json_encode($value);
+                } else {
+                    $value = strip_tags((string) $value);
+                }
 
                 if ($key == 'ip_adress_kehadiran' || $key == 'mac_adress_kehadiran') {
                     $value = trim($value);
@@ -239,10 +243,6 @@ class Setting_model extends MY_Model
 
                 if ($key == 'api_opendk_key' && (empty(setting('api_opendk_server')) || empty(setting('api_opendk_user')) || empty(setting('api_opendk_password')))) {
                     $value = null;
-                }
-
-                if (is_array($post = $this->input->post($key))) {
-                    $value = json_encode($post);
                 }
 
                 $hasil                 = $hasil && $this->update($key, $value);

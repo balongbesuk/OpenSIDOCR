@@ -46,20 +46,14 @@ defined('BASEPATH') || exit('No direct script access allowed');
 <form id="mainformexcel" name="mainformexcel"method="post" class="form-horizontal">
 	<div class="box box-info">
 		<div class="box-header with-border">
-			<div class="row">
-				<div class="col-sm-2">
-					<select class="form-control input-sm select2" id="tahun" name="tahun">
-						<option selected value="semua">Semua Tahun</option>
-						<?php foreach ($list_tahun as $list) : ?>
-							<option value="<?= $list->tahun_anggaran ?>"><?= $list->tahun_anggaran ?></option>
-						<?php endforeach; ?>
-					</select>
-				</div>
-				<div class="col-sm-10">
-					<a href="<?= site_url($this->controller . '/dialog/cetak'); ?>" class="btn btn-social btn-flat bg-purple btn-sm visible-xs-block visible-sm-inline-block visible-md-inline-block visible-lg-inline-block" title="Cetak Buku Rencana Kerja Pembangunan" data-remote="false" data-toggle="modal" data-target="#modalBox" data-title="Cetak Buku Rencana Kerja Pembangunan"><i class="fa fa-print "></i> Cetak</a>
-					<a href="<?= site_url($this->controller . '/dialog/unduh'); ?>" class="btn btn-social btn-flat bg-navy btn-sm visible-xs-block visible-sm-inline-block visible-md-inline-block visible-lg-inline-block" title="Unduh Buku Rencana Kerja Pembangunan" data-remote="false" data-toggle="modal" data-target="#modalBox" data-title="Unduh Buku Rencana Kerja Pembangunan"><i class="fa fa-download"></i> Unduh</a>
-				</div>
-			</div>
+				<select class="form-control input-sm select2" id="tahun" name="tahun">
+					<option selected value="semua">Semua Tahun</option>
+					<?php foreach ($list_tahun as $list) : ?>
+						<option value="<?= $list->tahun_anggaran ?>"><?= $list->tahun_anggaran ?></option>
+					<?php endforeach; ?>
+				</select>
+				<a href="<?= site_url($this->controller . '/dialog/cetak'); ?>" class="btn btn-social btn-flat bg-purple btn-sm visible-xs-block visible-sm-inline-block visible-md-inline-block visible-lg-inline-block" title="Cetak Buku Rencana Kerja Pembangunan" data-remote="false" data-toggle="modal" data-target="#modalBox" data-title="Cetak Buku Rencana Kerja Pembangunan"><i class="fa fa-print "></i> Cetak</a>
+				<a href="<?= site_url($this->controller . '/dialog/unduh'); ?>" class="btn btn-social btn-flat bg-navy btn-sm visible-xs-block visible-sm-inline-block visible-md-inline-block visible-lg-inline-block" title="Unduh Buku Rencana Kerja Pembangunan" data-remote="false" data-toggle="modal" data-target="#modalBox" data-title="Unduh Buku Rencana Kerja Pembangunan"><i class="fa fa-download"></i> Unduh</a>
 		</div>
 		<div class="box-body">
 			<div class="table-responsive">

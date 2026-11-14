@@ -146,8 +146,9 @@ class Modul_model extends MY_Model
             ->result_array();
 
         for ($i = 0; $i < count($data); $i++) {
-            $data[$i]['no']    = $i + 1;
-            $data[$i]['modul'] = str_replace('[Pemerintah Desa]', ucwords(setting('sebutan_pemerintah_desa')), SebutanDesa($data[$i]['modul']));
+            $data[$i]['no']       = $i + 1;
+            $data[$i]['modul']    = str_replace('[Pemerintah Desa]', ucwords(setting('sebutan_pemerintah_desa')), SebutanDesa($data[$i]['modul']));
+            $data[$i]['submodul'] = [];
         }
 
         return $data;

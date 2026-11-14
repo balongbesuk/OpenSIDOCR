@@ -103,3 +103,11 @@ assets/filemanager/UploadHandlerAsli.php
 backup_inkremental/.htaccess
 images/
 backup_inkremental/.*
+
+# AI Agent skills (anti-slop)
+.agents/
+.agents/skills/antislop*
+
+
+video-desa/
+

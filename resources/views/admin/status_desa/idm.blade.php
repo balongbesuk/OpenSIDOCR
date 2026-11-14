@@ -2,8 +2,90 @@
 
 @push('css')
     <style>
-        .radius {
-            border-radius: 5px;
+        .row-idm-cards {
+            margin-left: -5px !important;
+            margin-right: -5px !important;
+            display: flex !important;
+            flex-wrap: wrap !important;
+        }
+
+        .col-idm-card {
+            padding-left: 5px !important;
+            padding-right: 5px !important;
+            margin-bottom: 10px !important;
+            display: flex !important;
+        }
+
+        .idm-card {
+            width: 100% !important;
+            border-radius: 8px !important;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08) !important;
+            margin-bottom: 0 !important;
+            position: relative !important;
+            overflow: hidden !important;
+            display: flex !important;
+            flex-direction: column !important;
+            justify-content: center !important;
+            text-align: center !important;
+            min-height: 80px !important;
+        }
+
+        .idm-card .inner {
+            padding: 12px 8px !important;
+            position: relative !important;
+            z-index: 2 !important;
+        }
+
+        .idm-card .idm-val {
+            font-size: 22px !important;
+            font-weight: 700 !important;
+            line-height: 1.15 !important;
+            color: #ffffff !important;
+            white-space: nowrap !important;
+        }
+
+        .idm-card .idm-status-text {
+            font-size: 16px !important;
+            letter-spacing: 0.5px !important;
+            font-weight: 800 !important;
+        }
+
+        .idm-card .idm-lbl {
+            font-size: 11px !important;
+            font-weight: 600 !important;
+            text-transform: uppercase !important;
+            letter-spacing: 0.5px !important;
+            color: rgba(255, 255, 255, 0.92) !important;
+            margin-top: 4px !important;
+            line-height: 1.25 !important;
+        }
+
+        .idm-card .icon {
+            position: absolute !important;
+            right: 8px !important;
+            top: 8px !important;
+            font-size: 38px !important;
+            color: rgba(0, 0, 0, 0.15) !important;
+            z-index: 1 !important;
+            pointer-events: none !important;
+        }
+
+        @media (max-width: 767px) {
+            .idm-card .idm-val {
+                font-size: 19px !important;
+            }
+            .idm-card .idm-status-text {
+                font-size: 15px !important;
+            }
+            .idm-card .idm-lbl {
+                font-size: 10px !important;
+            }
+            .idm-card {
+                min-height: 72px !important;
+            }
+            .idm-card .inner {
+                padding: 10px 6px !important;
+            }
         }
     </style>
 @endpush
@@ -35,12 +117,12 @@
                 @endforeach
             </select>
             @if (can('u'))
-                <a class="btn btn-social btn-success btn-sm btn-sm visible-xs-block visible-sm-inline-block visible-md-inline-block visible-lg-inline-block"
+                <a class="btn btn-social btn-success btn-sm visible-xs-block visible-sm-inline-block visible-md-inline-block visible-lg-inline-block"
                     {!! cek_koneksi_internet() == false || !empty($idm->error_msg)
                         ? 'disabled title="Perangkat tidak terhubung dengan jaringan"'
                         : 'href="' . route('status_desa.perbarui_idm', $tahun) . '"' !!}><i class="fa fa-refresh"></i>Perbarui</a>
                 @if (empty($idm->error_msg))
-                    <a class="btn btn-social btn-info btn-sm btn-sm visible-xs-block visible-sm-inline-block visible-md-inline-block visible-lg-inline-block"
+                    <a class="btn btn-social btn-info btn-sm visible-xs-block visible-sm-inline-block visible-md-inline-block visible-lg-inline-block"
                         href="{{ route('status_desa.simpan', $tahun) }}"><i class="fa fa-check-circle"></i>Simpan</a>
                 @endif
             @endif
@@ -54,75 +136,75 @@
             @else
                 <div class="row">
                     <div class="col-lg-6 col-xs-12">
-                        <div class="row">
-                            <div class="col-lg-6 col-xs-12">
-                                <div class="small-box bg-blue radius">
+                        <div class="row row-idm-cards">
+                            <div class="col-lg-6 col-sm-6 col-xs-6 col-idm-card">
+                                <div class="small-box bg-blue idm-card">
                                     <div class="inner">
-                                        <h3>{{ number_format($idm->SUMMARIES->SKOR_SAAT_INI, 4) }}</h3>
-                                        <p>SKOR IDM SAAT INI</p>
+                                        <div class="idm-val">{{ number_format($idm->SUMMARIES->SKOR_SAAT_INI, 4) }}</div>
+                                        <div class="idm-lbl">SKOR IDM SAAT INI</div>
                                     </div>
                                     <div class="icon">
-                                        <i class="ion ion-stats-bars"></i>
+                                        <i class="fa fa-line-chart"></i>
                                     </div>
                                 </div>
                             </div>
-                            <div class="col-lg-6 col-xs-12">
-                                <div class="small-box bg-yellow radius">
+                            <div class="col-lg-6 col-sm-6 col-xs-6 col-idm-card">
+                                <div class="small-box bg-yellow idm-card">
                                     <div class="inner">
-                                        <h3>{{ $idm->SUMMARIES->STATUS }}</h3>
-                                        <p>STATUS IDM</p>
+                                        <div class="idm-val idm-status-text">{{ $idm->SUMMARIES->STATUS }}</div>
+                                        <div class="idm-lbl">STATUS IDM</div>
                                     </div>
                                     <div class="icon">
-                                        <i class="ion-ios-pulse-strong"></i>
+                                        <i class="fa fa-trophy"></i>
                                     </div>
                                 </div>
                             </div>
-                            <div class="col-lg-6 col-xs-12">
-                                <div class="small-box bg-red radius">
+                            <div class="col-lg-6 col-sm-6 col-xs-6 col-idm-card">
+                                <div class="small-box bg-red idm-card">
                                     <div class="inner">
-                                        <h3>{{ number_format($idm->SUMMARIES->SKOR_MINIMAL, 4) }}</h2>
-                                            <p>SKOR IDM MINIMAL</p>
+                                        <div class="idm-val">{{ number_format($idm->SUMMARIES->SKOR_MINIMAL, 4) }}</div>
+                                        <div class="idm-lbl">SKOR IDM MINIMAL</div>
                                     </div>
                                     <div class="icon">
-                                        <i class="ion ion-ios-pie"></i>
+                                        <i class="fa fa-pie-chart"></i>
                                     </div>
                                 </div>
                             </div>
-                            <div class="col-lg-6 col-xs-12">
-                                <div class="small-box bg-green radius">
+                            <div class="col-lg-6 col-sm-6 col-xs-6 col-idm-card">
+                                <div class="small-box bg-green idm-card">
                                     <div class="inner">
-                                        <h3>{{ $idm->SUMMARIES->TARGET_STATUS }}</h3>
-                                        <p>TARGET STATUS</p>
+                                        <div class="idm-val idm-status-text">{{ $idm->SUMMARIES->TARGET_STATUS }}</div>
+                                        <div class="idm-lbl">TARGET STATUS</div>
                                     </div>
                                     <div class="icon">
-                                        <i class="ion ion-arrow-graph-up-right"></i>
+                                        <i class="fa fa-bullseye"></i>
                                     </div>
                                 </div>
                             </div>
 
-                            <div class="col-lg-12 col-xs-12">
-                                <div class="table-responsive">
-                                    <table class="table table-bordered table-striped dataTable table-hover">
+                            <div class="col-lg-12 col-xs-12" style="padding-left: 5px; padding-right: 5px; margin-top: 5px;">
+                                <div class="table-responsive" style="border-radius: 6px; border: 1px solid #e2e8f0; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
+                                    <table class="table table-bordered table-striped dataTable table-hover" style="margin-bottom: 0;">
                                         <tbody>
                                             <tr>
-                                                <td width="30%">PROVINSI</td>
-                                                <td width="1">:</td>
-                                                <td>{{ $idm->IDENTITAS[0]->nama_provinsi }}</td>
+                                                <td width="35%" style="font-weight: 600; color: #475569; font-size: 12.5px; padding: 9px 12px;">PROVINSI</td>
+                                                <td width="1" style="padding: 9px 4px;">:</td>
+                                                <td style="font-weight: 600; color: #1e293b; font-size: 13px; padding: 9px 12px;">{{ $idm->IDENTITAS[0]->nama_provinsi }}</td>
                                             </tr>
                                             <tr>
-                                                <td>KABUPATEN</td>
-                                                <td> : </td>
-                                                <td>{{ $idm->IDENTITAS[0]->nama_kab_kota }}</td>
+                                                <td style="font-weight: 600; color: #475569; font-size: 12.5px; padding: 9px 12px;">KABUPATEN</td>
+                                                <td style="padding: 9px 4px;">:</td>
+                                                <td style="font-weight: 600; color: #1e293b; font-size: 13px; padding: 9px 12px;">{{ $idm->IDENTITAS[0]->nama_kab_kota }}</td>
                                             </tr>
                                             <tr>
-                                                <td>{{ strtoupper($setting->sebutan_kecamatan) }}</td>
-                                                <td> : </td>
-                                                <td>{{ $idm->IDENTITAS[0]->nama_kecamatan }}</td>
+                                                <td style="font-weight: 600; color: #475569; font-size: 12.5px; padding: 9px 12px;">{{ strtoupper($setting->sebutan_kecamatan) }}</td>
+                                                <td style="padding: 9px 4px;">:</td>
+                                                <td style="font-weight: 600; color: #1e293b; font-size: 13px; padding: 9px 12px;">{{ $idm->IDENTITAS[0]->nama_kecamatan }}</td>
                                             </tr>
                                             <tr>
-                                                <td>{{ strtoupper($setting->sebutan_desa) }}</td>
-                                                <td> : </td>
-                                                <td>{{ $idm->IDENTITAS[0]->nama_desa }}</td>
+                                                <td style="font-weight: 600; color: #475569; font-size: 12.5px; padding: 9px 12px;">{{ strtoupper($setting->sebutan_desa) }}</td>
+                                                <td style="padding: 9px 4px;">:</td>
+                                                <td style="font-weight: 600; color: #1e293b; font-size: 13px; padding: 9px 12px;">{{ $idm->IDENTITAS[0]->nama_desa }}</td>
                                             </tr>
                                         </tbody>
                                     </table>

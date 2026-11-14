@@ -7,19 +7,36 @@ window.setTimeout(function () {
     });
 }, 1000);
 
-// Sidebar
+// Sidebar state persistence (khusus PC / desktop >= 768px)
 if (
   typeof Storage !== "undefined" &&
-  localStorage.getItem("sidebar") === "false"
+  window.innerWidth >= 768
 ) {
-  $("#sidebar_collapse").addClass("sidebar-collapse");
+  if (localStorage.getItem("sidebar") === "false") {
+    $("#sidebar_collapse").addClass("sidebar-collapse");
+  }
+} else if (window.innerWidth < 768) {
+  $("#sidebar_collapse").removeClass("sidebar-collapse");
 }
 
+$(document).on("collapsed.pushMenu", function () {
+  if (window.innerWidth >= 768 && typeof Storage !== "undefined") {
+    localStorage.setItem("sidebar", "false");
+  }
+});
+
+$(document).on("expanded.pushMenu", function () {
+  if (window.innerWidth >= 768 && typeof Storage !== "undefined") {
+    localStorage.setItem("sidebar", "true");
+  } else if (window.innerWidth < 768) {
+    $("#sidebar_collapse").removeClass("sidebar-collapse");
+  }
+});
+
 $(".sidebar-toggle").on("click", function () {
-  localStorage.setItem(
-    "sidebar",
-    $("#sidebar_collapse").hasClass("sidebar-collapse")
-  );
+  if (window.innerWidth < 768) {
+    $("#sidebar_collapse").removeClass("sidebar-collapse");
+  }
 });
 
 // Tutup dropdown profil saat modal informasi dibuka

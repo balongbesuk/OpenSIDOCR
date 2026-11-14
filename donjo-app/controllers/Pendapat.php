@@ -49,7 +49,8 @@ class Pendapat extends Admin_Controller
 
     public function index()
     {
-        $tipe                  = $this->session->flashdata('tipe');
+        $tipe                  = $this->session->userdata('tipe_pendapat') ?: ($this->session->flashdata('tipe') ?: 6);
+        $data['tipe']          = (int) $tipe;
         $data['list_pendapat'] = unserialize(NILAI_PENDAPAT);
 
         foreach ($data['list_pendapat'] as $key => $value) {
@@ -64,6 +65,7 @@ class Pendapat extends Admin_Controller
 
     public function detail(int $tipe = 1)
     {
+        $this->session->set_userdata('tipe_pendapat', $tipe);
         $this->session->set_flashdata('tipe', $tipe);
 
         redirect('pendapat');
