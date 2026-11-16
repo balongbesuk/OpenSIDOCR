@@ -205,7 +205,7 @@ class Tanah_kas_desa_model extends MY_Model
         // add
         if ($id == 0) {
             $check_letterc_persil = $this->check_letterc_persil($data['letter_c_persil']);
-            if (count($check_letterc_persil) > 0) {
+            if (! empty($check_letterc_persil)) {
                 $valid[] = "Letter C / Persil {$data['letter_c_persil']} sudah digunakan";
             }
         } else {
@@ -213,7 +213,7 @@ class Tanah_kas_desa_model extends MY_Model
             $check_old_letterc_persil = $this->check_old_letterc_persil($data['letter_c_persil'], $id);
             if (! $check_old_letterc_persil) {
                 $check_letterc_persil = $this->check_letterc_persil($data['letter_c_persil']);
-                if (count($check_letterc_persil) > 0) {
+                if (! empty($check_letterc_persil)) {
                     $valid[] = "Letter C / Persil {$data['letter_c_persil']} sudah digunakan";
                 }
             }
@@ -263,7 +263,7 @@ class Tanah_kas_desa_model extends MY_Model
             ->get()
             ->row();
 
-        return $letterC_persil == $data->letter_c;
+        return $data ? $letterC_persil == $data->letter_c : false;
     }
 
     private function check_letterc_persil($letterC_persil)

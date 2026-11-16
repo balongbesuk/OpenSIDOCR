@@ -66,6 +66,10 @@ Rilis pembaruan antarmuka responsif mobile terpadu di seluruh modul admin OpenSI
    - Mengamankan parsing array pada `Url_shortener_model::decode_id()` dengan pengecekan `isset($exp[1], $exp[3])` untuk mencegah galat *undefined array key*.
    - Menyediakan variabel `$data['folder_themes']` pada `Verifikasi_surat::decode()` agar view verifikasi surat publik memuat aset tema desa tanpa notice *undefined variable*.
 
+3. **Validasi Tanah Kas Desa (PHP 8.x):**
+   - Memperbaiki potensi fatal error `TypeError: count(): Argument #1 ($value) must be of type Countable|array, stdClass given` pada `Tanah_kas_desa_model::validasi_data()` saat memeriksa ketersediaan Letter C / Persil.
+   - Menghindari peringatan PHP *Attempt to read property on null* pada `Tanah_kas_desa_model::check_old_letterc_persil()`.
+
 ### Rilis v1.2.8 (Perbaikan Kompatibilitas PHP 8+, Penomoran Surat, Pratinjau Dokumen, & Desain Mobile Dashboard)
 
 Rilis perbaikan kompatibilitas runtime PHP 8.x pada modul pelayanan persuratan & dokumen, penambahan fitur pratinjau berkas penduduk, serta optimalisasi responsivitas mobile dashboard:
