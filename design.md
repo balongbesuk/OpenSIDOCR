@@ -445,3 +445,15 @@ Standar ini wajib diterapkan secara konsisten pada seluruh modul admin OpenSID (
 
 
 
+
+
+### Sub-R: Form Pelayanan Surat - Kontrol Radio Toggle Foto Penduduk (`tampil_foto.php`, `admin-style.css`)
+- **Penyelesaian Masalah Tombol Foto Melar 100% Layar Desktop:**
+  - **Akar Masalah:**
+    - Elemen pembungkus tombol radio pada `donjo-app/views/surat/form/tampil_foto.php` sebelumnya menyematkan kelas grid langsung pada tombol (`class="btn-group col-xs-12 col-sm-8" data-toggle="buttons"`), dan tombol `<label class="btn">` di dalamnya disematkan kelas `.col-xs-12.col-sm-6.col-lg-2.tipe`.
+    - Aturan CSS global `.form-group .btn-group[data-toggle="buttons"] { display: flex !important; width: 100% !important; }` menimpa lebar kolom Bootstrap sehingga tombol *Ya* dan *Tidak* melebar paksa 100% dari tepi kiri ke tepi kanan monitor dan terlempar ke baris baru di bawah label.
+  - **Solusi Struktur HTML & CSS:**
+    - Membungkus `.btn-group.btn-group-justified` ke dalam kolom grid responsif standar form surat: `<div class="col-xs-12 col-sm-6 col-lg-4">` sejajar dengan dropdown NIK, Pamong, dan Bertanda Tangan.
+    - Menghapus kelas kolom grid yang tidak valid pada `<label class="btn">` sehingga tombol radio bertindak murni sebagai flex item 50%-50% di dalam kolomnya.
+    - Menyesuaikan selektor CSS pada `admin-style.css` (`:not([class*="col-"])`) agar tombol group yang memiliki kelas grid bawaan tidak tertimpa `width: 100% !important`.
+    - Menstandarkan visual tombol toggle: tinggi 34px (desktop) / 36px (mobile), `border-radius: 4px 0 0 4px` pada tombol pertama dan `0 4px 4px 0` pada tombol terakhir, kontras aktif solid `#0284c7` teks putih vs non-aktif lembut `#f1f5f9` teks `#0369a1` border `#cbd5e1`, serta efek hover interaktif.

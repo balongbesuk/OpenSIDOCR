@@ -46,6 +46,10 @@ Rilis pembaruan antarmuka responsif mobile terpadu di seluruh modul admin OpenSI
    - Menghapus inline style `style="width: 100%;"` pada dropdown jenis surat di view `surat_keluar.php`.
    - Menstandarkan tombol aksi ikon tunggal pada baris tabel desktop PC (`table.table tbody td .btn:not(.btn-social)`): sebelumnya berukuran kerdil 26px, kini ditingkatkan menjadi seragam tinggi 32px, `min-width: 32px`, `line-height: 32px`, dan `border-radius: 4px` sejajar dengan tombol aksi `.btn-social` ("Lampiran") dan tombol hapus.
 
+9. **Modul Pelayanan Surat - Radio Toggle Foto Penduduk (`tampil_foto.php`):**
+   - Memperbaiki tata letak desktop tombol *Tampilkan Foto Penduduk di Surat* yang sebelumnya melar 100% selebar layar monitor dan terlempar ke bawah label.
+   - Membungkus tombol ke dalam kolom grid responsif standar (`col-xs-12 col-sm-6 col-lg-4`) sejajar dengan input NIK dan dropdown Pamong, serta menstandarkan tampilan toggle pill (tinggi 34px di PC / 36px di mobile, sudut membulat 4px, kontras aktif solid `#0284c7`, dan efek hover bersih).
+
 #### Perbaikan Bug & Ketahanan Backend (*Bug Fixes & Backend Resilience*)
 
 1. **Kompatibilitas PHP 8.x pada Pengaturan Modul & Setting:**

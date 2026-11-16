@@ -1656,11 +1656,15 @@ div.form-surat .content-header {
         right: 8px !important;
     }
 
-    /* Radio toggle button group di form-group PC (Pilih Lokasi vs Tulis Manual dll) */
-    .form-group .btn-group[data-toggle="buttons"],
-    .form-group .btn-group.btn-group-justified {
+    /* Radio toggle button group di form-group PC (Pilih Lokasi vs Tulis Manual, Tampil Foto Surat, dll) */
+    .form-group .btn-group[data-toggle="buttons"]:not([class*="col-"]),
+    .form-group .btn-group.btn-group-justified:not([class*="col-"]) {
         display: flex !important;
         width: 100% !important;
+    }
+
+    .form-group .btn-group[data-toggle="buttons"][class*="col-"] {
+        display: flex !important;
     }
 
     .form-group .btn-group[data-toggle="buttons"] > .btn,
@@ -1677,11 +1681,28 @@ div.form-surat .content-header {
         font-size: 13px !important;
     }
 
+    .form-group .btn-group[data-toggle="buttons"] > .btn:first-child,
+    .form-group .btn-group.btn-group-justified > .btn:first-child {
+        border-radius: 4px 0 0 4px !important;
+    }
+
+    .form-group .btn-group[data-toggle="buttons"] > .btn:last-child,
+    .form-group .btn-group.btn-group-justified > .btn:last-child {
+        border-radius: 0 4px 4px 0 !important;
+    }
+
     .form-group .btn-group[data-toggle="buttons"] > .btn.btn-info {
         background-color: #f1f5f9 !important;
         color: #0369a1 !important;
         border: 1px solid #cbd5e1 !important;
         box-shadow: none !important;
+    }
+
+    .form-group .btn-group[data-toggle="buttons"] > .btn.btn-info:hover:not(.active),
+    .form-group .btn-group.btn-group-justified > .btn.btn-info:hover:not(.active) {
+        background-color: #e2e8f0 !important;
+        color: #0284c7 !important;
+        border-color: #94a3b8 !important;
     }
 
     .form-group .btn-group[data-toggle="buttons"] > .btn.btn-info.active,
@@ -2457,6 +2478,16 @@ div.form-surat .content-header {
         min-height: 36px !important;
         height: 36px !important;
         font-size: 13px !important;
+    }
+
+    .form-group .btn-group[data-toggle="buttons"] > .btn:first-child,
+    .form-group .btn-group.btn-group-justified > .btn:first-child {
+        border-radius: 4px 0 0 4px !important;
+    }
+
+    .form-group .btn-group[data-toggle="buttons"] > .btn:last-child,
+    .form-group .btn-group.btn-group-justified > .btn:last-child {
+        border-radius: 0 4px 4px 0 !important;
     }
 
     /* Input-group terpadu di mobile (pencarian, kalender tanggal, rentang umur) */
