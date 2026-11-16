@@ -1978,6 +1978,35 @@ div.form-surat .content-header {
         position: absolute !important;
     }
 
+    /* Standarisasi Modal Footer (Sejajar, Rapi & Elegan) */
+    .modal-footer {
+        padding: 12px 15px !important;
+        border-top: 1px solid #e2e8f0 !important;
+        background-color: #f8fafc !important;
+        border-bottom-left-radius: 6px !important;
+        border-bottom-right-radius: 6px !important;
+    }
+
+    .modal-footer .btn.btn-social,
+    .modal-footer a.btn.btn-social,
+    .modal-footer button.btn.btn-social {
+        height: 34px !important;
+        line-height: 34px !important;
+        padding: 0 14px 0 38px !important;
+        border-radius: 4px !important;
+        font-weight: 500 !important;
+        font-size: 13px !important;
+    }
+
+    .modal-footer .btn.btn-social > :first-child,
+    .modal-footer a.btn.btn-social > :first-child,
+    .modal-footer button.btn.btn-social > :first-child {
+        width: 30px !important;
+        line-height: 34px !important;
+        font-size: 13px !important;
+        border-right: 1px solid rgba(0, 0, 0, 0.15) !important;
+    }
+
     /* Input Warna & Addon di Box-Footer PC */
     .box-footer label.control-label {
         display: inline-flex !important;

@@ -467,3 +467,15 @@ Standar ini wajib diterapkan secara konsisten pada seluruh modul admin OpenSID (
     - Menghapus kelas utilitas `visible-*` dari `#next` dan menambahkan aturan CSS eksplisit `.box-footer > .btn[style*="display: none"] { display: none !important; }` agar tombol tersembunyi dengan sempurna sebelum dipicu.
     - Pada saat tombol *Unduh RTF* ditekan: tombol cetak disembunyikan (`.hide()`), tombol `#next` dimunculkan (`.show()`), dan dialog SweetAlert mengarahkan pengguna untuk beralih ke Permohonan Surat.
     - Menambahkan penanganan tombol *Batal* (`reset_form_surat()`) untuk merestorasi status tombol cetak jika pengguna membatalkan formulir.
+
+
+### Sub-T: Standardisasi Modal Dialog Impor KK PDF & Foto/Scan OCR (`ajax_import_pdf_form.php`, `ajax_import_scan_form.php`, `ajax_import_pdf_preview.php`, `admin-style.css`)
+- **Penyempurnaan Input Berkas & Tombol Footer Modal:**
+  - **Akar Masalah:**
+    - Form dialog impor KK PDF dan OCR sebelumnya menampilkan input file bawaan browser mentah (`[Choose File] No file chosen`) yang kaku dan tidak konsisten dengan tema admin.
+    - Tombol footer dialog masih menggunakan tombol abu-abu polos `.btn-default` (Batal) dan `.btn-primary` biasa tanpa ikon standar.
+  - **Solusi Struktur HTML & CSS:**
+    - Mengganti input berkas mentah menjadi unit input terpadu (`.input-group`): input teks readonly ber-placeholder *"Pilih berkas..."* dengan kursor interaktif + tombol addon `<button class="btn btn-info btn-flat"><i class="fa fa-folder-open"></i> Browse</button>` setinggi 34px yang menyatu rapat (*flush*).
+    - Memindahkan elemen `<input type="file" class="hidden">` keluar dari alur visual dan menambahkan validasi submit JavaScript agar tidak memicu error browser.
+    - Menstandarkan tombol `.modal-footer`: tombol *Batal* merah `.btn-social btn-flat btn-danger btn-sm` (ikon `fa-times`) dan tombol aksi kanan `.btn-social btn-flat btn-info/btn-success btn-sm pull-right`.
+    - Menambahkan aturan CSS `.modal-footer` pada `admin-style.css` (tinggi seragam 34px, border-radius 4px, background `#f8fafc`, dan border atas halus `#e2e8f0`).

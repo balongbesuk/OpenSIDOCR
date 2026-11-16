@@ -156,15 +156,37 @@ $has_any_pkg  = $has_new || ! empty($info['has_old']) || $has_onnx || $has_openc
 			<input type="hidden" name="<?= $this->security->get_csrf_token_name(); ?>" value="<?= $this->security->get_csrf_hash(); ?>" />
 		<?php endif; ?>
 		<div class="form-group">
-			<label for="kk_scan" class="col-sm-3 control-label">File Foto / Scan KK</label>
+			<label for="file_path_scan" class="col-sm-3 control-label">File Foto / Scan KK</label>
 			<div class="col-sm-8">
-				<input type="file" name="kk_scan" id="kk_scan" class="form-control input-sm" accept=".jpg,.jpeg,.png,.pdf" required>
-				<p class="help-block"><i>Unggah hasil scan / foto fotokopi Kartu Keluarga (.jpg, .jpeg, .png, .pdf). Sistem akan membaca teks dokumen menggunakan RapidOCR ONNX Engine.</i></p>
+				<div class="input-group input-group-sm">
+					<input type="text" class="form-control" id="file_path_scan" placeholder="Pilih berkas foto / scan..." readonly style="background-color: #fff; cursor: pointer;">
+					<input type="file" class="hidden" name="kk_scan" id="kk_scan" accept=".jpg,.jpeg,.png,.pdf">
+					<span class="input-group-btn">
+						<button type="button" class="btn btn-info btn-flat" id="file_browser_scan"><i class="fa fa-folder-open"></i> Browse</button>
+					</span>
+				</div>
+				<p class="help-block text-muted" style="margin-top: 6px;"><i>Unggah hasil scan / foto fotokopi Kartu Keluarga (.jpg, .jpeg, .png, .pdf). Sistem akan membaca teks dokumen menggunakan RapidOCR ONNX Engine.</i></p>
 			</div>
 		</div>
 		<div class="modal-footer">
-			<button type="button" class="btn btn-default btn-sm" data-dismiss="modal"><i class="fa fa-times"></i> Batal</button>
-			<button type="submit" class="btn btn-success btn-sm"><i class="fa fa-magic"></i> Unggah & Scan OCR</button>
+			<button type="button" class="btn btn-social btn-flat btn-danger btn-sm" data-dismiss="modal"><i class="fa fa-times"></i> Batal</button>
+			<button type="submit" class="btn btn-social btn-flat btn-success btn-sm pull-right" id="ok"><i class="fa fa-magic"></i> Unggah & Scan OCR</button>
 		</div>
 	</form>
 </div>
+<script type="text/javascript">
+	$('#file_browser_scan, #file_path_scan').on('click', function() {
+		$('#kk_scan').trigger('click');
+	});
+	$('#kk_scan').on('change', function() {
+		$('#file_path_scan').val($(this).val().replace(/C:\\fakepath\\/i, ''));
+	});
+	$('#form_import_scan').on('submit', function(e) {
+		if (!$('#kk_scan').val()) {
+			e.preventDefault();
+			alert('Silakan pilih berkas foto / scan Kartu Keluarga terlebih dahulu.');
+			$('#file_browser_scan').focus();
+			return false;
+		}
+	});
+</script>

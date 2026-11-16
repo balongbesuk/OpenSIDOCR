@@ -59,6 +59,10 @@ Rilis pembaruan antarmuka responsif mobile terpadu di seluruh modul admin OpenSI
     - Memperbaiki tata letak radio button toggle grup (`.btn-group[data-toggle="buttons"]`) di seluruh formulir admin (Modul Pengguna, Area, Garis, Lokasi, Komentar, Media Sosial, Vaksin, C-Desa/Persil, dan Analisis).
     - Mencegah tombol melompat ke baris baru di desktop dengan menetapkan `display: inline-flex !important; float: left !important;` serta membatasi `max-width: 360px` yang proporsional sejajar dengan label formulir.
 
+12. **Modul Kependudukan - Standardisasi Dialog Impor KK PDF & Foto/Scan OCR:**
+    - Mengganti input berkas mentah browser `[Choose File]` pada popup Impor KK PDF dan OCR dengan input-group terpadu: kotak teks readonly dan tombol `[ 📁 Browse ]` tinggi 34px yang menyatu rapat (*flush*).
+    - Menstandarkan tombol `.modal-footer`: tombol *Batal* merah `.btn-social btn-flat btn-danger btn-sm` (ikon `fa-times`) dan tombol aksi kanan `.btn-social btn-flat btn-info/btn-success btn-sm pull-right`.
+
 #### Perbaikan Bug & Ketahanan Backend (*Bug Fixes & Backend Resilience*)
 
 1. **Kompatibilitas PHP 8.x pada Pengaturan Modul & Setting:**
