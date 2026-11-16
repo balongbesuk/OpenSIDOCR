@@ -1931,6 +1931,16 @@ div.form-surat .content-header {
         float: none !important;
     }
 
+    .box-footer > .btn[style*="display: none"],
+    .box-footer > a.btn[style*="display: none"],
+    .box-footer > button.btn[style*="display: none"],
+    .box-footer form .btn[style*="display: none"],
+    .box-footer > .btn.hidden,
+    .box-footer > a.btn.hidden,
+    .box-footer > button.btn.hidden {
+        display: none !important;
+    }
+
     .box-footer > .btn.pull-right,
     .box-footer > a.btn.pull-right,
     .box-footer > button.btn.pull-right,
@@ -2415,6 +2425,16 @@ div.form-surat .content-header {
         box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08) !important;
         box-sizing: border-box !important;
         position: relative !important;
+    }
+
+    .box-footer > .btn[style*="display: none"],
+    .box-footer > a.btn[style*="display: none"],
+    .box-footer > button.btn[style*="display: none"],
+    .box-footer form .btn[style*="display: none"],
+    .box-footer > .btn.hidden,
+    .box-footer > a.btn.hidden,
+    .box-footer > button.btn.hidden {
+        display: none !important;
     }
 
     .box-body .btn-group .btn-social {
@@ -3187,6 +3207,16 @@ div.form-surat .content-header {
         box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08) !important;
         box-sizing: border-box !important;
         position: relative !important;
+    }
+
+    .box-footer > .btn[style*="display: none"],
+    .box-footer > a.btn[style*="display: none"],
+    .box-footer > button.btn[style*="display: none"],
+    .box-footer form .btn[style*="display: none"],
+    .box-footer > .btn.hidden,
+    .box-footer > a.btn.hidden,
+    .box-footer > button.btn.hidden {
+        display: none !important;
     }
 
     .box-footer .btn.btn-social,

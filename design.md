@@ -457,3 +457,13 @@ Standar ini wajib diterapkan secara konsisten pada seluruh modul admin OpenSID (
     - Menghapus kelas kolom grid yang tidak valid pada `<label class="btn">` sehingga tombol radio bertindak murni sebagai flex item 50%-50% di dalam kolomnya.
     - Menyesuaikan selektor CSS pada `admin-style.css` (`:not([class*="col-"])`) agar tombol group yang memiliki kelas grid bawaan tidak tertimpa `width: 100% !important`.
     - Menstandarkan visual tombol toggle: tinggi 34px (desktop) / 36px (mobile), `border-radius: 4px 0 0 4px` pada tombol pertama dan `0 4px 4px 0` pada tombol terakhir, kontras aktif solid `#0284c7` teks putih vs non-aktif lembut `#f1f5f9` teks `#0369a1` border `#cbd5e1`, serta efek hover interaktif.
+
+
+### Sub-S: Transisi Aksi Footer Cetak Surat (`tombol_cetak.php`, `admin-style.css`)
+- **Penyelesaian Masalah Tombol Permohonan Surat Terbuka Sejak Awal:**
+  - **Akar Masalah:**
+    - Elemen `#next` (`ke Permohonan Surat`) memiliki kelas bawaan Bootstrap `.visible-xs-block .visible-sm-inline-block .visible-md-inline-block .visible-lg-inline-block` dan aturan global `.box-footer > a.btn { display: inline-flex !important; }` yang menimpa `style="display: none;"`. Akibatnya, pada tampilan awal form terdapat 3 tombol sekaligus: *Batal*, *Unduh RTF*, dan *ke Permohonan Surat*.
+  - **Solusi:**
+    - Menghapus kelas utilitas `visible-*` dari `#next` dan menambahkan aturan CSS eksplisit `.box-footer > .btn[style*="display: none"] { display: none !important; }` agar tombol tersembunyi dengan sempurna sebelum dipicu.
+    - Pada saat tombol *Unduh RTF* ditekan: tombol cetak disembunyikan (`.hide()`), tombol `#next` dimunculkan (`.show()`), dan dialog SweetAlert mengarahkan pengguna untuk beralih ke Permohonan Surat.
+    - Menambahkan penanganan tombol *Batal* (`reset_form_surat()`) untuk merestorasi status tombol cetak jika pengguna membatalkan formulir.

@@ -50,6 +50,11 @@ Rilis pembaruan antarmuka responsif mobile terpadu di seluruh modul admin OpenSI
    - Memperbaiki tata letak desktop tombol *Tampilkan Foto Penduduk di Surat* yang sebelumnya melar 100% selebar layar monitor dan terlempar ke bawah label.
    - Membungkus tombol ke dalam kolom grid responsif standar (`col-xs-12 col-sm-6 col-lg-4`) sejajar dengan input NIK dan dropdown Pamong, serta menstandarkan tampilan toggle pill (tinggi 34px di PC / 36px di mobile, sudut membulat 4px, kontras aktif solid `#0284c7`, dan efek hover bersih).
 
+10. **Modul Pelayanan Surat - Transisi Tombol Footer Cetak Surat (`tombol_cetak.php`):**
+    - Menyembunyikan tombol navigasi *ke Permohonan Surat* pada status awal form sehingga hanya menampilkan tombol *Batal* dan *Unduh RTF*.
+    - Menghapus kelas utilitas `visible-*` dan menambahkan proteksi CSS `[style*="display: none"] { display: none !important; }` pada `.box-footer` agar tombol tidak muncul mendahului proses unduh.
+    - Mengubah tombol *Unduh RTF* menjadi *ke Permohonan Surat* secara mulus begitu proses unduh dimulai, serta merestorasi status tombol saat formulir dibatalkan/direset.
+
 #### Perbaikan Bug & Ketahanan Backend (*Bug Fixes & Backend Resilience*)
 
 1. **Kompatibilitas PHP 8.x pada Pengaturan Modul & Setting:**
