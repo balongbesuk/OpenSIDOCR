@@ -68,7 +68,8 @@ class Verifikasi_surat extends Web_Controller
     {
         $id_decoded = $this->url_shortener_model->decode_id($id_encoded);
 
-        $data['config'] = $this->header;
+        $data['config']        = $this->header;
+        $data['folder_themes'] = "{$this->theme_folder}/{$this->theme}";
         $data['surat']  = $this->keluar_model->verifikasi_data_surat($id_decoded, $this->header['kode_desa']);
 
         if (! $data['surat']) {

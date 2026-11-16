@@ -79,7 +79,7 @@ class Url_shortener_model extends MY_Model
             ->get()
             ->row_object();
 
-        return (count($result) > 0) ? $result : false;
+        return ! empty($result) ? $result : false;
     }
 
     public function random_code($length)
@@ -103,6 +103,6 @@ class Url_shortener_model extends MY_Model
         $base64    = base64_decode($base64url, true);
         $exp       = explode(',', $base64);
 
-        return ($exp[1] != $exp[3]) ? $plainText : $exp[1];
+        return (isset($exp[1], $exp[3]) && $exp[1] == $exp[3]) ? $exp[1] : $plainText;
     }
 }

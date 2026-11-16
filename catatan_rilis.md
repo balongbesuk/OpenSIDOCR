@@ -52,6 +52,11 @@ Rilis pembaruan antarmuka responsif mobile terpadu di seluruh modul admin OpenSI
    - Memperbaiki penanganan query dan data array pada `Modul_model.php`, `Setting_model.php`, dan `Lapak_model.php`.
    - Menghindari PHP notices pada variabel tidak terdefinisi dan penanganan aman nilai kosong (*null safety*).
 
+2. **Validasi QR Code & Pemendek URL Surat (PHP 8.x):**
+   - Memperbaiki fatal error `TypeError: count(): Argument #1 ($value) must be of type Countable|array, stdClass given` pada `Url_shortener_model::get_url()` saat memindai QR Code hasil cetak surat (rute `/v/{alias}`). Mengganti `count($result) > 0` dengan `! empty($result)`.
+   - Mengamankan parsing array pada `Url_shortener_model::decode_id()` dengan pengecekan `isset($exp[1], $exp[3])` untuk mencegah galat *undefined array key*.
+   - Menyediakan variabel `$data['folder_themes']` pada `Verifikasi_surat::decode()` agar view verifikasi surat publik memuat aset tema desa tanpa notice *undefined variable*.
+
 ### Rilis v1.2.8 (Perbaikan Kompatibilitas PHP 8+, Penomoran Surat, Pratinjau Dokumen, & Desain Mobile Dashboard)
 
 Rilis perbaikan kompatibilitas runtime PHP 8.x pada modul pelayanan persuratan & dokumen, penambahan fitur pratinjau berkas penduduk, serta optimalisasi responsivitas mobile dashboard:
