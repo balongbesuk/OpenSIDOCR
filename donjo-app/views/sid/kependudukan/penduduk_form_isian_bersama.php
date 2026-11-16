@@ -70,7 +70,7 @@
 										<td width='25%'><label id="wajib_ktp"></label></td>
 									<?php endif; ?>
 									<td>
-										<select name="ktp_el" id="ktp_el" class="form-control input-sm wajib_identitas" onchange="show_hide_ktp_el($(this).find(':selected').val())">
+										<select name="ktp_el" id="ktp_el" class="form-control input-sm select2 wajib_identitas" style="width: 100%;" onchange="show_hide_ktp_el($(this).find(':selected').val())">
 											<option value="">Pilih Identitas-EL</option>
 											<?php foreach ($ktp_el as $id => $nama) : ?>
 												<option value="<?= $id ?>" <?php selected(($jenis_peristiwa == '1') && ($id == 3) == true || strtolower($penduduk['ktp_el']) == $nama, true); ?>><?= strtoupper($nama) ?></option>
@@ -78,7 +78,7 @@
 										</select>
 									</td>
 									<td width='25%'>
-										<select name="status_rekam" class="form-control input-sm wajib_identitas">
+										<select name="status_rekam" class="form-control input-sm select2 wajib_identitas" style="width: 100%;">
 											<option value="">Pilih Status Rekam</option>
 											<?php foreach ($status_rekam as $id => $nama) : ?>
 												<option value="<?= $id ?>" <?php selected(strtolower($penduduk['status_rekam']), $nama); ?>><?= strtoupper($nama) ?></option>
@@ -124,7 +124,7 @@
 	<div class='col-sm-4'>
 		<div class='form-group'>
 			<label for="kk_level">Hubungan Dalam Keluarga</label>
-			<select id="kk_level" class="form-control input-sm select2 required" name="kk_level">
+			<select id="kk_level" class="form-control input-sm select2 required" name="kk_level" style="width: 100%;">
 				<option value="">Pilih Hubungan Keluarga</option>
 				<?php foreach ($hubungan as $data) : ?>
 					<?php if ($this->session->has_userdata('jenis_peristiwa') && $this->session->jenis_peristiwa == '5' && $data['id'] == App\Enums\SHDKEnum::KEPALA_KELUARGA && $this->controller === 'keluarga') : ?>
@@ -140,7 +140,7 @@
 	<div class='col-sm-4'>
 		<div class='form-group'>
 			<label for="sex">Jenis Kelamin </label>
-			<select class="form-control input-sm required" name="sex" onchange="ubah_sex($(this).find(':selected').val());">
+			<select class="form-control input-sm select2 required" name="sex" style="width: 100%;" onchange="ubah_sex($(this).find(':selected').val());">
 				<option value="">Jenis Kelamin</option>
 				<option value="1" <?php selected($penduduk['id_sex'], '1'); ?>>Laki-Laki</option>
 				<option value="2" <?php selected($penduduk['id_sex'], '2'); ?>>Perempuan</option>
@@ -150,7 +150,7 @@
 	<div class='col-sm-7'>
 		<div class='form-group'>
 			<label for="agama_id">Agama</label>
-			<select class="form-control input-sm required" name="agama_id">
+			<select class="form-control input-sm select2 required" name="agama_id" style="width: 100%;">
 				<option value="">Pilih Agama</option>
 				<?php foreach ($agama as $data) : ?>
 					<option value="<?= $data['id'] ?>" <?php selected($penduduk['agama_id'], $data['id']); ?>><?= strtoupper($data['nama']) ?></option>
@@ -161,7 +161,7 @@
 	<div class='col-sm-5'>
 		<div class='form-group'>
 			<label for="status">Status Penduduk </label>
-			<select class="form-control input-sm required" id="status_penduduk" name="status" onchange="show_hide_penduduk_tidak_tetap($(this).find(':selected').val())" <?php ($penduduk['no_kk']) && print 'disabled' ?>>
+			<select class="form-control input-sm select2 required" id="status_penduduk" name="status" style="width: 100%;" onchange="show_hide_penduduk_tidak_tetap($(this).find(':selected').val())" <?php ($penduduk['no_kk']) && print 'disabled' ?>>
 				<option value="">Pilih Status Penduduk</option>
 				<?php foreach ($status_penduduk as $data) : ?>
 					<option value="<?= $data['id'] ?>" <?php selected($penduduk['id_status'], $data['id']); ?>><?= strtoupper($data['nama']) ?></option>
@@ -224,7 +224,7 @@
 	<div class='col-sm-4'>
 		<div class='form-group'>
 			<label for="tempat_dilahirkan">Tempat Dilahirkan</label>
-			<select class="form-control input-sm" name="tempat_dilahirkan">
+			<select class="form-control input-sm select2" name="tempat_dilahirkan" style="width: 100%;">
 				<option value="">Pilih Tempat Dilahirkan</option>
 				<?php foreach ($tempat_dilahirkan as $id => $nama) : ?>
 					<option value="<?= $id ?>" <?php selected($penduduk['tempat_dilahirkan'], $id); ?>><?= strtoupper($nama) ?></option>
@@ -237,7 +237,7 @@
 			<div class='col-sm-4'>
 				<div class='form-group'>
 					<label for="jenis_kelahiran">Jenis Kelahiran</label>
-					<select class="form-control input-sm" name="jenis_kelahiran">
+					<select class="form-control input-sm select2" name="jenis_kelahiran" style="width: 100%;">
 						<option value="">Pilih Jenis Kelahiran</option>
 						<?php foreach ($jenis_kelahiran as $id => $nama) : ?>
 							<option value="<?= $id ?>" <?php selected($penduduk['jenis_kelahiran'], $id); ?>><?= strtoupper($nama) ?></option>
@@ -254,7 +254,7 @@
 			<div class='col-sm-4'>
 				<div class='form-group'>
 					<label for="penolong_kelahiran">Penolong Kelahiran</label>
-					<select class="form-control input-sm" name="penolong_kelahiran">
+					<select class="form-control input-sm select2" name="penolong_kelahiran" style="width: 100%;">
 						<option value="">Pilih Penolong Kelahiran</option>
 						<?php foreach ($penolong_kelahiran as $id => $nama) : ?>
 							<option value="<?= $id ?>" <?php selected($penduduk['penolong_kelahiran'], $id); ?>><?= strtoupper($nama) ?></option>
@@ -288,7 +288,7 @@
 	<div class='col-sm-4'>
 		<div class='form-group'>
 			<label for="pendidikan_kk_id">Pendidikan Dalam KK </label>
-			<select class="form-control input-sm required" name="pendidikan_kk_id">
+			<select class="form-control input-sm select2 required" name="pendidikan_kk_id" style="width: 100%;">
 				<option value="">Pilih Pendidikan (Dalam KK) </option>
 				<?php foreach ($pendidikan_kk as $data) : ?>
 					<option value="<?= $data['id'] ?>" <?php selected($penduduk['pendidikan_kk_id'], $data['id']); ?> <?php $jenis_peristiwa == '1' ? selected(1, $data['id']) : ''; ?>><?= strtoupper($data['nama']) ?></option>
@@ -299,7 +299,7 @@
 	<div class='col-sm-4'>
 		<div class='form-group'>
 			<label for="pendidikan_sedang_id">Pendidikan Sedang Ditempuh </label>
-			<select class="form-control input-sm" name="pendidikan_sedang_id">
+			<select class="form-control input-sm select2" name="pendidikan_sedang_id" style="width: 100%;">
 				<option value="">Pilih Pendidikan</option>
 				<?php foreach ($pendidikan_sedang as $data) : ?>
 					<option value="<?= $data['id'] ?>" <?php selected($penduduk['pendidikan_sedang_id'], $data['id']); ?> <?php $jenis_peristiwa == '1' ? selected(18, $data['id']) : ''; ?>><?= strtoupper($data['nama']) ?></option>
@@ -310,7 +310,7 @@
 	<div class='col-sm-4'>
 		<div class='form-group'>
 			<label for="pekerjaan_id">Pekerjaaan</label>
-			<select class="form-control input-sm required" name="pekerjaan_id">
+			<select class="form-control input-sm select2 required" name="pekerjaan_id" style="width: 100%;">
 				<option value="">Pilih Pekerjaan</option>
 				<?php foreach ($pekerjaan as $data) : ?>
 					<option value="<?= $data['id'] ?>" <?php selected($penduduk['pekerjaan_id'], $data['id']); ?> <?php $jenis_peristiwa == '1' ? selected(1, $data['id']) : ''; ?>><?= strtoupper($data['nama']) ?></option>
@@ -326,7 +326,7 @@
 	<div class='col-sm-12'>
 		<div class='form-group'>
 			<label for="etnis">Suku/Etnis</label>
-			<select class="form-control input-sm select2-tags nama_suku" data-url="<?= site_url() . 'penduduk/ajax_penduduk_suku/' ?>" data-placeholder="Pilih Suku/Etnis" id="suku" name="suku">
+			<select class="form-control input-sm select2-tags nama_suku" data-url="<?= site_url() . 'penduduk/ajax_penduduk_suku/' ?>" data-placeholder="Pilih Suku/Etnis" id="suku" name="suku" style="width: 100%;">
 				<option value="">Pilih Suku/Etnis</option>
 				<?php if ($suku['penduduk']) : ?>
 					<?php foreach ($suku['penduduk'] as $ref_suku) : ?>
@@ -343,7 +343,7 @@
 	<div class='col-sm-4'>
 		<div class='form-group'>
 			<label for="warganegara_id">Status Warga Negara</label>
-			<select class="form-control input-sm required" id="warganegara_id" name="warganegara_id" onchange="show_hide_status_warga_negara($(this).find(':selected').val())">
+			<select class="form-control input-sm select2 required" id="warganegara_id" name="warganegara_id" style="width: 100%;" onchange="show_hide_status_warga_negara($(this).find(':selected').val())">
 				<option value="">Pilih Warga Negara</option>
 				<?php foreach ($warganegara as $data) : ?>
 					<option value="<?= $data['id'] ?>" <?php selected($penduduk['warganegara_id'], $data['id']); ?>><?= strtoupper($data['nama']) ?></option>
@@ -494,7 +494,7 @@
 	<div class='col-sm-4'>
 		<div class='form-group'>
 			<label for="status_kawin"> Cara Hubung Warga </label>
-			<select class="form-control input-sm" name="hubung_warga">
+			<select class="form-control input-sm select2" name="hubung_warga" style="width: 100%;">
 				<option value="">Pilih Cara Hubungi</option>
 				<?php foreach (['SMS', 'Email', 'Telegram'] as $value) : ?>
 					<?php
@@ -515,7 +515,7 @@
 	<div class='col-sm-4'>
 		<div class='form-group'>
 			<label for="status_kawin">Status Perkawinan</label>
-			<select class="form-control input-sm required" name="status_kawin" <?php if ($jenis_peristiwa == '1') : ?> onload="disable_kawin_cerai($(this).find(':selected').val())" <?php endif; ?> onchange="disable_kawin_cerai($(this).find(':selected').val())" id="status_perkawinan">
+			<select class="form-control input-sm select2 required" name="status_kawin" style="width: 100%;" <?php if ($jenis_peristiwa == '1') : ?> onload="disable_kawin_cerai($(this).find(':selected').val())" <?php endif; ?> onchange="disable_kawin_cerai($(this).find(':selected').val())" id="status_perkawinan">
 				<option value="">Pilih Status Perkawinan</option>
 				<?php foreach ($kawin as $data) : ?>
 					<option value="<?= $data['id'] ?>" <?php selected($penduduk['status_kawin'], $data['id']); ?> <?php (empty($penduduk['id']) && $jenis_peristiwa == '1') ? selected(1, $data['id']) : ''; ?>><?= strtoupper($data['nama']) ?></option>
@@ -573,7 +573,7 @@
 			<div class='col-sm-4'>
 				<div class='form-group'>
 					<label for="golongan_darah_id">Golongan Darah</label>
-					<select class="form-control input-sm required" name="golongan_darah_id">
+					<select class="form-control input-sm select2 required" name="golongan_darah_id" style="width: 100%;">
 						<option value="">Pilih Golongan Darah</option>
 						<?php foreach ($golongan_darah as $data) : ?>
 							<option value="<?= $data['id'] ?>" <?php selected($penduduk['golongan_darah_id'], $data['id']); ?>><?= strtoupper($data['nama']) ?></option>
@@ -584,7 +584,7 @@
 			<div class='col-sm-4'>
 				<div class='form-group'>
 					<label for="cacat_id">Cacat</label>
-					<select class="form-control input-sm" name="cacat_id">
+					<select class="form-control input-sm select2" name="cacat_id" style="width: 100%;">
 						<option value="">Pilih Jenis Cacat</option>
 						<?php foreach ($cacat as $data) : ?>
 							<option value="<?= $data['id'] ?>" <?php selected($penduduk['cacat_id'], $data['id']); ?>><?= strtoupper($data['nama']) ?></option>
@@ -595,7 +595,7 @@
 			<div class='col-sm-4'>
 				<div class='form-group'>
 					<label for="sakit_menahun_id">Sakit Menahun</label>
-					<select class="form-control input-sm" name="sakit_menahun_id">
+					<select class="form-control input-sm select2" name="sakit_menahun_id" style="width: 100%;">
 						<option value="">Pilih Sakit Menahun</option>
 						<?php foreach ($sakit_menahun as $data) : ?>
 							<option value="<?= $data['id'] ?>" <?php selected($penduduk['sakit_menahun_id'], $data['id']); ?>><?= strtoupper($data['nama']) ?></option>
@@ -608,7 +608,7 @@
 	<div class='col-sm-4' id="akseptor_kb">
 		<div class='form-group'>
 			<label for="cara_kb_id">Akseptor KB</label>
-			<select class="form-control input-sm" name="cara_kb_id">
+			<select class="form-control input-sm select2" name="cara_kb_id" style="width: 100%;">
 				<option value="">Pilih Cara KB Saat Ini</option>
 				<?php foreach ($cara_kb as $data) : ?>
 					<option value="<?= $data['id'] ?>" <?php selected($penduduk['cara_kb_id'], $data['id']); ?>><?= strtoupper($data['nama']) ?></option>
@@ -619,7 +619,7 @@
 	<div id='isian_hamil' class='col-sm-4'>
 		<div class='form-group'>
 			<label for="hamil">Status Kehamilan </label>
-			<select class="form-control input-sm" name="hamil">
+			<select class="form-control input-sm select2" name="hamil" style="width: 100%;">
 				<option value="">Pilih Status Kehamilan</option>
 				<?php foreach ($kehamilan as $data) : ?>
 					<option value="<?= $data['id'] ?>" <?php selected($penduduk['hamil'], $data['id']); ?>><?= strtoupper($data['nama']) ?></option>
@@ -630,7 +630,7 @@
 	<div class='col-sm-4'>
 		<div class='form-group'>
 			<label for="id_asuransi">Asuransi Kesehatan</label>
-			<select class="form-control input-sm" name="id_asuransi" onchange="show_hide_asuransi($(this).find(':selected').val());">
+			<select class="form-control input-sm select2" name="id_asuransi" style="width: 100%;" onchange="show_hide_asuransi($(this).find(':selected').val());">
 				<option value="">Pilih Asuransi</option>
 				<?php foreach ($pilihan_asuransi as $data) : ?>
 					<option value="<?= $data['id'] ?>" <?php selected($penduduk['id_asuransi'], $data['id']); ?>><?= strtoupper($data['nama']) ?></option>
@@ -664,7 +664,7 @@
 			<div class='col-sm-4'>
 				<div class='form-group'>
 					<label for="bahasa_id">Dapat Membaca Huruf</label>
-					<select class="form-control input-sm" id="bahasa_id" name="bahasa_id">
+					<select class="form-control input-sm select2" id="bahasa_id" name="bahasa_id" style="width: 100%;">
 						<option value="0">Pilih Isian</option>
 						<?php foreach ($bahasa as $data) : ?>
 							<option value="<?= $data['id'] ?>" <?php selected($penduduk['bahasa_id'], $data['id']); ?>><?= strtoupper($data['nama']) ?></option>

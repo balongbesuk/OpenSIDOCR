@@ -481,7 +481,7 @@ Standar ini wajib diterapkan secara konsisten pada seluruh modul admin OpenSID (
     - Menambahkan aturan CSS `.modal-footer` pada `admin-style.css` (tinggi seragam 34px, border-radius 4px, background `#f8fafc`, dan border atas halus `#e2e8f0`).
 
 
-### Sub-U: Standardisasi Tombol Aksi Foto Penduduk & Dropdown Select2 (`ambil_foto.php`, `admin-style.css`)
+### Sub-U: Standardisasi Tombol Aksi Foto Penduduk & Dropdown Select2 (`ambil_foto.php`, `penduduk_form_isian_bersama.php`, `admin-style.css`)
 - **Penataan Tombol Aksi Foto Profil (`ambil_foto.php`):**
   - **Akar Masalah:**
     - Sebelumnya tombol aksi foto dibungkus sembarangan di dalam `.input-group` dan `.input-group-btn` dengan class `.btn-block btn-mb-5`.
@@ -493,6 +493,13 @@ Standar ini wajib diterapkan secara konsisten pada seluruh modul admin OpenSID (
       - Baris 1 (`.foto-row-btn`): Dua tombol aksi utama berdampingan seimbang 50%-50% (`flex: 1`), yaitu **Unggah** (`btn-info btn-sm`) dan **Kamera** (`btn-danger btn-sm`).
       - Baris 2 (`.btn-restore`): Tombol **Kembalikan** foto default (`btn-warning btn-sm`, hanya muncul saat edit data ber-ID) membentang penuh 100% di bawahnya dengan gap 6px.
     - Menyelaraskan border radius seragam 4px, ikon selaras tengah (`display: inline-flex; align-items: center; justify-content: center; gap: 6px;`), serta tinggi sentuh proporsional.
-- **Kepatuhan Form Dropdown (Native `<select>` vs Select2 Berfitur Pencarian):**
-  - Sesuai prinsip *Visual Consistency & Ergonomics*, kontrol dropdown dengan opsi > 5 atau opsi dinamis (seperti Hubungan Keluarga, Pekerjaan, Pendidikan, Agama, Dusun/RW/RT) sangat direkomendasikan memakai `select2` (*searchable select*) untuk memangkas waktu entri operator dan mencegah salah pilih.
+- **Standardisasi Seluruh Dropdown Kependudukan ke Searchable Select2 (`penduduk_form_isian_bersama.php`):**
+  - **Akar Masalah:**
+    - Sebelumnya hanya dropdown *Hubungan Dalam Keluarga* (`kk_level`) yang menggunakan Select2, sedangkan puluhan dropdown bermuatan data panjang (Pekerjaan, Pendidikan KK/Sedang Ditempuh, Agama, Status Kawin, Golongan Darah, Status Penduduk, Cacat, Sakit Menahun, dsb.) masih menggunakan native HTML `<select>`.
+    - Operator desa harus melakukan scroll manual panjang untuk mencari opsi, serta tampilan antar dropdown terlihat belang-belang (*inconsistent form rhythm*).
+  - **Solusi:**
+    - Menyeragamkan seluruh 20+ dropdown form biodata penduduk dengan kelas `select2` dan `style="width: 100%;"`.
+    - Operator kini dapat melakukan pencarian cepat (*instant live search*) cukup dengan mengetik 2-3 huruf di setiap dropdown.
+    - Menjaga dropdown wilayah berjenjang dinamis (`dusun`, `rw`, `id_cluster`) tetap native agar tidak mengganggu alur AJAX cascading `select_options()`.
+
 

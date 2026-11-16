@@ -67,6 +67,11 @@ Rilis pembaruan antarmuka responsif mobile terpadu di seluruh modul admin OpenSI
     - Mengganti pembungkus `.input-group` dan `.input-group-btn` yang sebelumnya merusak susunan tombol foto menjadi layout fleksibel `.box-foto-aksi`.
     - Tombol *Unggah* dan *Kamera* tertata simetris 50%-50% di baris atas, dan tombol *Kembalikan* foto bawaan membentang penuh 100% di baris bawah dengan radius 4px dan ikon selaras tengah.
 
+14. **Modul Kependudukan - Standardisasi Seluruh Dropdown Biodata ke Searchable Select2 (`penduduk_form_isian_bersama.php`):**
+    - Menerapkan kelas `select2` dan `width: 100%` pada seluruh 20+ dropdown form biodata penduduk (Pekerjaan, Pendidikan KK/Sedang Ditempuh, Agama, Status Kawin, Golongan Darah, Status Penduduk, Cacat, Sakit Menahun, dll.).
+    - Memungkinkan operator desa mencari pilihan secara instan cukup dengan mengetik sebagian huruf tanpa perlu scroll manual.
+    - Menyeragamkan tinggi kontrol (34px), border-radius (4px), dan highlight fokus di seluruh formulir kependudukan.
+
 #### Perbaikan Bug & Ketahanan Backend (*Bug Fixes & Backend Resilience*)
 
 1. **Kompatibilitas PHP 8.x pada Pengaturan Modul & Setting:**
