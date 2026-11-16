@@ -431,6 +431,16 @@ Standar ini wajib diterapkan secara konsisten pada seluruh modul admin OpenSID (
     - Mengaktifkan `-webkit-overflow-scrolling: touch` dan `overflow-y: auto` pada container sidebar agar navigasi menu di layar sentuh terasa mulus dan responsif tanpa hambatan.
     - Mengoptimasi form pencarian menu `#cari-menu` di HP dengan tinggi input 38px, font 13.5px yang tajam, dan tombol search yang proporsional.
 
+### Sub-Q: Modul Kependudukan & Arsip Layanan Surat (`/penduduk`, `/keluar`)
+- **Penyempurnaan Dropdown Aksi Baris Tabel (`/penduduk`):**
+  - Mengisolasi selector tombol tabel `.table td.aksi .btn-social` dengan filter `:not(.dropdown-menu *)` agar class bawaan OpenSID `.btn.btn-social` pada link item dropdown tidak tertimpa oleh `width: auto !important` dan `border-radius: 3px`.
+  - Menetapkan `width: 100% !important;`, `box-sizing: border-box !important;`, `height: auto !important;`, dan `outline: none !important;` pada item dropdown di desktop maupun mobile sehingga efek hover `#f8fafc` membentang rata dari tepi kiri ke kanan tanpa patahan sudut.
+  - Memastikan selektor `.tabel-daftar` tercakup konsisten dalam aturan dropdown menu.
+- **Standarisasi Dropdown Filter Toolbar & Tombol Aksi Tabel (`/keluar`):**
+  - Mengatasi kontainer Select2 sempit (83px) yang menyebabkan panah dropdown (`▼`) menabrak teks (*Pilih Tahun*, *Pilih Bulan*, *Pilih Jenis Surat*): memperluas aturan Select2 ke `.box-body .form-inline .select2-container` dan `.dataTables_wrapper.form-inline .select2-container` dengan tinggi seragam 34px, `min-width: 140px` (dan `min-width: 180px` untuk filter jenis surat), serta `padding-right: 28px` untuk ruang napas panah.
+  - Menghapus inline style `style="width: 100%;"` pada `<select name="jenis">` di view `surat_keluar.php` agar selaras proporsional dengan filter di sebelahnya.
+  - Menstandarkan tombol aksi ikon tunggal pada baris tabel PC (`table.table tbody td .btn:not(.btn-social)`): sebelumnya berukuran kerdil 26px, kini ditingkatkan menjadi seragam tinggi **32px**, `min-width: 32px`, `line-height: 32px`, dan `border-radius: 4px` sejajar dengan tombol aksi `.btn-social` ("Lampiran") dan tombol hapus bahaya.
+
 
 
 

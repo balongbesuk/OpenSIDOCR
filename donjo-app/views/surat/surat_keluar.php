@@ -50,7 +50,7 @@
                                                 </div>
 
                                                 <div class="form-group">
-                                                    <select class="form-control input-sm select2" name="jenis" onchange="formAction('mainform','<?= site_url($this->controller . '/filter/jenis') ?>')" style="width: 100%;">
+                                                    <select class="form-control input-sm select2" name="jenis" onchange="formAction('mainform','<?= site_url($this->controller . '/filter/jenis') ?>')">
                                                         <option value="">Pilih Jenis Surat</option>
                                                         <?php foreach ($jenis_surat as $data) : ?>
                                                             <option value="<?= $data['id'] ?>" <?php selected($jenis, $data['id']) ?>><?= $data['nama_surat'] ?></option>

@@ -36,6 +36,16 @@ Rilis pembaruan antarmuka responsif mobile terpadu di seluruh modul admin OpenSI
    - Merapikan visualisasi hierarki direktori penyimpanan folder dan subfolder upload dengan badge penanda bertingkat (`L__`) dan tombol resize responsif tanpa overlap.
    - Menstandarkan opsi radio button sumber gambar slider dan tombol simpan pill responsif di ponsel.
 
+7. **Modul Kependudukan (`/penduduk`) - Dropdown Aksi Baris Tabel:**
+   - Mengisolasi selektor tombol tabel `.table td.aksi .btn-social` dengan filter `:not(.dropdown-menu *)` agar class `.btn.btn-social` bawaan OpenSID pada item dropdown tidak tertimpa oleh `width: auto !important` dan `border-radius: 3px`.
+   - Menetapkan `width: 100% !important;`, `box-sizing: border-box !important;`, `height: auto !important;`, dan `outline: none !important;` pada item dropdown di desktop maupun mobile sehingga efek hover latar `#f8fafc` membentang rata dari tepi kiri ke kanan tanpa patahan sudut.
+   - Menambahkan selektor `.tabel-daftar` agar mencakup konsisten seluruh tabel data kependudukan.
+
+8. **Modul Arsip Layanan Surat (`/keluar`) - Filter Toolbar & Tombol Aksi Tabel:**
+   - Menstandarkan lebar dan tinggi dropdown filter Select2 (*Pilih Tahun*, *Pilih Bulan*, *Pilih Jenis Surat*) pada form toolbar tabel: tinggi seragam 34px, `min-width: 140px` (dan `min-width: 180px` untuk filter jenis surat), serta `padding-right: 28px` untuk mengeliminasi tabrakan teks dengan ikon panah dropdown (`▼`).
+   - Menghapus inline style `style="width: 100%;"` pada dropdown jenis surat di view `surat_keluar.php`.
+   - Menstandarkan tombol aksi ikon tunggal pada baris tabel desktop PC (`table.table tbody td .btn:not(.btn-social)`): sebelumnya berukuran kerdil 26px, kini ditingkatkan menjadi seragam tinggi 32px, `min-width: 32px`, `line-height: 32px`, dan `border-radius: 4px` sejajar dengan tombol aksi `.btn-social` ("Lampiran") dan tombol hapus.
+
 #### Perbaikan Bug & Ketahanan Backend (*Bug Fixes & Backend Resilience*)
 
 1. **Kompatibilitas PHP 8.x pada Pengaturan Modul & Setting:**
