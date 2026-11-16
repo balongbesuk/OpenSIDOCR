@@ -1664,7 +1664,14 @@ div.form-surat .content-header {
     }
 
     .form-group .btn-group[data-toggle="buttons"][class*="col-"] {
-        display: flex !important;
+        display: inline-flex !important;
+        float: left !important;
+        max-width: 360px;
+    }
+
+    .form-group .btn-group[data-toggle="buttons"].col-sm-12,
+    .form-group .btn-group.btn-group-justified {
+        max-width: 100% !important;
     }
 
     .form-group .btn-group[data-toggle="buttons"] > .btn,
@@ -2493,6 +2500,14 @@ div.form-surat .content-header {
     }
 
     /* Radio toggle button group di form-group Mobile (Tinggi 36px Touch-Friendly) */
+    .form-group .btn-group[data-toggle="buttons"],
+    .form-group .btn-group.btn-group-justified {
+        display: flex !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        float: none !important;
+    }
+
     .form-group .btn-group[data-toggle="buttons"] > .btn,
     .form-group .btn-group.btn-group-justified > .btn {
         min-height: 36px !important;

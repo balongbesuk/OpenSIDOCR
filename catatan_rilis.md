@@ -55,6 +55,10 @@ Rilis pembaruan antarmuka responsif mobile terpadu di seluruh modul admin OpenSI
     - Menghapus kelas utilitas `visible-*` dan menambahkan proteksi CSS `[style*="display: none"] { display: none !important; }` pada `.box-footer` agar tombol tidak muncul mendahului proses unduh.
     - Mengubah tombol *Unduh RTF* menjadi *ke Permohonan Surat* secara mulus begitu proses unduh dimulai, serta merestorasi status tombol saat formulir dibatalkan/direset.
 
+11. **Standardisasi Global Radio Toggle Group di Seluruh Modul (`admin-style.css`):**
+    - Memperbaiki tata letak radio button toggle grup (`.btn-group[data-toggle="buttons"]`) di seluruh formulir admin (Modul Pengguna, Area, Garis, Lokasi, Komentar, Media Sosial, Vaksin, C-Desa/Persil, dan Analisis).
+    - Mencegah tombol melompat ke baris baru di desktop dengan menetapkan `display: inline-flex !important; float: left !important;` serta membatasi `max-width: 360px` yang proporsional sejajar dengan label formulir.
+
 #### Perbaikan Bug & Ketahanan Backend (*Bug Fixes & Backend Resilience*)
 
 1. **Kompatibilitas PHP 8.x pada Pengaturan Modul & Setting:**
