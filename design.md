@@ -479,3 +479,20 @@ Standar ini wajib diterapkan secara konsisten pada seluruh modul admin OpenSID (
     - Memindahkan elemen `<input type="file" class="hidden">` keluar dari alur visual dan menambahkan validasi submit JavaScript agar tidak memicu error browser.
     - Menstandarkan tombol `.modal-footer`: tombol *Batal* merah `.btn-social btn-flat btn-danger btn-sm` (ikon `fa-times`) dan tombol aksi kanan `.btn-social btn-flat btn-info/btn-success btn-sm pull-right`.
     - Menambahkan aturan CSS `.modal-footer` pada `admin-style.css` (tinggi seragam 34px, border-radius 4px, background `#f8fafc`, dan border atas halus `#e2e8f0`).
+
+
+### Sub-U: Standardisasi Tombol Aksi Foto Penduduk & Dropdown Select2 (`ambil_foto.php`, `admin-style.css`)
+- **Penataan Tombol Aksi Foto Profil (`ambil_foto.php`):**
+  - **Akar Masalah:**
+    - Sebelumnya tombol aksi foto dibungkus sembarangan di dalam `.input-group` dan `.input-group-btn` dengan class `.btn-block btn-mb-5`.
+    - Bootstrap CSS `.input-group-btn > .btn` mengubah tombol menjadi `display: table-cell; white-space: nowrap;` yang menimpa `btn-block` dan menghilangkan margin bawah. Akibatnya, tombol `Unggah`, `Kamera`, dan `Kembalikan` berhimpitan horizontal secara acak dan terdistorsi.
+    - Menggunakan `.btn-flat` dengan sudut tajam 0px yang tidak selaras dengan standar 4px pada `design.md`.
+  - **Solusi:**
+    - Menghapus pembungkus `.input-group` dan `.input-group-btn`.
+    - Menerapkan kontainer fleksibel `.box-foto-aksi`:
+      - Baris 1 (`.foto-row-btn`): Dua tombol aksi utama berdampingan seimbang 50%-50% (`flex: 1`), yaitu **Unggah** (`btn-info btn-sm`) dan **Kamera** (`btn-danger btn-sm`).
+      - Baris 2 (`.btn-restore`): Tombol **Kembalikan** foto default (`btn-warning btn-sm`, hanya muncul saat edit data ber-ID) membentang penuh 100% di bawahnya dengan gap 6px.
+    - Menyelaraskan border radius seragam 4px, ikon selaras tengah (`display: inline-flex; align-items: center; justify-content: center; gap: 6px;`), serta tinggi sentuh proporsional.
+- **Kepatuhan Form Dropdown (Native `<select>` vs Select2 Berfitur Pencarian):**
+  - Sesuai prinsip *Visual Consistency & Ergonomics*, kontrol dropdown dengan opsi > 5 atau opsi dinamis (seperti Hubungan Keluarga, Pekerjaan, Pendidikan, Agama, Dusun/RW/RT) sangat direkomendasikan memakai `select2` (*searchable select*) untuk memangkas waktu entri operator dan mencegah salah pilih.
+
