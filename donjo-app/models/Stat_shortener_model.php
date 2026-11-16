@@ -62,6 +62,6 @@ class Stat_shortener_model extends MY_Model
             ->get()
             ->result_object();
 
-        return (count($result) > 0) ? $result : false;
+        return ! empty($result) ? $result : false;
     }
 }
