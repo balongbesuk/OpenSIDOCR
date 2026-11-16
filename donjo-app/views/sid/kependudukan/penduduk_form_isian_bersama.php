@@ -440,20 +440,24 @@
 				</div>
 				<div id='isi_rw' class='form-group col-sm-2'>
 					<label for="rw">RW <?php (empty($penduduk['no_kk']) && empty($kk_baru)) || print 'KK' ?></label>
-					<select id="rw" name="rw" class="form-control input-sm required" data-source="<?= site_url('wilayah/list_rw/') ?>" data-valueKey="rw" data-displayKey="rw">
+					<select id="rw" name="rw" class="form-control input-sm required" data-source="<?= site_url('wilayah/list_rw/') ?>" data-valueKey="rw" data-displayKey="rw" <?= empty($penduduk['dusun']) ? 'disabled' : '' ?>>
 						<option class="placeholder" value="">Pilih RW</option>
-						<?php foreach ($rw as $data) : ?>
-							<option value="<?= $data['rw'] ?>" <?php selected($penduduk['rw'], $data['rw']) ?>><?= $data['rw'] ?></option>
-						<?php endforeach; ?>
+						<?php if (! empty($penduduk['dusun']) && ! empty($rw)) : ?>
+							<?php foreach ($rw as $data) : ?>
+								<option value="<?= $data['rw'] ?>" <?php selected($penduduk['rw'], $data['rw']) ?>><?= $data['rw'] ?></option>
+							<?php endforeach; ?>
+						<?php endif; ?>
 					</select>
 				</div>
 				<div id='isi_rt' class='form-group col-sm-2'>
 					<label for="id_cluster">RT <?php (empty($penduduk['no_kk']) && empty($kk_baru)) || print 'KK' ?></label>
-					<select id="id_cluster" name="id_cluster" class="form-control input-sm required" data-source="<?= site_url('wilayah/list_rt/') ?>" data-valueKey="id" data-displayKey="rt">
+					<select id="id_cluster" name="id_cluster" class="form-control input-sm required" data-source="<?= site_url('wilayah/list_rt/') ?>" data-valueKey="id" data-displayKey="rt" <?= (empty($penduduk['dusun']) || empty($penduduk['rw'])) ? 'disabled' : '' ?>>
 						<option class="placeholder" value="">Pilih RT </option>
-						<?php foreach ($rt as $data) : ?>
-							<option value="<?= $data['id'] ?>" <?php selected($penduduk['id_cluster'], $data['id']) ?>><?= $data['rt'] ?></option>
-						<?php endforeach; ?>
+						<?php if (! empty($penduduk['dusun']) && ! empty($penduduk['rw']) && ! empty($rt)) : ?>
+							<?php foreach ($rt as $data) : ?>
+								<option value="<?= $data['id'] ?>" <?php selected($penduduk['id_cluster'], $data['id']) ?>><?= $data['rt'] ?></option>
+							<?php endforeach; ?>
+						<?php endif; ?>
 					</select>
 				</div>
 			</div>
@@ -722,14 +726,18 @@
 
 		$("#dusun").change(function() {
 			let dusun = $(this).val();
-			$('#isi_rt').hide();
 
 			if (dusun) {
 				var rw = $('#rw');
-				$('#isi_rw').show();
+				rw.prop('disabled', false);
+				$('#id_cluster').prop('disabled', true).find('option').not('.placeholder').remove();
+				$('#id_cluster').val('');
 				select_options(rw, urlencode(dusun));
 			} else {
-				$('#isi_rw').hide();
+				$('#rw').prop('disabled', true).find('option').not('.placeholder').remove();
+				$('#rw').val('');
+				$('#id_cluster').prop('disabled', true).find('option').not('.placeholder').remove();
+				$('#id_cluster').val('');
 			}
 		});
 
@@ -739,13 +747,21 @@
 
 			if (dusun && rw) {
 				var rt = $('#id_cluster');
+				rt.prop('disabled', false);
 				var params = urlencode(dusun) + '/' + urlencode(rw);
-				$('#isi_rt').show();
 				select_options(rt, params);
 			} else {
-				$('#isi_rt').hide();
+				$('#id_cluster').prop('disabled', true).find('option').not('.placeholder').remove();
+				$('#id_cluster').val('');
 			}
 		});
+
+		if (!$("#dusun").val()) {
+			$("#rw").prop("disabled", true);
+			$("#id_cluster").prop("disabled", true);
+		} else if (!$("#rw").val()) {
+			$("#id_cluster").prop("disabled", true);
+		}
 
 		$("select[name='sex']").change();
 		$("select[name='status_kawin']").change();
@@ -782,6 +798,12 @@
 			$("select[name='sex']").change();
 			$("select[name='status_kawin']").change();
 			$("select[name='id_asuransi']").change();
+			if (!$("#dusun").val()) {
+				$("#rw").prop("disabled", true).find("option").not(".placeholder").remove();
+				$("#rw").val("");
+				$("#id_cluster").prop("disabled", true).find("option").not(".placeholder").remove();
+				$("#id_cluster").val("");
+			}
 		});
 	});
 

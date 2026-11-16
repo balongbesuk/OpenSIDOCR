@@ -503,3 +503,19 @@ Standar ini wajib diterapkan secara konsisten pada seluruh modul admin OpenSID (
     - Menjaga dropdown wilayah berjenjang dinamis (`dusun`, `rw`, `id_cluster`) tetap native agar tidak mengganggu alur AJAX cascading `select_options()`.
 
 
+### Sub-V: Microinteraction Cascading Dropdown Wilayah Dusun -> RW -> RT (`Penduduk.php`, `penduduk_form_isian_bersama.php`)
+- **Pencegahan Data Campur & Dropdown Mengambang:**
+  - **Akar Masalah:**
+    - Pada form tambah penduduk baru, penduduk datang, dan lahir, `$penduduk['dusun']` bernilai kosong/null. Backend sebelumnya tetap memanggil `list_rw('')` dan `list_rt('', '')` yang memuat seluruh RW dan seluruh RT dari semua dusun di desa tanpa filter.
+    - Dropdown RW dan RT tidak memiliki atribut `disabled` saat awal render, sehingga pengguna dapat langsung membuka dropdown RT dan melihat puluhan baris tanda minus `-` serta nomor RT acak dari dusun lain.
+  - **Solusi Backend & Microinteraction:**
+    - **Backend (`Penduduk.php`):** Jika `dusun` kosong, kembalikan array kosong `[]` untuk `rw` dan `rt`.
+    - **Initial State Form:** Elemen `#rw` dan `#id_cluster` berstatus `disabled` dan hanya memuat opsi placeholder (`Pilih RW` / `Pilih RT`) selama `dusun` belum dipilih.
+    - **Cascading Interaction (JS):**
+      - Saat Dusun dipilih: `#rw` diaktifkan (`prop('disabled', false)`) dan memuat RW terkait via AJAX; `#id_cluster` tetap terkunci (`disabled`) dan di-reset.
+      - Saat RW dipilih: `#id_cluster` diaktifkan (`prop('disabled', false)`) dan memuat RT terkait via AJAX.
+      - Jika Dusun dibatalkan/dikosongkan: `#rw` dan `#id_cluster` otomatis kembali terkunci (`disabled`) dan pilihannya dibersihkan.
+      - Menyelaraskan form reset agar mengembalikan kondisi awal kunci dropdown wilayah.
+
+
+

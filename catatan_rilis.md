@@ -72,6 +72,11 @@ Rilis pembaruan antarmuka responsif mobile terpadu di seluruh modul admin OpenSI
     - Memungkinkan operator desa mencari pilihan secara instan cukup dengan mengetik sebagian huruf tanpa perlu scroll manual.
     - Menyeragamkan tinggi kontrol (34px), border-radius (4px), dan highlight fokus di seluruh formulir kependudukan.
 
+15. **Modul Kependudukan - Microinteraction Cascading Dropdown Wilayah (`Penduduk.php`, `penduduk_form_isian_bersama.php`):**
+    - Mengunci dropdown RW dan RT (`disabled`) saat Dusun belum dipilih pada formulir tambah penduduk (baru, datang, lahir).
+    - Memperbaiki query backend agar tidak meload seluruh RW dan RT acak lintas dusun jika data dusun masih kosong.
+    - Menambahkan interaksi bertingkat: memilih Dusun mengaktifkan RW; memilih RW mengaktifkan RT; membatalkan Dusun otomatis mereset dan mengunci kembali RW dan RT.
+
 #### Perbaikan Bug & Ketahanan Backend (*Bug Fixes & Backend Resilience*)
 
 1. **Kompatibilitas PHP 8.x pada Pengaturan Modul & Setting:**
