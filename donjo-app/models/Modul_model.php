@@ -80,6 +80,11 @@ class Modul_model extends MY_Model
             ->result_array();
 
         for ($i = 0; $i < count($data); $i++) {
+            // Modul Pengaturan hanya untuk Administrator
+            if ($_SESSION['grup'] != 1 && ($data[$i]['id'] == 11 || ($data[$i]['slug'] ?? '') == 'pengaturan')) {
+                continue;
+            }
+
             if ($this->ada_sub_modul($data[$i]['id'])) {
                 $data[$i]['modul']    = str_replace('[Pemerintah Desa]', ucwords(setting('sebutan_pemerintah_desa')), SebutanDesa($data[$i]['modul']));
                 $data[$i]['submodul'] = $this->list_sub_modul_aktif($data[$i]['id']);

@@ -9,10 +9,19 @@
 </script>
 <div class="box box-info">
   <div class="box-header with-border">
+		<?php if (can('u')): ?>
+			<a href="<?= site_url('surat_keluar/form') ?>" class="btn btn-social btn-flat btn-success btn-sm visible-xs-block visible-sm-inline-block visible-md-inline-block visible-lg-inline-block" title="Tambah Surat Keluar">
+				<i class="fa fa-plus"></i> Tambah Surat Keluar
+			</a>
+		<?php endif; ?>
 		<a href="<?= site_url("{$this->controller}/dialog/cetak/{$o}")?>" class="btn btn-social btn-flat bg-purple btn-sm visible-xs-block visible-sm-inline-block visible-md-inline-block visible-lg-inline-block" title="Cetak Buku Ekspedisi" data-remote="false" data-toggle="modal" data-target="#modalBox" data-title="Cetak Buku Ekspedisi"><i class="fa fa-print "></i> Cetak</a>
 		<a href="<?= site_url("{$this->controller}/dialog/unduh/{$o}")?>" title="Unduh Buku Ekspedisi" class="btn btn-social btn-flat bg-navy btn-sm visible-xs-block visible-sm-inline-block visible-md-inline-block visible-lg-inline-block" title="Unduh Buku Ekspedisi" data-remote="false" data-toggle="modal" data-target="#modalBox" data-title="Unduh Buku Ekspedisi"><i class="fa fa-download"></i> Unduh</a>
 	</div>
 	<div class="box-body">
+		<div class="alert alert-info alert-dismissible" style="margin-bottom: 15px;">
+			<button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+			<i class="icon fa fa-info-circle"></i> <strong>Petunjuk:</strong> Buku ini otomatis mencatat setiap <strong>Surat Keluar</strong> yang dikirimkan. Untuk menambah data, buat surat keluar baru lalu catat tanggal pengirimannya.
+		</div>
 		<div class="dataTables_wrapper form-inline dt-bootstrap no-footer">
 			<form id="mainform" name="mainform" method="post">
 				<div class="row">

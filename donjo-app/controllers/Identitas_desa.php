@@ -198,7 +198,7 @@ class Identitas_desa extends Admin_Controller
     {
         $this->redirect_hak_akses('u');
 
-        if (Config::find($this->identitas_desa['id'])->update(['path' => null])) {
+        if ($this->grup == 1 && Config::find($this->identitas_desa['id'])->update(['path' => null])) {
             redirect_with('success', 'Berhasil Kosongkan Peta');
         }
         redirect_with('error', 'Gagal Kosongkan Peta');

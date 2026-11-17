@@ -51,13 +51,34 @@ class Kehadiran_hari_libur extends Admin_Controller
 
     public function index()
     {
-        return view('admin.hari_libur.index');
+        $tahun = HariLibur::selectRaw('YEAR(tanggal) as tahun')
+            ->distinct()
+            ->orderByDesc('tahun')
+            ->pluck('tahun')
+            ->toArray();
+
+        $tahun_ini = date('Y');
+        if (!in_array($tahun_ini, $tahun)) {
+            array_unshift($tahun, $tahun_ini);
+            rsort($tahun);
+        }
+
+        $semua_libur = HariLibur::orderBy('tanggal', 'asc')->get(['id', 'tanggal', 'keterangan']);
+
+        return view('admin.hari_libur.index', compact('tahun', 'tahun_ini', 'semua_libur'));
     }
 
     public function datatables()
     {
         if ($this->input->is_ajax_request()) {
-            return datatables()->of(HariLibur::query())
+            $tahun = $this->input->get('tahun') ?: date('Y');
+            $query = HariLibur::query();
+
+            if ($tahun !== 'semua') {
+                $query->whereYear('tanggal', $tahun);
+            }
+
+            return datatables()->of($query)
                 ->addColumn('ceklist', static function ($row) {
                     if (can('h')) {
                         return '<input type="checkbox" name="id_cb[]" value="' . $row->id . '"/>';
@@ -182,21 +203,40 @@ class Kehadiran_hari_libur extends Admin_Controller
     {
         $this->redirect_hak_akses('u');
 
-        $kalender = file_get_contents(config_item('api_hari_libur'));
-        $tanggal  = json_decode($kalender, true);
+        $kalender = @file_get_contents(config_item('api_hari_libur'));
+        if (empty($kalender)) {
+            redirect_with('error', 'Gagal mengunduh data hari libur dari server. Pastikan server terhubung ke internet.');
+            return;
+        }
 
-        $batch = collect($tanggal)->map(static function ($item, $key) {
-            return [
-                'config_id'  => identitas('id'),
-                'tanggal'    => date_format(date_create($key), 'Y-m-d'),
-                'keterangan' => $item['summary'][0],
-            ];
-        })->filter(static function ($value, $key) {
-            return $value['tanggal'] > date('Y') . '-01-01';
-        })->slice(0, -2);
+        $tanggal = json_decode($kalender, true);
+        if (! is_array($tanggal)) {
+            redirect_with('error', 'Format data hari libur tidak valid.');
+            return;
+        }
+
+        $batch = collect($tanggal)
+            ->filter(static function ($item, $key) {
+                return ! empty($item['summary'][0]) && strtotime($key) !== false;
+            })
+            ->map(static function ($item, $key) {
+                return [
+                    'config_id'  => identitas('id'),
+                    'tanggal'    => date('Y-m-d', strtotime($key)),
+                    'keterangan' => $item['summary'][0],
+                ];
+            })
+            ->filter(static function ($value) {
+                return $value['tanggal'] >= date('Y') . '-01-01';
+            });
+
+        if ($batch->isEmpty()) {
+            redirect_with('error', 'Tidak ada data hari libur untuk tahun berjalan.');
+            return;
+        }
 
         HariLibur::upsert($batch->values()->toArray(), ['tanggal'], ['keterangan']);
 
-        redirect_with('success', 'Berhasil Tambah Data');
+        redirect_with('success', 'Berhasil Sinkronisasi Hari Libur Pemerintah');
     }
 }

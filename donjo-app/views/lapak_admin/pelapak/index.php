@@ -62,10 +62,10 @@ defined('BASEPATH') || exit('No direct script access allowed');
 			<form id="mainform" name="mainform" method="post">
 				<div class="box-header with-border">
 					<?php if ($this->CI->cek_hak_akses('u')): ?>
-						<a href="<?= site_url("{$this->controller}/pelapak_form"); ?>" class="btn btn-social btn-flat btn-success btn-sm visible-xs-block visible-sm-inline-block visible-md-inline-block visible-lg-inline-block" title="Tambah Data" data-target="#modalBox" data-remote="false" data-toggle="modal" data-backdrop="false" data-keyboard="false" data-title="Tambah Data"><i class="fa fa-plus"></i> Tambah Data</a>
+						<a href="<?= site_url("{$this->controller}/pelapak_form"); ?>" class="btn btn-social btn-success btn-sm visible-xs-block visible-sm-inline-block visible-md-inline-block visible-lg-inline-block" title="Tambah Data" data-target="#modalBox" data-remote="false" data-toggle="modal" data-backdrop="false" data-keyboard="false" data-title="Tambah Data"><i class="fa fa-plus"></i> Tambah Data</a>
 					<?php endif; ?>
 					<?php if ($this->CI->cek_hak_akses('h')): ?>
-						<a href="#confirm-delete" title="Hapus Data" onclick="deleteAllBox('mainform','<?=site_url("{$this->controller}/pelapak_delete_all"); ?>')" class="btn btn-social btn-flat btn-danger btn-sm visible-xs-block visible-sm-inline-block visible-md-inline-block visible-lg-inline-block hapus-terpilih"><i class='fa fa-trash-o'></i> Hapus Data Terpilih</a>
+						<a href="#confirm-delete" title="Hapus Data" onclick="deleteAllBox('mainform','<?=site_url("{$this->controller}/pelapak_delete_all"); ?>')" class="btn btn-social btn-danger btn-sm visible-xs-block visible-sm-inline-block visible-md-inline-block visible-lg-inline-block hapus-terpilih"><i class='fa fa-trash-o'></i> Hapus Data Terpilih</a>
 					<?php endif; ?>
 					<select class="form-control input-sm select2" id="status" name="status">
 						<option value="">Semua Status</option>
@@ -80,7 +80,7 @@ defined('BASEPATH') || exit('No direct script access allowed');
 								<tr>
 									<th><input type="checkbox" id="checkall"/></th>
 									<th>No</th>
-									<th>Aksi</th>
+									<th class="aksi">Aksi</th>
 									<th>Pelapak</th>
 									<th>No. Telepon</th>
 									<th>Jumlah Produk</th>
@@ -127,28 +127,28 @@ defined('BASEPATH') || exit('No direct script access allowed');
 					'data': function(data) {
 						let status;
 						if (data.status == 1) {
-							status = `<a href="<?= site_url("{$this->controller}/pelapak_status/"); ?>${data.id}/2" class="btn bg-navy btn-flat btn-sm" title="Non Aktifkan Pelapak"><i class="fa fa-unlock"></i></a>`
+							status = `<a href="<?= site_url("{$this->controller}/pelapak_status/"); ?>${data.id}/2" class="btn bg-navy btn-sm" title="Non Aktifkan Pelapak"><i class="fa fa-unlock"></i></a>`
 						} else {
-							status = `<a href="<?= site_url("{$this->controller}/pelapak_status/"); ?>${data.id}/1" class="btn bg-navy btn-flat btn-sm" title="Aktifkan Pelapak"><i class="fa fa-lock"></i></a>`
+							status = `<a href="<?= site_url("{$this->controller}/pelapak_status/"); ?>${data.id}/1" class="btn bg-navy btn-sm" title="Aktifkan Pelapak"><i class="fa fa-lock"></i></a>`
 						}
 
 						let hapus;
 						if (data.jumlah == 0) {
-							hapus = `<a href="#" data-href="<?= site_url("{$this->controller}/pelapak_delete/"); ?>${data.id}" class="btn bg-maroon btn-flat btn-sm" title="Hapus" data-toggle="modal" data-target="#confirm-delete"><i class="fa fa-trash-o"></i></a>`
+							hapus = `<a href="#" data-href="<?= site_url("{$this->controller}/pelapak_delete/"); ?>${data.id}" class="btn bg-maroon btn-sm" title="Hapus" data-toggle="modal" data-target="#confirm-delete"><i class="fa fa-trash-o"></i></a>`
 						} else { hapus = ''}
 
-						return `
+						return `<div class="btn-group-aksi">
 						<?php if ($this->CI->cek_hak_akses('u')): ?>
-							<a href="<?= site_url("{$this->controller}/pelapak_form/"); ?>${data.id}" title="Edit Data" class="btn bg-orange btn-flat btn-sm" data-target="#modalBox" data-remote="false" data-toggle="modal" data-backdrop="false" data-keyboard="false" data-title="Ubah Pelapak"><i class="fa fa-edit"></i></a>
+							<a href="<?= site_url("{$this->controller}/pelapak_form/"); ?>${data.id}" title="Edit Data" class="btn bg-orange btn-sm" data-target="#modalBox" data-remote="false" data-toggle="modal" data-backdrop="false" data-keyboard="false" data-title="Ubah Pelapak"><i class="fa fa-edit"></i></a>
 							${status}
 						<?php endif; ?>
 						<?php if ($this->CI->cek_hak_akses('h')): ?>
 							${hapus}
 						<?php endif; ?>
 						<?php if ($this->CI->cek_hak_akses('u')): ?>
-							<a href="<?= site_url("{$this->controller}/pelapak_maps/"); ?>${data.id}" class="btn bg-green btn-flat btn-sm" title="Lokasi"><i class="fa fa-map"></i></a>
+							<a href="<?= site_url("{$this->controller}/pelapak_maps/"); ?>${data.id}" class="btn bg-green btn-sm" title="Lokasi"><i class="fa fa-map"></i></a>
 						<?php endif; ?>
-						`
+						</div>`
 					}
 				},
 				{ 'data': 'pelapak' },
@@ -169,7 +169,7 @@ defined('BASEPATH') || exit('No direct script access allowed');
 			});
 		});
 
-		$('#status').on('select2:select', function (e) {
+		$('#status').on('change', function () {
 			tabel_produk.ajax.reload();
 		});
 	});

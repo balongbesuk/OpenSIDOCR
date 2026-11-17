@@ -61,7 +61,7 @@
 															<td class="padat"><input id="m<?= $key + 1 ?>" type="checkbox" name="modul[id][]" value="<?= $akses_modul['id']; ?>" <?= jecho($akses_modul['ada_akses'], 1, 'checked'); ?> /></td>
 															<td class="padat" colspan="2"><?= ($key + 1); ?></td>
 															<td><?= SebutanDesa($akses_modul['modul']); ?></td>
-															<?php if (count($list_akses_submodul[$akses_modul['id']]) == 0) : ?>
+															<?php if (count($list_akses_submodul[$akses_modul['id']] ?? []) == 0) : ?>
 																<td class="padat">
 																	<input type="checkbox" name="modul[akses_baca][<?= $akses_modul['id'] ?>]" value="1" <?= jecho($akses_modul['akses_baca'], 1, 'checked'); ?> />
 																</td>
@@ -75,7 +75,7 @@
 																<td colspan="4">&nbsp;</td>
 															<?php endif; ?>
 														</tr>
-														<?php foreach ($list_akses_submodul[$akses_modul['id']] as $subkey => $akses_submodul) : ?>
+														<?php foreach (($list_akses_submodul[$akses_modul['id']] ?? []) as $subkey => $akses_submodul) : ?>
 															<tr>
 																<td class="padat">
 																	<input id="m<?= ($key + 1) . '.' . ($subkey + 1) ?>" class="m<?= $key + 1 ?>" type="checkbox" name="modul[id][]" value="<?= $akses_submodul['id']; ?>" <?= jecho($akses_submodul['ada_akses'], 1, 'checked'); ?> />

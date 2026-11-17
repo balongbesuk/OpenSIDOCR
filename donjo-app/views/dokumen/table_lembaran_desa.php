@@ -12,6 +12,11 @@
 </script>
 <div class="box box-info">
 	<div class="box-header with-border">
+		<?php if (can('u')): ?>
+			<a href="<?= site_url('dokumen_sekretariat/form/3') ?>" class="btn btn-social btn-flat btn-success btn-sm visible-xs-block visible-sm-inline-block visible-md-inline-block visible-lg-inline-block" title="Tambah Peraturan Desa">
+				<i class="fa fa-plus"></i> Tambah Peraturan Desa
+			</a>
+		<?php endif; ?>
 		<a href="<?= site_url("{$this->controller}/dialog_daftar/cetak")?>" class="btn btn-social btn-flat bg-purple btn-sm btn-sm visible-xs-block visible-sm-inline-block visible-md-inline-block visible-lg-inline-block"  title="Cetak Laporan" data-remote="false" data-toggle="modal" data-target="#modalBox" data-title="Cetak Laporan">
 			<i class="fa fa-print"></i>Cetak
 		</a>
@@ -20,6 +25,10 @@
 		</a>
 	</div>
 	<div class="box-body">
+		<div class="alert alert-info alert-dismissible" style="margin-bottom: 15px;">
+			<button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+			<i class="icon fa fa-info-circle"></i> <strong>Petunjuk:</strong> Buku ini otomatis mencatat dokumen <strong>Peraturan Desa</strong> yang diundangkan. Untuk menambah atau mempublikasikan peraturan baru, gunakan tombol Tambah Peraturan Desa di atas.
+		</div>
 		<div class="row">
 			<div class="col-sm-12">
 				<div class="dataTables_wrapper form-inline dt-bootstrap no-footer">

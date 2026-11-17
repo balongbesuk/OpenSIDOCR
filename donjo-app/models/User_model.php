@@ -831,6 +831,12 @@ class User_model extends MY_Model
         if ($group == $this->user_model->id_grup(UserGrup::ADMINISTRATOR)) {
             return true;
         }
+
+        // Modul Pengaturan hanya bisa diakses oleh administrator
+        $pengaturan = ['setting', 'modul', 'man_user', 'grup', 'database', 'info_sistem', 'sinkronisasi', 'optimasi_gambar'];
+        if (in_array(strtolower($controller[0]), $pengaturan)) {
+            return false;
+        }
         // Controller yang boleh diakses oleh semua pengguna yg telah login
         if ($group && in_array($controller[0], ['notif', 'pengguna', 'tte', 'sign', 'surat_kecamatan'])) {
             return true;

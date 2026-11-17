@@ -1,8 +1,8 @@
 <div class="row">
 
-	<a href="<?= site_url('lapak_admin/produk'); ?>">
+	<div class="col-md-3 col-sm-6 col-xs-12">
 
-		<div class="col-md-3 col-sm-6 col-xs-12">
+		<a href="<?= site_url('lapak_admin/produk'); ?>">
 
 			<div class="info-box bg-aqua">
 
@@ -28,13 +28,13 @@
 
 			</div>
 
-		</div>
+		</a>
 
-	</a>
+	</div>
 
-	<a href="<?= site_url('lapak_admin/pelapak'); ?>">
+	<div class="col-md-3 col-sm-6 col-xs-12">
 
-		<div class="col-md-3 col-sm-6 col-xs-12">
+		<a href="<?= site_url('lapak_admin/pelapak'); ?>">
 
 			<div class="info-box bg-green">
 
@@ -60,13 +60,13 @@
 
 			</div>
 
-		</div>
+		</a>
 
-	</a>
+	</div>
 
-	<a href="<?= site_url('lapak_admin/kategori'); ?>">
+	<div class="col-md-3 col-sm-6 col-xs-12">
 
-		<div class="col-md-3 col-sm-6 col-xs-12">
+		<a href="<?= site_url('lapak_admin/kategori'); ?>">
 
 			<div class="info-box bg-yellow">
 
@@ -92,15 +92,15 @@
 
 			</div>
 
-		</div>
+		</a>
 
-	</a>
+	</div>
 
 	<?php if (can('u')) : ?>
 
-		<a href="<?= site_url('lapak_admin/pengaturan'); ?>" title="Pengaturan Modul" data-remote="false" data-toggle="modal" data-target="#modalBox" data-title="Pengaturan Modul" data-backdrop="false" data-keyboard="false">
+		<div class="col-md-3 col-sm-6 col-xs-12">
 
-			<div class="col-md-3 col-sm-6 col-xs-12">
+			<a href="<?= site_url('lapak_admin/pengaturan'); ?>" title="Pengaturan Modul" data-remote="false" data-toggle="modal" data-target="#modalBox" data-title="Pengaturan Modul" data-backdrop="false" data-keyboard="false">
 
 				<div class="info-box bg-red">
 
@@ -114,9 +114,9 @@
 
 				</div>
 
-			</div>
+			</a>
 
-		</a>
+		</div>
 
 	<?php endif; ?>
 

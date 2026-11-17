@@ -300,7 +300,7 @@ class Grup_model extends MY_Model
             }
         }
 
-        return array_filter($data);
+        return $data;
     }
 
     private function get_hak_akses($grup)

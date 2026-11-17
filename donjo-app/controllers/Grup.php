@@ -109,7 +109,7 @@ class Grup extends Admin_Controller
 
         // Centang modul jika ada akses submodul
         foreach ($data['list_akses_modul'] as $key => $akses_modul) {
-            foreach ($data['list_akses_submodul'][$akses_modul['id']] as $akses_submodul) {
+            foreach (($data['list_akses_submodul'][$akses_modul['id']] ?? []) as $akses_submodul) {
                 if ($akses_submodul['ada_akses'] == 1) {
                     $data['list_akses_modul'][$key]['ada_akses'] = 1;
                 }

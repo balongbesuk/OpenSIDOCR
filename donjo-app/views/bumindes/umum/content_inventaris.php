@@ -9,6 +9,11 @@
 					<?php endfor; ?>
 				<?php endif; ?>
 			</select>
+			<?php if (can('u')): ?>
+				<a href="<?= site_url('inventaris_tanah') ?>" class="btn btn-social btn-flat btn-success btn-sm visible-xs-block visible-sm-inline-block visible-md-inline-block visible-lg-inline-block" title="Kelola / Input Data Inventaris">
+					<i class="fa fa-plus"></i>Kelola / Input Inventaris
+				</a>
+			<?php endif; ?>
 			<a href="<?= site_url('laporan_inventaris/permendagri_47_dialog/cetak') ?>" target="_blank" class="btn btn-social btn-flat bg-purple btn-sm visible-xs-block visible-sm-inline-block visible-md-inline-block visible-lg-inline-block" title="Cetak Inventaris">
 				<i class="fa fa-print"></i>Cetak
 			</a>
@@ -17,6 +22,10 @@
 			</a>
 		</div>
 		<div class="box-body">
+			<div class="alert alert-info alert-dismissible" style="margin-bottom: 15px;">
+				<button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+				<i class="icon fa fa-info-circle"></i> <strong>Petunjuk:</strong> Halaman ini merupakan buku rekapitulasi inventaris. Untuk menambah atau mengubah rincian barang/aset, gunakan menu <strong>Sekretariat &gt; Inventaris</strong> (Tanah, Peralatan, Gedung, Jalan, Aset Lain, atau KDP).
+			</div>
 			<div class="row">
 				<div class="col-sm-12">
 					<div class="dataTables_wrapper form-inline dt-bootstrap">
