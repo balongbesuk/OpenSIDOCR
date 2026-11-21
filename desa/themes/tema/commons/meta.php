@@ -326,6 +326,7 @@ $current_url = html_escape($current_url);
     <link rel="icon" type="image/png" sizes="16x16" href="<?= is_file(FCPATH . 'desa/logo/favicon-16x16.png') ? base_url('desa/logo/favicon-16x16.png?v=' . md5_file(FCPATH . 'desa/logo/favicon-16x16.png')) : favico_desa() ?>">
     <link rel="apple-touch-icon" sizes="180x180" href="<?= is_file(FCPATH . 'desa/logo/apple-touch-icon.png') ? base_url('desa/logo/apple-touch-icon.png?v=' . md5_file(FCPATH . 'desa/logo/apple-touch-icon.png')) : base_url('apple-touch-icon.png') ?>">
 
+    <?php if (($_SERVER['HTTP_HOST'] ?? '') === 'balongbesuk.desa.id'): ?>
     <!-- OneSignal Push Notification SDK -->
 
     <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
@@ -345,6 +346,7 @@ $current_url = html_escape($current_url);
         });
 
     </script>
+    <?php endif; ?>
 
     <?php $this->load->view('head_tags_front') ?>
 

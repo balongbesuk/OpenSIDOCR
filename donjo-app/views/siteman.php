@@ -13,7 +13,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@400;600;800&display=swap" rel="stylesheet">
 
     <!-- Font Awesome 6 -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha384-iw3OoTErCYJJB9mCa8LNS2hbsQ7M3C0EpIsO/H5+EGAkPGc6rk+V8i04oW/K5xq0" crossorigin="anonymous" referrerpolicy="no-referrer">
 
     <!-- Tailwind CSS Engine -->
     <script src="<?= asset('js/tailwindcss.min.js') ?>"></script>
@@ -61,9 +61,9 @@
             border: 2px solid #f1f5f9;
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
-        .input-premium:focus {
+        .input-premium:focus-visible {
             background: white; border-color: #3b82f6; 
-            box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1); outline: none;
+            box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1); outline: 2px solid transparent;
         }
         .btn-modern {
             background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
@@ -130,7 +130,7 @@
     </div>
 
     <!-- PANEL KANAN: Form Login -->
-    <div class="w-full lg:w-2/5 xl:w-[35%] bg-white flex items-center justify-center p-8 md:p-16 relative overflow-y-auto">
+    <main class="w-full lg:w-2/5 xl:w-[35%] bg-white flex items-center justify-center p-8 md:p-16 relative overflow-y-auto">
         <!-- Minimalist Floating Navigation -->
         <div class="absolute top-0 left-0 right-0 p-8 flex justify-between items-center z-20 pointer-events-none">
             <a href="<?= site_url() ?>" class="pointer-events-auto group flex items-center space-x-3 text-slate-400 hover:text-blue-600 transition-all duration-300">
@@ -159,22 +159,22 @@
             </div>
 
             <?php if ($notif = $this->session->flashdata('notif')) : ?>
-                <div class="mb-8 p-4 bg-blue-50 border border-blue-100 rounded-2xl flex items-start space-x-3 text-blue-700 text-sm font-medium">
-                    <i class="fa-solid fa-circle-info text-blue-500 mt-1"></i>
+                <div role="alert" class="mb-8 p-4 bg-blue-50 border border-blue-100 rounded-2xl flex items-start space-x-3 text-blue-700 text-sm font-medium">
+                    <i class="fa-solid fa-circle-info text-blue-500 mt-1" aria-hidden="true"></i>
                     <p><?= $notif ?></p>
                 </div>
             <?php endif ?>
 
             <?php if ($session_error = $this->session->flashdata('session_error')) : ?>
-                <div class="mb-8 p-4 bg-amber-50 border border-amber-200 rounded-2xl flex items-start space-x-3 text-amber-800 text-sm font-medium">
-                    <i class="fa-solid fa-triangle-exclamation text-amber-500 mt-1"></i>
+                <div role="alert" class="mb-8 p-4 bg-amber-50 border border-amber-200 rounded-2xl flex items-start space-x-3 text-amber-800 text-sm font-medium">
+                    <i class="fa-solid fa-triangle-exclamation text-amber-500 mt-1" aria-hidden="true"></i>
                     <p><?= $session_error ?></p>
                 </div>
             <?php endif ?>
 
             <?php if ($session_active_error = $this->session->flashdata('session_active_error')) : ?>
                 <?php $active_username = $this->session->flashdata('active_username'); ?>
-                <div class="mb-8 p-4 bg-amber-50 border border-amber-200 rounded-2xl text-amber-900 text-sm font-medium space-y-3">
+                <div role="alert" class="mb-8 p-4 bg-amber-50 border border-amber-200 rounded-2xl text-amber-900 text-sm font-medium space-y-3">
                     <div class="flex items-start space-x-3">
                         <i class="fa-solid fa-shield-halved text-amber-500 text-base mt-0.5"></i>
                         <p><?= $session_active_error ?></p>
@@ -214,20 +214,20 @@
                 <?php else: ?>
                     <div class="space-y-5">
                         <div class="space-y-2">
-                            <label class="text-sm font-bold text-slate-700 ml-1">Username</label>
+                            <label for="username" class="text-sm font-bold text-slate-700 ml-1">Username</label>
                             <div class="relative group">
-                                <i class="fa-solid fa-user absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 group-focus-within:text-blue-500 transition-colors"></i>
-                                <input name="username" type="text" autocomplete="off" placeholder="Nama pengguna" 
+                                <i class="fa-solid fa-user absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 group-focus-within:text-blue-500 transition-colors" aria-hidden="true"></i>
+                                <input id="username" name="username" type="text" autocomplete="username" spellcheck="false" autocapitalize="none" placeholder="Nama pengguna" required
                                     <?php jecho($this->session->siteman_wait, 1, 'disabled') ?> 
                                     class="input-premium w-full h-14 rounded-2xl pl-12 pr-4 text-sm font-semibold text-slate-900 required" maxlength="100" autofocus>
                             </div>
                         </div>
 
                         <div class="space-y-2">
-                            <label class="text-sm font-bold text-slate-700 ml-1">Password</label>
+                            <label for="password" class="text-sm font-bold text-slate-700 ml-1">Password</label>
                             <div class="relative group">
-                                <i class="fa-solid fa-lock absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 group-focus-within:text-blue-500 transition-colors"></i>
-                                <input id="password" name="password" type="password" autocomplete="off" placeholder="Kata sandi" 
+                                <i class="fa-solid fa-lock absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 group-focus-within:text-blue-500 transition-colors" aria-hidden="true"></i>
+                                <input id="password" name="password" type="password" autocomplete="current-password" placeholder="Kata sandi" required
                                     <?php jecho($this->session->siteman_wait, 1, 'disabled') ?> 
                                     class="input-premium w-full h-14 rounded-2xl pl-12 pr-28 text-sm font-semibold text-slate-900 required" maxlength="100">
                                 <div id="capslock-warning" class="hidden absolute right-3 top-1/2 -translate-y-1/2 text-[11px] font-bold text-amber-700 bg-amber-50 px-2.5 py-1 rounded-xl border border-amber-200/80 items-center space-x-1 shadow-sm">
@@ -259,8 +259,8 @@
                     </button>
 
                     <?php if ($attempts_error = $this->session->flashdata('attempts_error')): ?>
-                        <div class="mt-6 p-4 bg-red-50 border border-red-100 rounded-2xl flex items-center space-x-3 text-red-700 text-xs font-bold uppercase">
-                            <i class="fa-solid fa-circle-exclamation text-red-500 text-lg"></i>
+                        <div role="alert" class="mt-6 p-4 bg-red-50 border border-red-100 rounded-2xl flex items-center space-x-3 text-red-700 text-xs font-bold uppercase">
+                            <i class="fa-solid fa-circle-exclamation text-red-500 text-lg" aria-hidden="true"></i>
                             <p><?= $attempts_error ?></p>
                         </div>
                     <?php endif ?>
@@ -276,7 +276,7 @@
                 </div>
             </div>
         </div>
-    </div>
+    </main>
 
     <script>
         function start_countdown() {

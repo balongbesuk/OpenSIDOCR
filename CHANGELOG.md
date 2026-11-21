@@ -2,6 +2,15 @@
 
 ## 2026-11-21
 
+### Halaman Login (`/siteman` & `/layanan-mandiri/masuk`)
+- Autofill & Aksesibilitas: menambahkan `for`/`id` pada `<label>` dan `<input>`, `required` native, `autocomplete="username"` (`spellcheck="false"`, `autocapitalize="none"`) & `autocomplete="current-password"` (tetap `off` pada mode anjungan), landmark `<main>`, `role="alert"` pada notifikasi/error, serta `:focus-visible` di `donjo-app/views/siteman.php` dan `donjo-app/views/fmandiri/masuk.php`.
+- Security & Markup: menambahkan `integrity` (SHA-384), `crossorigin="anonymous"`, dan `referrerpolicy="no-referrer"` pada CDN Font Awesome `6.4.0` & SmartWizard `5`, serta menghapus tag `</style>` ganda di `fmandiri/masuk.php`.
+
+### Console, Security Header, & Widget
+- `Permissions-Policy`: menghapus 8 directive usang (`ambient-light-sensor`, `battery`, `document-domain`, `layout-animations`, `legacy-image-formats`, `oversized-images`, `unoptimized-images`, `unsized-media`) di `donjo-app/third_party/security/config/security/headers.php`.
+- OneSignal SDK: membatasi inisialisasi agar hanya berjalan pada host produksi `balongbesuk.desa.id` (`desa/themes/tema/commons/meta.php`).
+- Highcharts & PWA SW: memuat `highcharts-more.js` dan `accessibility.js` di dalam `hcScript.onload` (`desa/themes/tema/widgets/perkembangan_penduduk.php`), serta membatasi `StaleWhileRevalidate` pada `pwabuilder-sw.js` hanya untuk request same-origin.
+
 ### Tema Publik (`desa/themes/tema`)
 - Security: menambahkan `integrity` (SHA-384), `crossorigin="anonymous"`, dan `referrerpolicy="no-referrer"` pada aset CDN OwlCarousel2 & Leaflet di `partials/lapak/index.php` dan `partials/pembangunan/detail.php`.
 - Accessibility: mengubah `<main id="hero">` menjadi `<section id="hero" aria-label="Sorotan Utama">` di `template.php` agar hanya ada satu `<main>` per halaman.

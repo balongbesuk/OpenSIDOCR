@@ -16,7 +16,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@400;600;800&display=swap" rel="stylesheet">
 
     <!-- Font Awesome 6 -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha384-iw3OoTErCYJJB9mCa8LNS2hbsQ7M3C0EpIsO/H5+EGAkPGc6rk+V8i04oW/K5xq0" crossorigin="anonymous" referrerpolicy="no-referrer">
 
     <!-- Tailwind CSS Engine -->
     <script src="<?= asset('js/tailwindcss.min.js') ?>"></script>
@@ -54,7 +54,7 @@
         <link rel="stylesheet" href="<?= asset('front/css/mandiri-keyboard.css') ?>">
     <?php endif; ?>
     <?php if (cek_koneksi_internet()): ?>
-        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/smartwizard@5/dist/css/smart_wizard_all.min.css">
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/smartwizard@5/dist/css/smart_wizard_all.min.css" integrity="sha384-zzIoihoqsZezQGHU8QeCr2C6UAeI6FMMou0JNoXR+JhKMc2IUa/Dut0pYhP1Oe9u" crossorigin="anonymous" referrerpolicy="no-referrer">
     <?php endif ?>
 
     <script src="<?= asset('bootstrap/js/jquery.min.js') ?>"></script>
@@ -73,11 +73,11 @@
             border: 2px solid #f1f5f9;
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
-        .input-premium:focus {
+        .input-premium:focus-visible {
             background: white;
             border-color: #22c55e;
             box-shadow: 0 0 0 4px rgba(34, 197, 94, 0.1);
-            outline: none;
+            outline: 2px solid transparent;
         }
         .btn-mandiri {
             background: linear-gradient(135deg, #16a34a 0%, #14532d 100%);
@@ -237,8 +237,6 @@
             box-shadow: 0 20px 25px -5px rgba(239, 68, 68, 0.3) !important;
         }
     </style>
-
-    </style>
 </head>
 
 <body class="min-h-screen bg-white">
@@ -313,7 +311,7 @@
         </div>
 
         <!-- PANEL KANAN: Form Masuk Mandiri -->
-        <div class="w-full lg:w-2/5 xl:w-[35%] bg-white flex items-center justify-center p-8 md:p-16 xl:p-20 relative overflow-y-auto">
+        <main class="w-full lg:w-2/5 xl:w-[35%] bg-white flex items-center justify-center p-8 md:p-16 xl:p-20 relative overflow-y-auto">
             <!-- Floating Navigation -->
             <div class="absolute top-0 left-0 right-0 p-8 flex justify-between items-center z-20 pointer-events-none">
                 <a href="<?= site_url() ?>" class="pointer-events-auto group flex items-center space-x-3 text-slate-400 hover:text-green-600 transition-all duration-300">
@@ -350,8 +348,8 @@
                     </div>
                 <?php else : ?>
                     <?php if ($this->session->mandiri_try < 4) : ?>
-                        <div class="mb-6 p-4 bg-red-50 border border-red-100 rounded-2xl flex items-start space-x-3">
-                            <i class="fa-solid fa-circle-exclamation text-red-500 mt-0.5"></i>
+                        <div role="alert" class="mb-6 p-4 bg-red-50 border border-red-100 rounded-2xl flex items-start space-x-3">
+                            <i class="fa-solid fa-circle-exclamation text-red-500 mt-0.5" aria-hidden="true"></i>
                             <div class="text-red-700 text-sm font-bold">
                                 NIK atau PIN salah.
                                 <span class="block text-xs font-medium mt-1">Kesempatan mencoba <?= ($this->session->mandiri_try - 1) ?> kali lagi.</span>
@@ -360,8 +358,8 @@
                     <?php endif; ?>
 
                     <?php if ($this->session->aktif == true) : ?>
-                        <div class="mb-6 p-4 bg-blue-50 border border-blue-100 rounded-2xl flex items-start space-x-3">
-                            <i class="fa-solid fa-circle-info text-blue-500 mt-0.5"></i>
+                        <div role="alert" class="mb-6 p-4 bg-blue-50 border border-blue-100 rounded-2xl flex items-start space-x-3">
+                            <i class="fa-solid fa-circle-info text-blue-500 mt-0.5" aria-hidden="true"></i>
                             <p class="text-blue-700 text-sm font-medium leading-relaxed">Akun Anda sedang menunggu verifikasi dari operator desa.</p>
                         </div>
                     <?php endif; ?>
@@ -385,20 +383,20 @@
                             <?php if (! $this->session->login_ektp) : ?>
                                 <div class="space-y-5">
                                     <div class="space-y-2">
-                                        <label class="text-sm font-bold text-slate-700 ml-1">NIK (Nomor Induk Kependudukan)</label>
+                                        <label for="nik" class="text-sm font-bold text-slate-700 ml-1">NIK (Nomor Induk Kependudukan)</label>
                                         <div class="relative group">
-                                            <i class="fa-solid fa-id-card absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 group-focus-within:text-green-600 transition-colors"></i>
-                                            <input type="text" autocomplete="off" name="nik" id="nik" placeholder="16 digit NIK" inputmode="numeric" maxlength="16" pattern="[0-9]*"
+                                            <i class="fa-solid fa-id-card absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 group-focus-within:text-green-600 transition-colors" aria-hidden="true"></i>
+                                            <input type="text" autocomplete="<?= $cek_anjungan ? 'off' : 'username' ?>" spellcheck="false" name="nik" id="nik" placeholder="16 digit NIK" inputmode="numeric" maxlength="16" pattern="[0-9]*" required
                                                 class="input-premium w-full h-14 rounded-2xl pl-12 pr-4 text-sm font-semibold text-slate-900 tracking-wider placeholder:tracking-normal required <?= jecho($cek_anjungan['keyboard'] == 1, true, 'kbvnumber') ?>"
                                                 oninput="this.value = this.value.replace(/[^0-9]/g, '');" <?= jecho(!$this->session->login_ektp && !$cek_anjungan, true, 'autofocus') ?>>
                                         </div>
                                     </div>
 
                                     <div class="space-y-2">
-                                        <label class="text-sm font-bold text-slate-700 ml-1">PIN Layanan</label>
+                                        <label for="pin" class="text-sm font-bold text-slate-700 ml-1">PIN Layanan</label>
                                         <div class="relative group">
-                                            <i class="fa-solid fa-key absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 group-focus-within:text-green-600 transition-colors"></i>
-                                            <input type="password" autocomplete="off" name="pin" id="pin" placeholder="Kode PIN Anda"
+                                            <i class="fa-solid fa-key absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 group-focus-within:text-green-600 transition-colors" aria-hidden="true"></i>
+                                            <input type="password" autocomplete="<?= $cek_anjungan ? 'off' : 'current-password' ?>" name="pin" id="pin" placeholder="Kode PIN Anda" required
                                                 class="input-premium w-full h-14 rounded-2xl pl-12 pr-4 text-sm font-semibold text-slate-900 required <?= jecho($cek_anjungan['keyboard'] == 1, true, 'kbvnumber') ?>">
                                         </div>
                                     </div>
@@ -466,8 +464,8 @@
 
                                         <?php if (! $cek_anjungan) : ?>
                                             <div class="relative group">
-                                                <i class="fa-solid fa-lock absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 group-focus-within:text-green-600 transition-colors"></i>
-                                                <input type="password" class="input-premium w-full h-14 rounded-2xl pl-12 pr-4 text-sm font-semibold text-slate-900 required number" name="pin" placeholder="Konfirmasi PIN" id="pin" autocomplete="off">
+                                                <i class="fa-solid fa-lock absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 group-focus-within:text-green-600 transition-colors" aria-hidden="true"></i>
+                                                <input type="password" class="input-premium w-full h-14 rounded-2xl pl-12 pr-4 text-sm font-semibold text-slate-900 required number" name="pin" placeholder="Konfirmasi PIN" id="pin" autocomplete="current-password" required aria-label="Konfirmasi PIN">
                                             </div>
                                             <button type="submit" class="btn-mandiri w-full h-16 rounded-2xl text-white font-display font-extrabold tracking-wide text-sm uppercase">Verifikasi Masuk</button>
                                         <?php endif; ?>
@@ -501,7 +499,7 @@
                     </div>
                 </div>
             </div>
-        </div>
+        </main>
     </div>
 
     <!-- Legacy Scripts & Logic -->
@@ -519,7 +517,7 @@
     <script src="<?= asset('js/localization/messages_id.js') ?>"></script>
 
     <?php if (cek_koneksi_internet()): ?>
-        <script src="https://cdn.jsdelivr.net/npm/smartwizard@5/dist/js/jquery.smartWizard.min.js" type="text/javascript"></script>
+        <script src="https://cdn.jsdelivr.net/npm/smartwizard@5/dist/js/jquery.smartWizard.min.js" type="text/javascript" integrity="sha384-TyG542FY0ua8t9XHclv/Qdg8XvPJATaEyGP33UpFSvGoDEmKvqvK34Lsuo6b8ICg" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <?php endif ?>
 
     <?php if ($cek_anjungan) : ?>

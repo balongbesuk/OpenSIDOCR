@@ -5,11 +5,16 @@
     if (typeof Highcharts === 'undefined') {
         const hcScript = document.createElement('script');
         hcScript.src = "<?= base_url($folder_themes . '/assets/js/highcharts.js') ?>";
+        hcScript.onload = function() {
+            const hcmScript = document.createElement('script');
+            hcmScript.src = "<?= base_url($folder_themes . '/assets/js/highcharts-more.js') ?>";
+            document.head.appendChild(hcmScript);
+
+            const hcaScript = document.createElement('script');
+            hcaScript.src = "<?= base_url($folder_themes . '/assets/js/accessibility.js') ?>";
+            document.head.appendChild(hcaScript);
+        };
         document.head.appendChild(hcScript);
-        
-        const hcmScript = document.createElement('script');
-        hcmScript.src = "<?= base_url($folder_themes . '/assets/js/highcharts-more.js') ?>";
-        document.head.appendChild(hcmScript);
     }
 </script>
 
