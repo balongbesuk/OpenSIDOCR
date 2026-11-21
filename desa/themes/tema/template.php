@@ -36,11 +36,11 @@
 
             <!-- Hero Section -->
 
-            <main id="hero" class="w-full">
+            <section id="hero" class="w-full" aria-label="Sorotan Utama">
 
                 <?php $this->load->view("$folder_themes/partials/slider.php"); ?>
 
-            </main>
+            </section>
 
             
 

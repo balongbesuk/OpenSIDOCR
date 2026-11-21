@@ -201,18 +201,24 @@ $s_links = [
 
 <style>
 /* Custom Scrollbar for Accordion List */
-.stat-custom-scroll::-webkit-scrollbar {
-    width: 4px;
+.stat-custom-scroll {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(148, 163, 184, 0.3) transparent;
 }
-.stat-custom-scroll::-webkit-scrollbar-track {
-    background: transparent;
-}
-.stat-custom-scroll::-webkit-scrollbar-thumb {
-    background: rgba(148, 163, 184, 0.3);
-    border-radius: 9999px;
-}
-.stat-custom-scroll::-webkit-scrollbar-thumb:hover {
-    background: rgba(148, 163, 184, 0.6);
+@supports not (scrollbar-color: auto) {
+    .stat-custom-scroll::-webkit-scrollbar {
+        width: 4px;
+    }
+    .stat-custom-scroll::-webkit-scrollbar-track {
+        background: transparent;
+    }
+    .stat-custom-scroll::-webkit-scrollbar-thumb {
+        background: rgba(148, 163, 184, 0.3);
+        border-radius: 9999px;
+    }
+    .stat-custom-scroll::-webkit-scrollbar-thumb:hover {
+        background: rgba(148, 163, 184, 0.6);
+    }
 }
 </style>
 

@@ -82,6 +82,8 @@ $current_url = html_escape($current_url);
 
     <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1">
 
+    <meta name="color-scheme" content="light dark">
+
     <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
 
     <meta name="theme-color" content="#0f172a" media="(prefers-color-scheme: dark)">
@@ -96,15 +98,11 @@ $current_url = html_escape($current_url);
 
         (function() {
 
-            if (localStorage.getItem('theme') === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            const isDark = localStorage.getItem('theme') === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches);
 
-                document.documentElement.classList.add('dark');
+            document.documentElement.classList.toggle('dark', isDark);
 
-            } else {
-
-                document.documentElement.classList.remove('dark');
-
-            }
+            document.querySelector('meta[name="color-scheme"]')?.setAttribute('content', isDark ? 'dark' : 'light');
 
         })();
 

@@ -1,5 +1,12 @@
 # Changelog
 
+## 2026-11-21
+
+### Tema Publik (`desa/themes/tema`)
+- Security: menambahkan `integrity` (SHA-384), `crossorigin="anonymous"`, dan `referrerpolicy="no-referrer"` pada aset CDN OwlCarousel2 & Leaflet di `partials/lapak/index.php` dan `partials/pembangunan/detail.php`.
+- Accessibility: mengubah `<main id="hero">` menjadi `<section id="hero" aria-label="Sorotan Utama">` di `template.php` agar hanya ada satu `<main>` per halaman.
+- Modern Web Standards: mengganti `modalContent.innerHTML = ''` dengan `modalContent.replaceChildren()` (`layouts/peta_statis.tpl.php`), menambahkan `scrollbar-width` & `scrollbar-color` standar dengan fallback `@supports not (scrollbar-color: auto)` (`partials/statistik/sidenav.php`), serta menyinkronkan `<meta name="color-scheme">` saat inisialisasi & toggle tema (`commons/meta.php`, `assets/js/app.js`).
+
 ## 2026-11-17
 
 ### Hari Libur Kehadiran (`/kehadiran_hari_libur`)
@@ -20,3 +27,4 @@
 - Modul Pengaturan (setting, modul, man_user, grup, database, info_sistem, sinkronisasi, optimasi_gambar) hanya untuk Administrator.
 - Hapus logo/path identitas desa hanya oleh Administrator.
 - Null-safety submodul pada form & model grup (PHP 8).
+

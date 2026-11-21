@@ -513,7 +513,7 @@
                             anchor.replaceWith(replacement);
                         });
 
-                        modalContent.innerHTML = '';
+                        modalContent.replaceChildren();
 
                         const contentWrapper = document.createElement('div');
                         contentWrapper.className = 'overflow-x-auto custom-scrollbar';

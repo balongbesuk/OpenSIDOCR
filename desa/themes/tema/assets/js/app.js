@@ -6,12 +6,13 @@
 document.addEventListener('DOMContentLoaded', function() {
     
     // 1. [ THEME ENGINE ] - Check & Init Dark Mode
+    const syncColorSchemeMeta = (isDark) => {
+        document.querySelector('meta[name="color-scheme"]')?.setAttribute('content', isDark ? 'dark' : 'light');
+    };
     const initTheme = () => {
-        if (localStorage.getItem('theme') === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
-            document.documentElement.classList.add('dark');
-        } else {
-            document.documentElement.classList.remove('dark');
-        }
+        const isDark = localStorage.getItem('theme') === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches);
+        document.documentElement.classList.toggle('dark', isDark);
+        syncColorSchemeMeta(isDark);
     };
     initTheme();
 
@@ -66,9 +67,9 @@ document.addEventListener('DOMContentLoaded', function() {
     };
 
     window.toggleDarkMode = function() {
-        document.documentElement.classList.toggle('dark');
-        const isDark = document.documentElement.classList.contains('dark');
+        const isDark = document.documentElement.classList.toggle('dark');
         localStorage.setItem('theme', isDark ? 'dark' : 'light');
+        syncColorSchemeMeta(isDark);
         
         // Update Highcharts if exists
         if (typeof Highcharts !== 'undefined') {
