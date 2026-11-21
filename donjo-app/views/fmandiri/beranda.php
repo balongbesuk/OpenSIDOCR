@@ -37,7 +37,7 @@ defined('BASEPATH') || exit('No direct script access allowed');
 						<h2 class="text-lg sm:text-xl font-bold font-display text-slate-900 m-0">
 							Permohonan Surat Terkini
 						</h2>
-						<p class="text-xs sm:text-sm text-slate-400 font-medium m-0 mt-0.5">
+						<p class="text-xs sm:text-sm text-slate-500 font-medium m-0 mt-0.5">
 							Pantau status progres dan pengajuan surat administrasi Anda
 						</p>
 					</div>
@@ -94,9 +94,9 @@ defined('BASEPATH') || exit('No direct script access allowed');
 										</div>
 
 										<!-- Meta: Antrean & Tanggal -->
-										<div class="flex items-center space-x-2 text-xs text-slate-400 mt-1 flex-wrap gap-y-1">
+										<div class="flex items-center space-x-2 text-xs text-slate-500 mt-1 flex-wrap gap-y-1">
 											<span class="inline-flex items-center space-x-1 font-mono font-bold text-slate-600 bg-slate-100 px-2 py-0.5 rounded-md text-[11px] sm:text-xs flex-shrink-0">
-												<i class="fa-solid fa-ticket text-[10px] text-slate-400"></i>
+												<i class="fa-solid fa-ticket text-[10px] text-slate-500"></i>
 												<span>Antrean: <?= $no_antrian_str; ?></span>
 											</span>
 											<span class="text-slate-300">&bull;</span>
@@ -129,7 +129,7 @@ defined('BASEPATH') || exit('No direct script access allowed');
 							<i class="fa-regular fa-folder-open"></i>
 						</div>
 						<h3 class="text-base font-bold text-slate-800 m-0">Belum Ada Permohonan Surat Aktif</h3>
-						<p class="text-xs sm:text-sm text-slate-400 max-w-sm mx-auto mt-1 leading-relaxed">
+						<p class="text-xs sm:text-sm text-slate-500 max-w-sm mx-auto mt-1 leading-relaxed">
 							Anda belum mengajukan permohonan surat administrasi. Ajukan surat pengantar atau keterangan dengan mudah secara mandiri.
 						</p>
 						<a href="<?= site_url('layanan-mandiri/surat/buat') ?>" class="mt-4 inline-flex items-center space-x-2 px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs sm:text-sm transition-colors text-decoration-none shadow-xs">
@@ -168,7 +168,7 @@ defined('BASEPATH') || exit('No direct script access allowed');
 						<h2 class="text-lg sm:text-xl font-bold font-display text-slate-900 m-0">
 							Pesan dari Kantor Desa
 						</h2>
-						<p class="text-xs sm:text-sm text-slate-400 font-medium m-0 mt-0.5">
+						<p class="text-xs sm:text-sm text-slate-500 font-medium m-0 mt-0.5">
 							Komunikasi resmi dan tanggapan layanan dari perangkat desa
 						</p>
 					</div>
@@ -195,9 +195,9 @@ defined('BASEPATH') || exit('No direct script access allowed');
 										</div>
 										<div>
 											<p class="text-xs sm:text-sm font-bold text-slate-900 group-hover:text-orange-600 transition-colors m-0">
-												<?= !empty($msg['owner']) ? $msg['owner'] : 'Operator Desa Balongbesuk'; ?>
+												<?= !empty($msg['owner']) ? $msg['owner'] : ('Operator ' . ucwords($this->setting->sebutan_desa) . ' ' . ($desa['nama_desa'] ?? '')); ?>
 											</p>
-											<p class="text-[11px] text-slate-400 m-0">
+											<p class="text-[11px] text-slate-500 m-0">
 												<?= tgl_indo2($msg['tgl_upload']); ?>
 											</p>
 										</div>
@@ -219,7 +219,7 @@ defined('BASEPATH') || exit('No direct script access allowed');
 							<i class="fa-regular fa-envelope-open"></i>
 						</div>
 						<h3 class="text-base font-bold text-slate-800 m-0">Kotak Pesan Masuk Kosong</h3>
-						<p class="text-xs sm:text-sm text-slate-400 max-w-sm mx-auto mt-1 leading-relaxed">
+						<p class="text-xs sm:text-sm text-slate-500 max-w-sm mx-auto mt-1 leading-relaxed">
 							Belum ada pesan atau pertanyaan baru dari kantor desa. Butuh bantuan? Silakan kirim pesan ke operator desa.
 						</p>
 						<a href="<?= site_url('layanan-mandiri/pesan/tulis') ?>" class="mt-4 inline-flex items-center space-x-2 px-4 py-2 rounded-xl bg-orange-500 hover:bg-orange-600 text-white font-bold text-xs sm:text-sm transition-colors text-decoration-none shadow-xs">
@@ -263,7 +263,7 @@ defined('BASEPATH') || exit('No direct script access allowed');
 					</div>
 					<div>
 						<h3 class="text-base font-bold font-display text-slate-900 m-0">Data Kependudukan</h3>
-						<p class="text-xs text-slate-400 font-medium m-0">Profil resmi terdaftar</p>
+						<p class="text-xs text-slate-500 font-medium m-0">Profil resmi terdaftar</p>
 					</div>
 				</div>
 				<a href="<?= site_url('layanan-mandiri/profil') ?>" class="text-xs font-bold text-indigo-600 hover:text-indigo-700 text-decoration-none">
@@ -274,7 +274,7 @@ defined('BASEPATH') || exit('No direct script access allowed');
 			<!-- Profile Snapshot -->
 			<div class="p-5">
 				<div class="flex items-center space-x-4 pb-4 border-b border-slate-100">
-					<img class="w-14 h-14 rounded-2xl object-cover border-2 border-slate-200 shadow-2xs flex-shrink-0" src="<?= AmbilFoto($this->is_login->foto, '', $this->is_login->sex) ?>" alt="<?= $this->is_login->nama ?>">
+					<img width="56" height="56" class="w-14 h-14 rounded-2xl object-cover border-2 border-slate-200 shadow-2xs flex-shrink-0" src="<?= AmbilFoto($this->is_login->foto, '', $this->is_login->sex) ?>" alt="<?= $this->is_login->nama ?>">
 					<div class="min-w-0 flex-1">
 						<h4 class="text-base font-bold text-slate-900 truncate m-0">
 							<?= strtoupper($this->is_login->nama); ?>
@@ -290,19 +290,19 @@ defined('BASEPATH') || exit('No direct script access allowed');
 
 				<div class="py-3.5 space-y-2.5 text-xs text-slate-600">
 					<div class="flex items-center justify-between py-1 border-b border-slate-50">
-						<span class="text-slate-400">No. Kartu Keluarga</span>
+						<span class="text-slate-500">No. Kartu Keluarga</span>
 						<strong class="font-mono text-slate-800"><?= $penduduk['no_kk'] ?: '-' ?></strong>
 					</div>
 					<div class="flex items-center justify-between py-1 border-b border-slate-50">
-						<span class="text-slate-400">Wilayah / Dusun</span>
-						<strong class="text-slate-800 text-right truncate max-w-[180px]"><?= $penduduk['dusun'] ?: 'Balongbesuk' ?></strong>
+						<span class="text-slate-500">Wilayah / Dusun</span>
+						<strong class="text-slate-800 text-right truncate max-w-[180px]"><?= $penduduk['dusun'] ?: '-' ?></strong>
 					</div>
 					<div class="flex items-center justify-between py-1 border-b border-slate-50">
-						<span class="text-slate-400">RT / RW</span>
+						<span class="text-slate-500">RT / RW</span>
 						<strong class="text-slate-800">RT <?= $penduduk['rt'] ?: '-' ?> / RW <?= $penduduk['rw'] ?: '-' ?></strong>
 					</div>
 					<div class="flex items-center justify-between py-1 border-b border-slate-50">
-						<span class="text-slate-400">Hubungan Keluarga</span>
+						<span class="text-slate-500">Hubungan Keluarga</span>
 						<strong class="text-slate-800"><?= $penduduk['hubungan'] ?: '-' ?></strong>
 					</div>
 				</div>
@@ -310,7 +310,7 @@ defined('BASEPATH') || exit('No direct script access allowed');
 				<!-- Action Buttons -->
 				<div class="pt-2 flex items-center space-x-2">
 					<a href="<?= site_url('layanan-mandiri/profil') ?>" class="flex-1 py-2 px-3 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs text-center transition-colors text-decoration-none">
-						<i class="fa-solid fa-user mr-1 text-slate-400"></i> Detail Profil
+						<i class="fa-solid fa-user mr-1 text-slate-500"></i> Detail Profil
 					</a>
 					<a href="<?= site_url('layanan-mandiri/cetak-biodata') ?>" class="flex-1 py-2 px-3 rounded-xl bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-bold text-xs text-center transition-colors text-decoration-none">
 						<i class="fa-solid fa-print mr-1 text-indigo-500"></i> Cetak Biodata
@@ -333,7 +333,7 @@ defined('BASEPATH') || exit('No direct script access allowed');
 					</div>
 					<div>
 						<h3 class="text-base font-bold font-display text-slate-900 m-0">Keamanan & Verifikasi</h3>
-						<p class="text-xs text-slate-400 font-medium m-0">Jalur notifikasi & akses akun</p>
+						<p class="text-xs text-slate-500 font-medium m-0">Jalur notifikasi & akses akun</p>
 					</div>
 				</div>
 				<a href="<?= site_url('layanan-mandiri/verifikasi') ?>" class="text-xs font-bold text-purple-600 hover:text-purple-700 text-decoration-none">
@@ -363,7 +363,7 @@ defined('BASEPATH') || exit('No direct script access allowed');
 						</div>
 					</div>
 					<div class="flex-shrink-0">
-						<a href="<?= site_url('layanan-mandiri/verifikasi/telegram') ?>" class="whitespace-nowrap px-2.5 py-1 rounded-lg text-xs font-bold <?= $tgl_verifikasi_telegram ? 'bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 shadow-2xs' : 'bg-amber-600 text-white hover:bg-amber-700' ?> transition-colors text-decoration-none">
+						<a href="<?= site_url('layanan-mandiri/verifikasi/telegram') ?>" class="whitespace-nowrap inline-flex items-center min-h-[44px] px-3.5 rounded-lg text-xs font-bold <?= $tgl_verifikasi_telegram ? 'bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 shadow-2xs' : 'bg-amber-600 text-white hover:bg-amber-700' ?> transition-colors text-decoration-none">
 							<?= $tgl_verifikasi_telegram ? 'Cek' : 'Hubungkan' ?>
 						</a>
 					</div>
@@ -388,7 +388,7 @@ defined('BASEPATH') || exit('No direct script access allowed');
 						</div>
 					</div>
 					<div class="flex-shrink-0">
-						<a href="<?= site_url('layanan-mandiri/verifikasi/email') ?>" class="whitespace-nowrap px-2.5 py-1 rounded-lg text-xs font-bold <?= $tgl_verifikasi_email ? 'bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 shadow-2xs' : 'bg-amber-600 text-white hover:bg-amber-700' ?> transition-colors text-decoration-none">
+						<a href="<?= site_url('layanan-mandiri/verifikasi/email') ?>" class="whitespace-nowrap inline-flex items-center min-h-[44px] px-3.5 rounded-lg text-xs font-bold <?= $tgl_verifikasi_email ? 'bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 shadow-2xs' : 'bg-amber-600 text-white hover:bg-amber-700' ?> transition-colors text-decoration-none">
 							<?= $tgl_verifikasi_email ? 'Cek' : 'Verifikasi' ?>
 						</a>
 					</div>
@@ -411,7 +411,7 @@ defined('BASEPATH') || exit('No direct script access allowed');
 						</div>
 					</div>
 					<div class="flex-shrink-0">
-						<a href="<?= site_url('layanan-mandiri/ganti-pin') ?>" class="whitespace-nowrap px-2.5 py-1 rounded-lg text-xs font-bold bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 shadow-2xs transition-colors text-decoration-none">
+						<a href="<?= site_url('layanan-mandiri/ganti-pin') ?>" class="whitespace-nowrap inline-flex items-center min-h-[44px] px-3.5 rounded-lg text-xs font-bold bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 shadow-2xs transition-colors text-decoration-none">
 							Ganti PIN
 						</a>
 					</div>
@@ -434,7 +434,7 @@ defined('BASEPATH') || exit('No direct script access allowed');
 					Jam Layanan Kantor Desa
 				</h3>
 				<p class="text-xs text-slate-300 mt-1 leading-relaxed">
-					Kantor Balai Desa Balongbesuk siap melayani keperluan administrasi warga pada:
+					Kantor <?= ucwords($this->setting->sebutan_desa) . ' ' . ($desa['nama_desa'] ?? '') ?> siap melayani keperluan administrasi warga pada:
 				</p>
 
 				<div class="my-4 space-y-1.5 text-xs text-slate-200 border-y border-white/10 py-3">
@@ -446,13 +446,13 @@ defined('BASEPATH') || exit('No direct script access allowed');
 						<span>Jumat</span>
 						<strong class="font-mono text-emerald-400">08:00 – 14:00 WIB</strong>
 					</div>
-					<div class="flex items-center justify-between text-slate-400">
+					<div class="flex items-center justify-between text-slate-300">
 						<span>Sabtu – Minggu / Libur</span>
-						<span class="italic">Pelayanan Tatap Muka Tutup</span>
+						<span>Pelayanan Tatap Muka Tutup</span>
 					</div>
 				</div>
 
-				<p class="text-[11px] text-slate-400 leading-normal mb-3">
+				<p class="text-[11px] text-slate-300 leading-normal mb-3">
 					*Layanan Mandiri Online ini dapat diakses mandiri 24 jam setiap hari.
 				</p>
 

@@ -58,7 +58,7 @@ if ($id_pend_login) {
 	<meta charset="utf-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
 	<title><?= $this->setting->admin_title . ' ' . ucwords($this->setting->sebutan_desa) . ' ' . $desa['nama_desa']; ?></title>
-	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<meta name="robots" content="noindex">
 
 	<!-- Favicon -->
@@ -72,7 +72,7 @@ if ($id_pend_login) {
 	<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Outfit:wght@500;600;700;800&display=swap" rel="stylesheet">
 
 	<!-- Font Awesome 6 Vector Icons -->
-	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha384-t1nt8BQoYMLFN5p42tRAtuAAFQaCQODekUVeKKZrEnEyp4H2R0RHFz0KWpmj7i8g" crossorigin="anonymous" referrerpolicy="no-referrer">
 
 	<!-- Core Data & UI Plugins -->
 	<link rel="stylesheet" href="<?= asset('bootstrap/css/bootstrap.min.css') ?>">
@@ -84,7 +84,7 @@ if ($id_pend_login) {
 	<link rel="stylesheet" href="<?= asset('bootstrap/css/jquery-ui.min.css') ?>">
 
 	<?php if (cek_koneksi_internet()): ?>
-		<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/smartwizard@5/dist/css/smart_wizard_all.min.css">
+		<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/smartwizard@5/dist/css/smart_wizard_all.min.css" integrity="sha384-zzIoihoqsZezQGHU8QeCr2C6UAeI6FMMou0JNoXR+JhKMc2IUa/Dut0pYhP1Oe9u" crossorigin="anonymous" referrerpolicy="no-referrer">
 	<?php endif ?>
 
 	<?php if ($this->controller == 'lapak') : ?>
@@ -878,8 +878,8 @@ if ($id_pend_login) {
 		</a>
 
 		<!-- CENTER ELEVATED FAB (+) FOR BUAT SURAT -->
-		<a href="<?= site_url('layanan-mandiri/surat/buat') ?>" class="dock-fab" title="Buat Permohonan Surat">
-			<i class="fa-solid fa-plus"></i>
+		<a href="<?= site_url('layanan-mandiri/surat/buat') ?>" class="dock-fab" title="Buat Permohonan Surat" aria-label="Buat Permohonan Surat">
+			<i class="fa-solid fa-plus" aria-hidden="true"></i>
 		</a>
 
 		<a href="<?= site_url('layanan-mandiri/pesan-masuk') ?>" class="dock-item <?= in_array($this->uri->segment(2), ['pesan-masuk', 'pesan-keluar', 'pesan']) ? 'active' : '' ?>">

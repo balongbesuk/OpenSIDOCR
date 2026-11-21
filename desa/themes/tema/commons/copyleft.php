@@ -4,12 +4,6 @@
 
 <footer class="bg-slate-900 pt-24 pb-12 overflow-hidden relative">
 
-    <!-- Abstract Background Decor -->
-
-    <div class="absolute right-0 bottom-0 w-[500px] h-[500px] bg-brand-600/10 rounded-full blur-[120px]"></div>
-
-
-
     <div class="container mx-auto px-4 relative z-10">
 
         

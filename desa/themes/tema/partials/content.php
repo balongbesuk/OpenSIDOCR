@@ -34,7 +34,7 @@
 
                             width="800" height="500"
 
-                            class="absolute inset-0 w-full h-full object-cover transition-all duration-1000 group-hover:scale-110 group-hover:rotate-1 group-hover:saturate-[1.2]"
+                            class="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
 
                             loading="eager" fetchpriority="high" />
 

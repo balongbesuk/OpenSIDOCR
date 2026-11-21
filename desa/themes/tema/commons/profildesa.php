@@ -54,12 +54,6 @@ $persen_perm = ($penduduk > 0) ? round(($perm / $penduduk) * 100, 1) : 0;
 
 <section class="hidden md:block py-10 md:py-20 bg-white dark:bg-slate-950 relative transition-colors duration-500 overflow-hidden">
 
-    <!-- Floating Background Decor -->
-
-    <div class="absolute -right-20 top-40 w-64 h-64 bg-brand-50 rounded-full blur-3xl opacity-60"></div>
-
-
-
     <div class="container mx-auto px-4 relative z-10">
 
         
@@ -78,7 +72,7 @@ $persen_perm = ($penduduk > 0) ? round(($perm / $penduduk) * 100, 1) : 0;
 
                 <h2 class="font-display font-extrabold text-3xl md:text-5xl text-slate-900 dark:text-white leading-tight">
 
-                    Data Desa Secara <span class="text-transparent bg-clip-text bg-gradient-to-r from-brand-600 to-accent">Real-Time.</span>
+                    Data Desa Secara <span class="text-brand-600 dark:text-brand-400">Real-Time</span>
 
                 </h2>
 
@@ -102,13 +96,13 @@ $persen_perm = ($penduduk > 0) ? round(($perm / $penduduk) * 100, 1) : 0;
 
             <!-- Card 1: Penduduk -->
 
-            <div data-aos="fade-up" data-aos-delay="100" class="group p-6 md:p-8 rounded-[2rem] md:rounded-[2.5rem] bg-[#f8fafc] dark:bg-slate-800 border border-slate-100 dark:border-slate-700/50 hover:bg-white dark:hover:bg-slate-700 hover:shadow-2xl hover:shadow-brand-600/10 hover:-translate-y-2 active:scale-[0.98] cursor-pointer transition-all duration-500">
+            <div data-aos="fade-up" data-aos-delay="100" class="group p-6 md:p-8 rounded-[2rem] md:rounded-[2.5rem] bg-[#f8fafc] dark:bg-slate-800 border border-slate-100 dark:border-slate-700/50 hover:bg-white dark:hover:bg-slate-700 hover:shadow-xl transition-colors duration-300">
 
                 <div class="flex items-center gap-3 mb-8">
 
-                    <div class="w-10 h-10 rounded-xl bg-brand-100 dark:bg-brand-900/40 text-brand-600 dark:text-brand-400 flex items-center justify-center text-xl transition-transform group-hover:rotate-12">
+                    <div class="w-10 h-10 rounded-xl bg-brand-100 dark:bg-brand-900/40 text-brand-600 dark:text-brand-400 flex items-center justify-center text-xl">
 
-                        <i class="fa-solid fa-users-viewfinder transition-transform group-hover:scale-110"></i>
+                        <i class="fa-solid fa-users-viewfinder" aria-hidden="true"></i>
 
                     </div>
 
@@ -172,13 +166,13 @@ $persen_perm = ($penduduk > 0) ? round(($perm / $penduduk) * 100, 1) : 0;
 
             <!-- Card 2: Wilayah -->
 
-            <div data-aos="fade-up" data-aos-delay="200" class="group p-6 md:p-8 rounded-[2rem] md:rounded-[2.5rem] bg-[#f8fafc] dark:bg-slate-800 border border-slate-100 dark:border-slate-700/50 hover:bg-white dark:hover:bg-slate-700 hover:shadow-2xl hover:shadow-amber-600/10 hover:-translate-y-2 active:scale-[0.98] cursor-pointer transition-all duration-500">
+            <div data-aos="fade-up" data-aos-delay="200" class="group p-6 md:p-8 rounded-[2rem] md:rounded-[2.5rem] bg-[#f8fafc] dark:bg-slate-800 border border-slate-100 dark:border-slate-700/50 hover:bg-white dark:hover:bg-slate-700 hover:shadow-xl transition-colors duration-300">
 
                 <div class="flex items-center gap-3 mb-8">
 
-                    <div class="w-10 h-10 rounded-xl bg-amber-100 dark:bg-amber-900/40 text-amber-600 dark:text-amber-400 flex items-center justify-center text-xl transition-transform group-hover:rotate-12">
+                    <div class="w-10 h-10 rounded-xl bg-amber-100 dark:bg-amber-900/40 text-amber-600 dark:text-amber-400 flex items-center justify-center text-xl">
 
-                        <i class="fa-solid fa-map-location-dot transition-transform group-hover:scale-110"></i>
+                        <i class="fa-solid fa-map-location-dot" aria-hidden="true"></i>
 
                     </div>
 
@@ -254,7 +248,7 @@ $persen_perm = ($penduduk > 0) ? round(($perm / $penduduk) * 100, 1) : 0;
 
             <!-- Card 3: APBDes Transparan -->
 
-            <div data-aos="fade-up" data-aos-delay="300" class="group p-6 md:p-8 rounded-[2rem] md:rounded-[2.5rem] bg-brand-900 dark:bg-slate-800 border border-transparent dark:border-slate-700/50 backdrop-blur-2xl hover:shadow-2xl hover:shadow-emerald-600/20 hover:-translate-y-2 active:scale-[0.98] cursor-pointer transition-all duration-500 relative overflow-hidden shadow-2xl">
+            <div data-aos="fade-up" data-aos-delay="300" class="group p-6 md:p-8 rounded-[2rem] md:rounded-[2.5rem] bg-brand-900 dark:bg-slate-800 border border-transparent dark:border-slate-700/50 hover:shadow-xl transition-colors duration-300 relative overflow-hidden shadow-lg">
 
                 <!-- Inner Light Effect -->
 

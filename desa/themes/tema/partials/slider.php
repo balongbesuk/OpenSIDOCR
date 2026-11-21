@@ -93,7 +93,7 @@
         <!-- Headline Content -->
         <div class="text-center max-w-4xl space-y-6 md:min-h-[220px]">
             <h1 class="font-display font-[800] text-4xl md:text-7xl text-slate-900 leading-[1.1] tracking-tight md:min-h-[160px]">
-                Portal Informasi & <span class="text-transparent bg-clip-text bg-gradient-to-r from-brand-600 to-accent">Layanan Publik</span> Digital.
+                Portal Informasi & <span class="text-brand-600 dark:text-brand-400">Layanan Publik</span> Digital
             </h1>
             <p class="text-lg md:text-xl text-slate-700 dark:text-slate-200 font-medium max-w-2xl mx-auto leading-relaxed">
                 Selamat datang di Website Resmi Pemerintah <?= html_escape($this->setting->sebutan_desa) ?> <?= html_escape($desa['nama_desa']) ?>. Platform transparansi dan layanan mandiri berbasis digital.

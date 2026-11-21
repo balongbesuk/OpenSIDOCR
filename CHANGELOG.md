@@ -2,6 +2,10 @@
 
 ## 2026-11-21
 
+### Layanan Mandiri (`/layanan-mandiri/beranda`) & Polish Tema (`desa/themes/tema`)
+- Layanan Mandiri (`donjo-app/views/fmandiri/beranda.php`, `template.php`): mendinamiskan 3 hardcode `"Balongbesuk"`, menghapus pembatasan zoom `user-scalable=no`, menambahkan SRI (SHA-384) pada Font Awesome `6.5.1` & SmartWizard `5`, meningkatkan kontras teks (`text-slate-500`/`300`), menambahkan `width`/`height` foto profil, menaikkan tap target tombol aksi ke `>=44px`, dan menambahkan `aria-label` pada tombol FAB `+`.
+- Polish Tema (`desa/themes/tema`): mengganti gradient teks menjadi warna solid & menghapus titik di akhir judul (`partials/slider.php`, `commons/profildesa.php`), menghapus orb blur dekoratif (`commons/profildesa.php`, `commons/copyleft.php`), serta menenangkan animasi hover (`commons/profildesa.php`, `partials/content.php`).
+
 ### Komentar Bawaan & Portabilitas Tema (`desa/themes/tema`)
 - Multi-desa: memisahkan konfigurasi `disqus_shortname`, `onesignal_app_id`, dan `onesignal_host` ke `config_desa.php` (gitignored) dengan template `config_desa.example.php`, serta mendinamiskan `apple-mobile-web-app-title` (`commons/meta.php`) dan filter link internal artikel (`layouts/artikel.tpl.php`).
 - Fallback Komentar OpenSID: menambahkan `commons/komentar_artikel.php` (daftar komentar, flashdata `notif`, form `first/add_comment/{id}`, reload captcha, validasi No. HP angka saja, serta pesan validasi bahasa Indonesia) ketika Disqus nonaktif (`artikel.tpl.php`, `halaman_statis.tpl.php`), serta menyembunyikan blok Disqus kosong di `partials/kelompok.php`.
