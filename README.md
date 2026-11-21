@@ -106,6 +106,12 @@ Jika Anda memiliki akses terminal SSH di VPS/Server:
 5. Isi data kepindahan (Tujuan Pindah, Tanggal Peristiwa, Tanggal Lapor, Alamat Tujuan, No. SKP/Catatan).
 6. Klik **Simpan & Proses Kepindahan**.
 
+### 🎨 Konfigurasi Tema Publik (`desa/themes/tema`) untuk Desa Lain
+Tema sudah dinamis mengikuti nama desa dan domain di pengaturan OpenSID. Untuk mengaktifkan **Disqus** atau **OneSignal** (opsional):
+1. Salin `desa/themes/tema/config_desa.example.php` menjadi `desa/themes/tema/config_desa.php` (file ini diabaikan Git).
+2. Isi `disqus_shortname`, `onesignal_app_id`, dan `onesignal_host` sesuai domain desa Anda.
+3. Jika `disqus_shortname` dikosongkan, halaman artikel otomatis menggunakan **komentar bawaan OpenSID** (maks. 200 karakter, dengan captcha & moderasi admin).
+
 ---
 
 ## 📜 Lisensi & Credit
