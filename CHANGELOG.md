@@ -2,6 +2,9 @@
 
 ## 2026-11-21
 
+### Perbaikan Path Konfigurasi Tema (`desa/themes/tema`)
+- Memperbaiki pembacaan `config_desa.php` dan `commons/disqus.php` dengan mengganti `FCPATH . $folder_themes` menjadi `dirname(__DIR__)` di `commons/disqus.php`, `commons/meta.php`, `layouts/artikel.tpl.php`, `layouts/halaman_statis.tpl.php`, dan `partials/kelompok.php` (karena `$folder_themes` OpenSID bernilai relatif `../../desa/themes/tema`), serta menormalisasi `HTTP_HOST` (case-insensitive & tanpa port) untuk pengecekan `onesignal_host`.
+
 ### Layanan Mandiri (`/layanan-mandiri/beranda`) & Polish Tema (`desa/themes/tema`)
 - Layanan Mandiri (`donjo-app/views/fmandiri/beranda.php`, `template.php`): mendinamiskan 3 hardcode `"Balongbesuk"`, menghapus pembatasan zoom `user-scalable=no`, menambahkan SRI (SHA-384) pada Font Awesome `6.5.1` & SmartWizard `5`, meningkatkan kontras teks (`text-slate-500`/`300`), menambahkan `width`/`height` foto profil, menaikkan tap target tombol aksi ke `>=44px`, dan menambahkan `aria-label` pada tombol FAB `+`.
 - Polish Tema (`desa/themes/tema`): mengganti gradient teks menjadi warna solid & menghapus titik di akhir judul (`partials/slider.php`, `commons/profildesa.php`), menghapus orb blur dekoratif (`commons/profildesa.php`, `commons/copyleft.php`), serta menenangkan animasi hover (`commons/profildesa.php`, `partials/content.php`).

@@ -200,7 +200,7 @@
 
 <?php
     $disqus_shortname = '';
-    $disqus_config_file = FCPATH . $folder_themes . '/commons/disqus.php';
+    $disqus_config_file = dirname(__DIR__) . '/commons/disqus.php';
     if (is_file($disqus_config_file)) {
         include $disqus_config_file;
     }

@@ -327,12 +327,13 @@ $current_url = html_escape($current_url);
     <link rel="apple-touch-icon" sizes="180x180" href="<?= is_file(FCPATH . 'desa/logo/apple-touch-icon.png') ? base_url('desa/logo/apple-touch-icon.png?v=' . md5_file(FCPATH . 'desa/logo/apple-touch-icon.png')) : base_url('apple-touch-icon.png') ?>">
 
     <?php
-        $tema_config_file = FCPATH . $folder_themes . '/config_desa.php';
-        $tema_config = is_file($tema_config_file) ? (array) include $tema_config_file : [];
-        $onesignal_app_id = trim((string) ($tema_config['onesignal_app_id'] ?? ''));
-        $onesignal_host = trim((string) ($tema_config['onesignal_host'] ?? ''));
+        $tema_config_file = dirname(__DIR__) . '/config_desa.php';
+        $tema_config = is_file($tema_config_file) ? include $tema_config_file : [];
+        $onesignal_app_id = is_array($tema_config) ? trim((string) ($tema_config['onesignal_app_id'] ?? '')) : '';
+        $onesignal_host = is_array($tema_config) ? strtolower(trim((string) ($tema_config['onesignal_host'] ?? ''))) : '';
+        $current_host = strtolower(explode(':', (string) ($_SERVER['HTTP_HOST'] ?? ''))[0]);
     ?>
-    <?php if ($onesignal_app_id !== '' && $onesignal_host !== '' && ($_SERVER['HTTP_HOST'] ?? '') === $onesignal_host): ?>
+    <?php if ($onesignal_app_id !== '' && $onesignal_host !== '' && $current_host === $onesignal_host): ?>
     <!-- OneSignal Push Notification SDK -->
 
     <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
