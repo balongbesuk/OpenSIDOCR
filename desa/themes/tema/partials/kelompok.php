@@ -198,25 +198,24 @@
 
 
 
+<?php
+    $disqus_shortname = '';
+    $disqus_config_file = FCPATH . $folder_themes . '/commons/disqus.php';
+    if (is_file($disqus_config_file)) {
+        include $disqus_config_file;
+    }
+    $disqus_shortname = trim((string) $disqus_shortname);
+?>
+<?php if ($disqus_shortname !== ''): ?>
 <div class="list-frame mt-8 bg-white dark:bg-slate-950/40 p-10 rounded-[4rem] border border-slate-100 dark:border-slate-800">
 
     <div id="disqus_thread"></div>
 
     <script>
 
-    <?php
-        $disqus_shortname = 'balongbesuk';
-        $disqus_config_file = FCPATH . $folder_themes . '/commons/disqus.php';
-        if (is_file($disqus_config_file)) {
-            include $disqus_config_file;
-        }
-        $disqus_shortname = trim((string) $disqus_shortname);
-    ?>
     (function() {
         var d = document, s = d.createElement('script');
-        var shortname = '<?= $disqus_shortname ?>';
-        if (!shortname) return;
-        s.src = 'https://' + shortname + '.disqus.com/embed.js';
+        s.src = 'https://<?= $disqus_shortname ?>.disqus.com/embed.js';
         s.setAttribute('data-timestamp', +new Date());
         (d.head || d.body).appendChild(s);
     })();
@@ -224,3 +223,4 @@
     </script>
 
 </div>
+<?php endif; ?>

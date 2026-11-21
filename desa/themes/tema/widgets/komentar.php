@@ -17,7 +17,7 @@
                                 <?= strtoupper(substr($data['owner'], 0, 1)) ?>
                             </div>
                             <div class="leading-none">
-                                <p class="text-xs font-black text-slate-900 dark:text-white"><?= $data['owner'] ?></p>
+                                <p class="text-xs font-black text-slate-900 dark:text-white"><?= htmlspecialchars((string) $data['owner'], ENT_QUOTES, 'UTF-8', false) ?></p>
                                 <p class="text-[8px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest mt-1.5"><?= tgl_indo($data['tgl_upload']) ?></p>
                             </div>
                         </div>

@@ -66,7 +66,7 @@
             </div>
 
             <!-- Mobile Trigger -->
-            <button onclick="toggleMobileMenu()" class="lg:hidden p-2 text-slate-600 dark:text-white" aria-label="Buka Menu">
+            <button onclick="toggleMobileMenu()" class="lg:hidden w-11 h-11 flex items-center justify-center rounded-xl text-slate-600 dark:text-white" aria-label="Buka Menu">
                 <i class="fa-solid fa-bars text-2xl" aria-hidden="true"></i>
             </button>
         </div>

@@ -312,7 +312,7 @@ $current_url = html_escape($current_url);
 
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
 
-    <meta name="apple-mobile-web-app-title" content="Desa Balongbesuk">
+    <meta name="apple-mobile-web-app-title" content="<?= html_escape(ucwords($this->setting->sebutan_desa) . ' ' . $desa_name) ?>">
 
     <!-- Favicon & App Icons (Standar Google Search & Multi-device) -->
     <link rel="shortcut icon" href="<?= favico_desa() ?>">
@@ -326,7 +326,13 @@ $current_url = html_escape($current_url);
     <link rel="icon" type="image/png" sizes="16x16" href="<?= is_file(FCPATH . 'desa/logo/favicon-16x16.png') ? base_url('desa/logo/favicon-16x16.png?v=' . md5_file(FCPATH . 'desa/logo/favicon-16x16.png')) : favico_desa() ?>">
     <link rel="apple-touch-icon" sizes="180x180" href="<?= is_file(FCPATH . 'desa/logo/apple-touch-icon.png') ? base_url('desa/logo/apple-touch-icon.png?v=' . md5_file(FCPATH . 'desa/logo/apple-touch-icon.png')) : base_url('apple-touch-icon.png') ?>">
 
-    <?php if (($_SERVER['HTTP_HOST'] ?? '') === 'balongbesuk.desa.id'): ?>
+    <?php
+        $tema_config_file = FCPATH . $folder_themes . '/config_desa.php';
+        $tema_config = is_file($tema_config_file) ? (array) include $tema_config_file : [];
+        $onesignal_app_id = trim((string) ($tema_config['onesignal_app_id'] ?? ''));
+        $onesignal_host = trim((string) ($tema_config['onesignal_host'] ?? ''));
+    ?>
+    <?php if ($onesignal_app_id !== '' && $onesignal_host !== '' && ($_SERVER['HTTP_HOST'] ?? '') === $onesignal_host): ?>
     <!-- OneSignal Push Notification SDK -->
 
     <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
@@ -339,7 +345,7 @@ $current_url = html_escape($current_url);
 
             await OneSignal.init({
 
-                appId: "56a523c8-0ab9-4702-9f18-2ad17efa97e3",
+                appId: <?= json_encode($onesignal_app_id) ?>,
 
             });
 

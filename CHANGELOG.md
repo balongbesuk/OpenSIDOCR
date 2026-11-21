@@ -2,6 +2,15 @@
 
 ## 2026-11-21
 
+### Komentar Bawaan & Portabilitas Tema (`desa/themes/tema`)
+- Multi-desa: memisahkan konfigurasi `disqus_shortname`, `onesignal_app_id`, dan `onesignal_host` ke `config_desa.php` (gitignored) dengan template `config_desa.example.php`, serta mendinamiskan `apple-mobile-web-app-title` (`commons/meta.php`) dan filter link internal artikel (`layouts/artikel.tpl.php`).
+- Fallback Komentar OpenSID: menambahkan `commons/komentar_artikel.php` (daftar komentar, flashdata `notif`, form `first/add_comment/{id}`, reload captcha, validasi No. HP angka saja, serta pesan validasi bahasa Indonesia) ketika Disqus nonaktif (`artikel.tpl.php`, `halaman_statis.tpl.php`), serta menyembunyikan blok Disqus kosong di `partials/kelompok.php`.
+- Keamanan Komentar (`donjo-app/controllers/First.php`): memvalidasi artikel aktif & `boleh_komentar === 1` di `add_comment()`, membatasi panjang komentar `max_length[200]`, memvalidasi redirect `HTTP_REFERER` same-host, dan mencegah double-encoding / XSS output di `commons/komentar_artikel.php` & `widgets/komentar.php`.
+
+### Aksesibilitas & Mobile Layout
+- Beranda & Tema (`assets/css/app.css`, `partials/slider.php`, `commons/header.php`, `commons/copyleft.php`, `widgets/perkembangan_penduduk.php`): menambahkan `@media (prefers-reduced-motion: reduce)`, tombol Pause/Play ticker (`#tickerToggle`), tombol submit pencarian di mobile, target sentuh minimal `44x44px` (`w-11 h-11`), `focus-visible` ring, kontras subjudul hero, dimensi `width`/`height` gambar hero & footer, serta menghapus dot animasi dekoratif.
+- Halaman Login (`donjo-app/views/siteman.php`, `donjo-app/views/fmandiri/masuk.php`): memperbaiki tabrakan bar "Ke Beranda" dengan logo di mobile (`pt-24 lg:pt-16`), meningkatkan kontras teks navigasi, menambahkan `width`/`height` logo, `peer-focus-visible` pada toggle sandi/PIN, dan `lg:overflow-hidden` agar form tetap bisa di-scroll di HP.
+
 ### Halaman Login (`/siteman` & `/layanan-mandiri/masuk`)
 - Autofill & Aksesibilitas: menambahkan `for`/`id` pada `<label>` dan `<input>`, `required` native, `autocomplete="username"` (`spellcheck="false"`, `autocapitalize="none"`) & `autocomplete="current-password"` (tetap `off` pada mode anjungan), landmark `<main>`, `role="alert"` pada notifikasi/error, serta `:focus-visible` di `donjo-app/views/siteman.php` dan `donjo-app/views/fmandiri/masuk.php`.
 - Security & Markup: menambahkan `integrity` (SHA-384), `crossorigin="anonymous"`, dan `referrerpolicy="no-referrer"` pada CDN Font Awesome `6.4.0` & SmartWizard `5`, serta menghapus tag `</style>` ganda di `fmandiri/masuk.php`.

@@ -86,13 +86,13 @@
     <script src="<?= asset('js/localization/messages_id.js') ?>"></script>
 </head>
 
-<body class="min-h-screen flex overflow-hidden">
+<body class="min-h-screen flex lg:overflow-hidden">
     <!-- PANEL KIRI: Visual & Branding (Desktop Only) -->
     <div class="hidden lg:flex lg:w-3/5 xl:w-[65%] relative overflow-hidden panel-left-bg">
         <div class="absolute inset-0 login-gradient"></div>
         <div class="relative z-10 flex flex-col justify-between p-16 w-full">
             <div class="flex items-center space-x-4">
-                <img src="<?= gambar_desa($header['logo']) ?>" alt="Logo" class="h-16 w-auto drop-shadow-xl" />
+                <img src="<?= gambar_desa($header['logo']) ?>" alt="Logo" width="64" height="64" class="h-16 w-auto drop-shadow-xl" />
                 <div class="text-white">
                     <h2 class="font-display font-bold text-xl tracking-tight leading-none uppercase">
                         Portal Resmi <?= ucwords($this->setting->sebutan_desa) ?>
@@ -122,7 +122,7 @@
                 <?php if (setting('tte')) : ?>
                     <div class="flex flex-col">
                         <span class="text-white/50 text-[10px] uppercase tracking-[0.2em] font-bold mb-2">Keamanan Transaksi</span>
-                        <img src="<?= $logo_bsre ?>" alt="BSRE" class="h-8 w-auto opacity-70 grayscale hover:grayscale-0 transition-all" />
+                        <img src="<?= $logo_bsre ?>" alt="BSRE" width="96" height="32" class="h-8 w-auto opacity-70 grayscale hover:grayscale-0 transition-all" />
                     </div>
                 <?php endif ?>
             </div>
@@ -130,25 +130,25 @@
     </div>
 
     <!-- PANEL KANAN: Form Login -->
-    <main class="w-full lg:w-2/5 xl:w-[35%] bg-white flex items-center justify-center p-8 md:p-16 relative overflow-y-auto">
+    <main class="w-full lg:w-2/5 xl:w-[35%] bg-white flex items-center justify-center p-8 pt-24 md:p-16 md:pt-24 lg:pt-16 relative overflow-y-auto">
         <!-- Minimalist Floating Navigation -->
         <div class="absolute top-0 left-0 right-0 p-8 flex justify-between items-center z-20 pointer-events-none">
-            <a href="<?= site_url() ?>" class="pointer-events-auto group flex items-center space-x-3 text-slate-400 hover:text-blue-600 transition-all duration-300">
+            <a href="<?= site_url() ?>" class="pointer-events-auto group flex items-center space-x-3 text-slate-600 hover:text-blue-600 transition-all duration-300">
                 <div class="w-10 h-10 rounded-2xl bg-slate-50 border border-slate-100 flex items-center justify-center group-hover:bg-white group-hover:border-blue-400 group-hover:shadow-lg group-hover:shadow-blue-500/10 transition-all duration-500">
-                    <i class="fa-solid fa-arrow-left text-[10px] group-hover:-translate-x-1 transition-transform"></i>
+                    <i class="fa-solid fa-arrow-left text-[10px] group-hover:-translate-x-1 transition-transform" aria-hidden="true"></i>
                 </div>
                 <div class="flex flex-col">
                     <span class="text-[10px] font-black uppercase tracking-[0.2em] leading-none">Ke Beranda</span>
-                    <span class="text-[8px] font-bold text-slate-300 uppercase tracking-widest mt-1 group-hover:text-blue-300 transition-colors">Situs Desa</span>
+                    <span class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mt-1 group-hover:text-blue-600 transition-colors">Situs Desa</span>
                 </div>
             </a>
-            <div class="text-[10px] font-black text-slate-200 uppercase tracking-[0.4em] hidden sm:block">Login Admin</div>
+            <div class="text-[10px] font-black text-slate-500 uppercase tracking-[0.4em] hidden sm:block">Login Admin</div>
         </div>
 
-        <div class="w-full max-w-md">
+        <div class="w-full max-w-md my-auto">
             <!-- Mobile Header -->
             <div class="lg:hidden mb-12 text-center">
-                <img src="<?= gambar_desa($header['logo']) ?>" alt="Logo" class="h-16 w-auto mx-auto mb-4" />
+                <img src="<?= gambar_desa($header['logo']) ?>" alt="Logo" width="64" height="64" class="h-16 w-auto mx-auto mb-4" />
                 <h1 class="font-display text-2xl font-bold text-slate-900 leading-tight"><?= $header['nama_desa'] ?></h1>
                 <p class="text-slate-500 text-sm font-medium">Panel Administrasi</p>
             </div>
@@ -243,8 +243,8 @@
 
                         <div class="flex items-center justify-between pt-2">
                             <label class="flex items-center cursor-pointer group select-none">
-                                <input type="checkbox" id="checkbox" class="sr-only">
-                                <div class="w-10 h-6 bg-slate-200 rounded-full p-1 transition-colors peer-checked:bg-blue-600">
+                                <input type="checkbox" id="checkbox" class="sr-only peer">
+                                <div class="w-10 h-6 bg-slate-200 rounded-full p-1 transition-colors peer-checked:bg-blue-600 peer-focus-visible:ring-2 peer-focus-visible:ring-blue-600 peer-focus-visible:ring-offset-2">
                                     <div class="w-4 h-4 bg-white rounded-full shadow-sm transition-transform" id="toggle-dot"></div>
                                 </div>
                                 <span class="ml-3 text-xs font-bold text-slate-600">Lihat Sandi</span>

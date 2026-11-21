@@ -4,6 +4,8 @@ desa/*
 desa/themes/*
 !desa/themes/tema/
 !desa/themes/tema/**
+desa/themes/tema/config_desa.php
+anti-slop/
 
 # Abaikan backup_inkremental
 backup_inkremental/

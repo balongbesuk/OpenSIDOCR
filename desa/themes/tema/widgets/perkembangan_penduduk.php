@@ -27,9 +27,6 @@
                 <div class="w-1.5 h-8 bg-brand-600 rounded-full"></div>
                 Tren Penduduk 5 Tahun
             </h3>
-            <div class="flex gap-2">
-                <div class="w-2 h-2 rounded-full bg-brand-500 animate-pulse"></div>
-            </div>
         </div>
 
         <!-- Chart Body -->

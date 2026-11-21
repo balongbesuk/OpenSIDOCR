@@ -169,8 +169,9 @@
                                         $text = $matches[2];
 
                                         // Jika link mengarah ke domain desa sendiri, mailto, tel, path internal, atau anchor, biarkan tetap aktif.
+                                        $site_host = (string) parse_url(site_url(), PHP_URL_HOST);
 
-                                        if (strpos($url, 'balongbesuk.desa.id') !== false || strpos($url, 'mailto:') !== false || strpos($url, 'tel:') !== false || (isset($url[0]) && ($url[0] == '/' || $url[0] == '#'))) {
+                                        if (($site_host !== '' && strpos($url, $site_host) !== false) || strpos($url, 'mailto:') !== false || strpos($url, 'tel:') !== false || (isset($url[0]) && ($url[0] == '/' || $url[0] == '#'))) {
 
                                             return $matches[0];
 
@@ -338,7 +339,7 @@
 
                                 <?php
 
-                                    $disqus_shortname = 'balongbesuk';
+                                    $disqus_shortname = '';
 
                                     $disqus_config_file = FCPATH . $folder_themes . '/commons/disqus.php';
 
@@ -376,11 +377,7 @@
 
                                 <?php else: ?>
 
-                                    <div class="relative z-10 rounded-[2rem] border border-dashed border-slate-200 dark:border-slate-700 px-6 py-10 text-center text-sm text-slate-500 dark:text-slate-400">
-
-                                        Diskusi publik belum diaktifkan untuk halaman ini.
-
-                                    </div>
+                                    <?php $this->load->view("$folder_themes/commons/komentar_artikel.php"); ?>
 
                                 <?php endif; ?>
 

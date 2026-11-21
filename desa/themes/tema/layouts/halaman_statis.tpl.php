@@ -58,7 +58,7 @@
                                 <div class="absolute top-0 right-0 w-64 h-64 bg-brand-50 dark:bg-brand-900/20 rounded-full blur-3xl opacity-50 -mr-20 -mt-20"></div>
                                 
                                 <?php
-                                    $disqus_shortname = 'balongbesuk';
+                                    $disqus_shortname = '';
                                     $disqus_config_file = FCPATH . $folder_themes . '/commons/disqus.php';
                                     if (is_file($disqus_config_file)) {
                                         include $disqus_config_file;
@@ -76,6 +76,8 @@
                                         })();
                                     </script>
                                     <noscript>Mohon aktifkan JavaScript untuk melihat <a href='https://disqus.com/?ref_noscript' target="_blank" rel="noopener noreferrer">komentar yang didukung oleh Disqus.</a></noscript>
+                                <?php elseif (!empty($single_artikel['id'])): ?>
+                                    <?php $this->load->view("$folder_themes/commons/komentar_artikel.php"); ?>
                                 <?php else: ?>
                                     <div class="relative z-10 rounded-[2rem] border border-dashed border-slate-200 dark:border-slate-700 px-6 py-10 text-center text-sm text-slate-500 dark:text-slate-400">
                                         Diskusi belum diaktifkan untuk halaman ini.

@@ -461,8 +461,23 @@ class First extends Web_Controller
 
     public function add_comment($id = 0)
     {
+        $id = (int) $id;
+        $artikel = $this->db->select('id, boleh_komentar, enabled')
+            ->where(['id' => $id, 'config_id' => identitas('id')])
+            ->get('artikel')
+            ->row_array();
+
+        if (! $artikel || (int) $artikel['enabled'] !== 1 || (int) $artikel['boleh_komentar'] !== 1) {
+            $this->session->set_flashdata('notif', [
+                'status' => -1,
+                'pesan'  => 'Komentar tidak diaktifkan untuk artikel ini.',
+            ]);
+            redirect(site_url());
+            return;
+        }
+
         $this->load->library('form_validation');
-        $this->form_validation->set_rules('komentar', 'Komentar', 'required');
+        $this->form_validation->set_rules('komentar', 'Komentar', 'required|max_length[200]');
         $this->form_validation->set_rules('owner', 'Nama', 'required|max_length[50]');
         $this->form_validation->set_rules('no_hp', 'No HP', 'numeric|required|max_length[15]');
         $this->form_validation->set_rules('email', 'Email', 'valid_email|max_length[50]');
@@ -514,7 +529,11 @@ class First extends Web_Controller
 
         $this->session->set_flashdata('notif', $respon);
 
-        redirect($_SERVER['HTTP_REFERER'] . '#kolom-komentar');
+        $referer = (string) ($_SERVER['HTTP_REFERER'] ?? '');
+        $refHost = parse_url($referer, PHP_URL_HOST);
+        $appHost = parse_url(site_url(), PHP_URL_HOST);
+        $target  = ($referer !== '' && $refHost === $appHost) ? $referer : site_url();
+        redirect($target . '#kolom-komentar');
     }
 
     public function load_apbdes()

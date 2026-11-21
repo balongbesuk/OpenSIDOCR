@@ -28,7 +28,7 @@
 
                     <div class="w-16 h-16 bg-white rounded-2xl flex items-center justify-center p-2">
 
-                        <img src="<?= gambar_desa($desa['logo']) ?>" alt="Logo Desa" class="w-full h-full object-contain" />
+                        <img src="<?= gambar_desa($desa['logo']) ?>" alt="Logo Desa" width="64" height="64" class="w-full h-full object-contain" />
 
                     </div>
 
