@@ -2,6 +2,10 @@
 
 ## 2026-11-21
 
+### Artikel Headline & Ticker Beranda (`desa/themes/tema`)
+- Memperbaiki gambar artikel yang disematkan (`$headline`) agar tampil di mobile (`w-full h-64 sm:h-80 lg:h-auto`) dan menambahkan badge `Disematkan` di `partials/content.php`.
+- Memperbaiki tombol Pause/Play pengumuman berjalan (`#tickerToggle`) menggunakan class `.is-paused` (`animation-play-state: paused !important`) di `partials/slider.php`.
+
 ### Perbaikan Path Konfigurasi Tema (`desa/themes/tema`)
 - Memperbaiki pembacaan `config_desa.php` dan `commons/disqus.php` dengan mengganti `FCPATH . $folder_themes` menjadi `dirname(__DIR__)` di `commons/disqus.php`, `commons/meta.php`, `layouts/artikel.tpl.php`, `layouts/halaman_statis.tpl.php`, dan `partials/kelompok.php` (karena `$folder_themes` OpenSID bernilai relatif `../../desa/themes/tema`), serta menormalisasi `HTTP_HOST` (case-insensitive & tanpa port) untuk pengecekan `onesignal_host`.
 

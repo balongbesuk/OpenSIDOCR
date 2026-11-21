@@ -20,6 +20,9 @@
         height: 100%;
         animation: ticker-scroll 40s linear infinite !important;
     }
+    .ticker-content.is-paused {
+        animation-play-state: paused !important;
+    }
     @keyframes ticker-scroll {
         0% { transform: translateX(0); }
         100% { transform: translateX(-50%); }
@@ -124,14 +127,13 @@
             const tickerContent = document.getElementById('heroTickerContent');
             if (tickerToggle && tickerContent) {
                 tickerToggle.addEventListener('click', function() {
-                    const paused = tickerContent.style.animationPlayState === 'paused';
-                    tickerContent.style.animationPlayState = paused ? 'running' : 'paused';
-                    tickerToggle.setAttribute('aria-pressed', String(!paused));
-                    tickerToggle.setAttribute('aria-label', paused ? 'Jeda pengumuman' : 'Putar pengumuman');
+                    const paused = tickerContent.classList.toggle('is-paused');
+                    tickerToggle.setAttribute('aria-pressed', String(paused));
+                    tickerToggle.setAttribute('aria-label', paused ? 'Putar pengumuman' : 'Jeda pengumuman');
                     const icon = tickerToggle.querySelector('i');
                     if (icon) {
-                        icon.classList.toggle('fa-pause', paused);
-                        icon.classList.toggle('fa-play', !paused);
+                        icon.classList.toggle('fa-pause', !paused);
+                        icon.classList.toggle('fa-play', paused);
                     }
                 });
             }

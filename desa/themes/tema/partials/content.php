@@ -26,7 +26,7 @@
 
                 <!-- Image Box -->
 
-                <div class="lg:w-7/12 relative overflow-hidden bg-slate-200 skeleton">
+                <div class="w-full h-64 sm:h-80 lg:h-auto lg:w-7/12 relative overflow-hidden bg-slate-200 skeleton">
 
                     <?php if (($headline['gambar'] != '') && (is_file(LOKASI_FOTO_ARTIKEL . "sedang_" . $headline['gambar']))): ?>
 
@@ -52,21 +52,29 @@
 
                     <!-- Floating Badge -->
 
-                    <?php if (trim($headline['kategori']) != ''): ?>
+                    <div class="absolute top-4 left-4 md:top-8 md:left-8 flex flex-wrap items-center gap-2 z-10">
 
-                        <div class="absolute top-8 left-8">
+                        <span class="inline-flex items-center gap-1.5 px-4 py-2 rounded-2xl bg-amber-600 text-white text-xs font-bold uppercase tracking-wider shadow-md">
+
+                            <i class="fa-solid fa-thumbtack" aria-hidden="true"></i>
+
+                            Disematkan
+
+                        </span>
+
+                        <?php if (trim($headline['kategori']) != ''): ?>
 
                             <span
 
-                                class="px-5 py-2.5 rounded-2xl bg-brand-600/90 backdrop-blur-md text-white text-xs font-black uppercase tracking-[0.2em] shadow-lg shadow-brand-600/30">
+                                class="px-5 py-2 rounded-2xl bg-brand-600/90 backdrop-blur-md text-white text-xs font-black uppercase tracking-[0.2em] shadow-lg shadow-brand-600/30">
 
                                 <?= html_escape($headline['kategori']) ?>
 
                             </span>
 
-                        </div>
+                        <?php endif; ?>
 
-                    <?php endif; ?>
+                    </div>
 
 
 
