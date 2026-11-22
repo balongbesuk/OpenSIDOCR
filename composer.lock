@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "cfacfb0102e688e4ce595bd8050a0985",
+    "content-hash": "9689c9834b612b97ce95b5bb253bc215",
     "packages": [
         {
             "name": "agungsugiarto/codeigniter-datables",
@@ -1897,16 +1897,16 @@
         },
         {
             "name": "openspout/openspout",
-            "version": "v3.7.4",
+            "version": "v5.15.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/openspout/openspout.git",
-                "reference": "dfbbd53b5edcd486b45a37f6a04fac33073c70f3"
+                "reference": "e16e49f57806c3ceb486205cba66ded33d708638"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/openspout/openspout/zipball/dfbbd53b5edcd486b45a37f6a04fac33073c70f3",
-                "reference": "dfbbd53b5edcd486b45a37f6a04fac33073c70f3",
+                "url": "https://api.github.com/repos/openspout/openspout/zipball/e16e49f57806c3ceb486205cba66ded33d708638",
+                "reference": "e16e49f57806c3ceb486205cba66ded33d708638",
                 "shasum": ""
             },
             "require": {
@@ -1915,18 +1915,25 @@
                 "ext-libxml": "*",
                 "ext-xmlreader": "*",
                 "ext-zip": "*",
-                "php": "~7.3.0 || ~7.4.0 || ~8.0.0 || ~8.1.0"
+                "php": "~8.4.0 || ~8.5.0 || ~8.6.0"
             },
             "require-dev": {
+                "ext-fileinfo": "*",
+                "ext-mbstring": "*",
+                "ext-openssl": "*",
                 "ext-zlib": "*",
-                "friendsofphp/php-cs-fixer": "^3.4",
-                "phpstan/phpstan": "^1.4",
-                "phpstan/phpstan-phpunit": "^1.0",
-                "phpunit/phpunit": "^9.5"
+                "friendsofphp/php-cs-fixer": "^3.95.32",
+                "infection/infection": "^0.35.12",
+                "phpbench/phpbench": "^1.7.0",
+                "phpstan/phpstan": "^2.3.6",
+                "phpstan/phpstan-phpunit": "^2.1.2",
+                "phpstan/phpstan-strict-rules": "^2.1.1",
+                "phpunit/phpunit": "^13.4.7"
             },
             "suggest": {
-                "ext-iconv": "To handle non UTF-8 CSV files (if \"php-intl\" is not already installed or is too limited)",
-                "ext-intl": "To handle non UTF-8 CSV files (if \"iconv\" is not already installed)"
+                "ext-iconv": "To handle non UTF-8 CSV files (if \"php-mbstring\" is not already installed or is too limited)",
+                "ext-mbstring": "To handle non UTF-8 CSV files (if \"iconv\" is not already installed)",
+                "ext-openssl": "To read and write password-protected XLSX files"
             },
             "type": "library",
             "extra": {
@@ -1970,7 +1977,7 @@
             ],
             "support": {
                 "issues": "https://github.com/openspout/openspout/issues",
-                "source": "https://github.com/openspout/openspout/tree/v3.7.4"
+                "source": "https://github.com/openspout/openspout/tree/v5.15.3"
             },
             "funding": [
                 {
@@ -1982,7 +1989,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2022-03-31T06:15:15+00:00"
+            "time": "2026-11-19T11:47:39+00:00"
         },
         {
             "name": "psr/cache",
