@@ -1,6 +1,109 @@
 @extends('admin.layouts.index')
 @include('admin.layouts.components.asset_validasi')
 
+@push('css')
+    <style>
+        .pengguna-page .box-profile {
+            text-align: center;
+            padding: 20px 15px;
+        }
+        .pengguna-page .box-profile .penduduk {
+            display: block;
+            margin: 0 auto;
+            width: 120px;
+            height: 120px;
+            object-fit: cover;
+            border-radius: 8px;
+            border: 1px solid #e2e8f0;
+        }
+        .pengguna-page .pengguna-verif-actions {
+            margin-top: 14px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .pengguna-page .pengguna-verif-actions form {
+            margin: 0;
+        }
+        .pengguna-page .input-group-addon[class*="reveal-"] {
+            cursor: pointer;
+        }
+        .pengguna-page .box-footer {
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 6px;
+            padding: 10px 15px;
+        }
+        .pengguna-page .box-footer::before,
+        .pengguna-page .box-footer::after {
+            display: none;
+            content: none;
+        }
+        .pengguna-page .box-footer .btn[type="submit"] {
+            margin-left: auto;
+        }
+        @media (min-width: 768px) {
+            .pengguna-page .form-control.input-sm,
+            .pengguna-page .input-group-sm > .form-control {
+                height: 34px;
+                font-size: 13px;
+                border-radius: 4px;
+            }
+            .pengguna-page .input-group .form-control {
+                height: 34px;
+                border-radius: 4px 0 0 4px;
+            }
+            .pengguna-page .input-group-btn .btn,
+            .pengguna-page .input-group-addon {
+                height: 34px;
+                min-height: 34px;
+                border-radius: 0 4px 4px 0;
+                font-size: 13px;
+            }
+            .pengguna-page .btn-group .btn {
+                height: 34px;
+                line-height: 22px;
+                font-size: 13px;
+            }
+            .pengguna-page .box-footer .btn,
+            .pengguna-page .pengguna-verif-actions .btn {
+                min-height: 34px;
+                height: 34px;
+                line-height: 34px;
+                padding: 0 12px 0 36px;
+                border-radius: 4px;
+                font-size: 13px;
+                font-weight: 500;
+            }
+            .pengguna-page .pengguna-verif-actions .btn {
+                padding: 0 12px;
+            }
+        }
+        @media (max-width: 767px) {
+            .pengguna-page .input-group .form-control,
+            .pengguna-page .input-group-btn .btn,
+            .pengguna-page .input-group-addon {
+                height: 38px;
+                min-height: 38px;
+            }
+            .pengguna-page .box-footer {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 8px;
+            }
+            .pengguna-page .box-footer .btn {
+                width: 100%;
+                min-height: 38px;
+                height: 38px;
+                line-height: 38px;
+                margin-left: 0 !important;
+                border-radius: 4px;
+            }
+        }
+    </style>
+@endpush
+
 @section('title')
     <h1>
         Pengguna <small>Ubah Data</small>
@@ -14,30 +117,31 @@
 
 @section('content')
     @include('admin.layouts.components.notifikasi')
-    <div class="row">
+    <div class="row pengguna-page">
         <div class="col-md-3">
             <div class="box box-primary">
                 <div class="box-body box-profile">
                     <img class="penduduk" id="foto" src="{{ AmbilFoto(auth()->foto) }}" alt="Foto Penduduk">
-                    <br>
-                    <div class="input-group input-group-sm text-center">
-                        <span class="input-group-btn">
-                            @if ($userData->email_verified_at === null && !empty($userData->email))
+                    @php
+                        $showVerifEmail    = $userData->email_verified_at === null && !empty($userData->email);
+                        $showVerifTelegram = $userData->telegram_verified_at === null && setting('telegram_token') != null && !empty($userData->id_telegram);
+                    @endphp
+                    @if ($showVerifEmail || $showVerifTelegram)
+                        <div class="pengguna-verif-actions">
+                            @if ($showVerifEmail)
                                 {!! form_open(route('pengguna.kirim_verifikasi')) !!}
-                                <button type="submit" class="btn btn-sm btn-warning btn-block btn-mb-5"><i
+                                <button type="submit" class="btn btn-sm btn-warning btn-block"><i
                                         class="fa fa-share-square"></i>
                                     Verifikasi Email</button>
                                 </form>
-                                <br />
                             @endif
-                            @if ($userData->telegram_verified_at === null && setting('telegram_token') != null && !empty($userData->id_telegram))
+                            @if ($showVerifTelegram)
                                 <button type="button" id="verif_telegram"
-                                    class="btn btn-sm btn-warning btn-block btn-mb-5"><i class="fa fa-share-square"></i>
+                                    class="btn btn-sm btn-warning btn-block"><i class="fa fa-share-square"></i>
                                     Verifikasi Telegram</button>
-                                <br />
                             @endif
-                        </span>
-                    </div>
+                        </div>
+                    @endif
                 </div>
             </div>
         </div>

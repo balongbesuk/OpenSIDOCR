@@ -131,7 +131,7 @@
                                 <div style="font-size: 11px; color: #64748b;">
                                     <i class="fa fa-check-shield text-green"></i> <strong>Aman untuk Hosting cPanel:</strong> Menggunakan Pure PHP tanpa terminal. Berkas konfigurasi & data warga di folder <code>desa/</code> 100% terlindungi.
                                 </div>
-                                <div style="display: flex; gap: 8px;">
+                                <div class="info-action-group" style="display: flex; gap: 8px; flex-wrap: wrap;">
                                     <button type="button" class="btn btn-default btn-sm" id="btn-cek-update-github" style="font-weight: 600;">
                                         <i class="fa fa-refresh"></i> Periksa Pembaruan
                                     </button>
@@ -152,7 +152,7 @@
                                         Pengembangan berkelanjutan berbasis OpenSID versi 2403.0.0 dengan penambahan AI RapidOCR Kartu Keluarga, format surat RTF desa, dan pembaruan aplikasi langsung dari GitHub.
                                     </p>
                                 </div>
-                                <div style="display: flex; gap: 8px;">
+                                <div class="info-action-group" style="display: flex; gap: 8px; flex-wrap: wrap;">
                                     <a href="https://github.com/balongbesuk/OpenSIDOCR" target="_blank" class="btn btn-default btn-sm" style="font-weight: 600;">
                                         <i class="fa fa-github"></i> Kunjungi Repositori
                                     </a>
@@ -551,9 +551,9 @@
         }
         #modal-informasi .modern-info-tabs {
             display: flex !important;
-            flex-wrap: nowrap !important;
+            flex-wrap: wrap !important;
             gap: 6px !important;
-            width: max-content !important;
+            width: 100% !important;
             padding: 2px 0 !important;
         }
         #modal-informasi .modern-info-tabs > li {
@@ -562,15 +562,33 @@
         }
         #modal-informasi .modern-info-tabs > li > a {
             white-space: nowrap !important;
-            padding: 6px 12px !important;
+            padding: 7px 10px !important;
             font-size: 12px !important;
         }
         #modal-informasi .modal-body {
             flex: 1 1 auto !important;
             max-height: none !important;
+            overflow-x: hidden !important;
             overflow-y: auto !important;
             -webkit-overflow-scrolling: touch !important;
             padding: 14px 12px !important;
+        }
+        #modal-informasi .info-action-group {
+            width: 100% !important;
+            flex-direction: column !important;
+            gap: 8px !important;
+        }
+        #modal-informasi .info-action-group .btn {
+            width: 100% !important;
+            min-height: 38px !important;
+            height: 38px !important;
+            border-radius: 4px !important;
+            padding: 0 12px !important;
+            font-size: 13px !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            gap: 6px !important;
         }
         #modal-informasi .modal-footer {
             flex-shrink: 0 !important;
@@ -586,8 +604,15 @@
         }
         #modal-informasi .modal-footer .btn {
             width: 100% !important;
-            padding: 8px 16px !important;
+            min-height: 38px !important;
+            height: 38px !important;
+            border-radius: 4px !important;
+            padding: 0 16px !important;
             font-size: 13px !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            gap: 6px !important;
         }
         #modal-informasi .catatan-scroll {
             height: auto !important;
@@ -599,6 +624,24 @@
             padding: 8px 10px !important;
             font-size: 11.5px !important;
             gap: 6px !important;
+        }
+    }
+
+    @media (min-width: 768px) {
+        #modal-informasi .info-action-group .btn,
+        #modal-informasi .modal-footer .btn {
+            min-height: 34px !important;
+            height: 34px !important;
+            line-height: 34px !important;
+            padding: 0 12px !important;
+            border-radius: 4px !important;
+            font-size: 13px !important;
+            font-weight: 500 !important;
+            display: inline-flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            gap: 6px !important;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08) !important;
         }
     }
 </style>

@@ -101,6 +101,71 @@
             .fixed .right-side {
                 padding-top: 50px !important;
             }
+
+            /* Tombol Profil & Keluar di dropdown user mobile sesuai design.md */
+            .main-header .navbar-nav > .user-menu > .dropdown-menu > .user-footer {
+                display: flex !important;
+                align-items: center !important;
+                gap: 8px !important;
+                padding: 10px 12px !important;
+            }
+
+            .main-header .navbar-nav > .user-menu > .dropdown-menu > .user-footer > .pull-left,
+            .main-header .navbar-nav > .user-menu > .dropdown-menu > .user-footer > .pull-right {
+                float: none !important;
+                flex: 1 1 0% !important;
+            }
+
+            .main-header .navbar-nav > .user-menu > .dropdown-menu > .user-footer .btn {
+                width: 100% !important;
+                min-height: 38px !important;
+                height: 38px !important;
+                line-height: 38px !important;
+                padding: 0 12px !important;
+                border-radius: 4px !important;
+                font-size: 13px !important;
+                font-weight: 500 !important;
+                display: flex !important;
+                align-items: center !important;
+                justify-content: center !important;
+            }
+        }
+
+        @media (min-width: 768px) {
+            /* Tombol Profil & Keluar di dropdown user desktop sesuai design.md */
+            .main-header .navbar-nav > .user-menu > .dropdown-menu > .user-footer {
+                display: flex !important;
+                align-items: center !important;
+                gap: 8px !important;
+                padding: 10px 12px !important;
+            }
+
+            .main-header .navbar-nav > .user-menu > .dropdown-menu > .user-footer::before,
+            .main-header .navbar-nav > .user-menu > .dropdown-menu > .user-footer::after {
+                display: none !important;
+                content: none !important;
+            }
+
+            .main-header .navbar-nav > .user-menu > .dropdown-menu > .user-footer > .pull-left,
+            .main-header .navbar-nav > .user-menu > .dropdown-menu > .user-footer > .pull-right {
+                float: none !important;
+                flex: 1 1 0% !important;
+            }
+
+            .main-header .navbar-nav > .user-menu > .dropdown-menu > .user-footer .btn {
+                width: 100% !important;
+                min-height: 34px !important;
+                height: 34px !important;
+                line-height: 34px !important;
+                padding: 0 12px !important;
+                border-radius: 4px !important;
+                font-size: 13px !important;
+                font-weight: 500 !important;
+                display: flex !important;
+                align-items: center !important;
+                justify-content: center !important;
+                box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08) !important;
+            }
         }
     </style>
 

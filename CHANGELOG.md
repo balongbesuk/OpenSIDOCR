@@ -2,6 +2,11 @@
 
 ## 2026-11-24
 
+### Penyelarasan `design.md` Admin (Header, Modal Informasi, & `/pengguna`)
+- Dropdown Profil Header (`resources/views/admin/layouts/partials/header.blade.php`): tombol **Profil** & **Keluar** disamakan dengan Flexbox 50%-50% (`gap: 8px`, tanpa float & pseudo-element `::before`/`::after`), tinggi `38px` (mobile) / `34px` (desktop), dan `border-radius: 4px`.
+- Modal Informasi & Tentang OpenSIDOCR (`resources/views/admin/layouts/partials/control_sidebar.blade.php`): menumpuk tombol aksi (`.info-action-group`) lebar penuh `38px` di mobile dan `34px` di desktop, membungkus tab navigasi (`flex-wrap: wrap`) agar tidak terpotong di HP, serta menghilangkan overflow horizontal `.modal-body`.
+- Halaman `/pengguna` (`resources/views/admin/pengguna/index.blade.php`, `tab-profil.blade.php`, `tab-sandi.blade.php`): merapikan posisi foto profil & tombol verifikasi, menyeragamkan tinggi input/tombol (`34px` desktop / `38px` mobile), mengubah `.box-footer` menjadi Flexbox (`margin-left: auto`), menghapus `btn-flat` & konflik class pada toggle **Notifikasi Telegram**, memperbaiki `for`/`id`, dan menambahkan `cursor: pointer` pada ikon lihat sandi.
+
 ### Impor KK PDF / Scan OCR (`Keluarga.php`)
 - Menambahkan deteksi & kotak peringatan **Pengurangan Anggota Keluarga** pada pratinjau Impor KK (`ajax_import_pdf_preview.php`, `import_pdf_preview.php`, dan partial `_import_removed_members.php`) apabila ada penduduk aktif (`status_dasar = 1`) di KK database yang tidak lagi tercantum pada KK terbaru yang diunggah, lengkap dengan tautan **Cek Penduduk** per anggota.
 
