@@ -131,9 +131,9 @@
 	                                      <?php endif ?>
 	                                    <?php endif; ?>
 																		    <?php if ($data['tipe'] == 1): ?>
-																				<a href='<?= site_url("dokumen/unduh_berkas/{$data['id']}") ?>' class="btn bg-purple btn-flat btn-sm"  title="Unduh"><i class="fa fa-download"></i></a>
+																				<a href='<?= site_url("dokumen/tampilkan_berkas/{$data['id']}") ?>' class="btn bg-teal btn-flat btn-sm" title="Lihat Dokumen" target="_blank" rel="noopener noreferrer"><i class="fa fa-eye"></i></a> <a href='<?= site_url("dokumen/unduh_berkas/{$data['id']}") ?>' class="btn bg-purple btn-flat btn-sm"  title="Unduh"><i class="fa fa-download"></i></a>
 																			<?php else: ?>
-																				<a href='<?= $data['url'] ?>' class="btn bg-purple btn-flat btn-sm"  title="Unduh" target="_blank"><i class="fa fa-download"></i></a>
+																				<a href='<?= $data['url'] ?>' class="btn bg-teal btn-flat btn-sm" title="Lihat Dokumen" target="_blank" rel="noopener noreferrer"><i class="fa fa-eye"></i></a> <a href='<?= $data['url'] ?>' class="btn bg-purple btn-flat btn-sm"  title="Unduh" target="_blank"><i class="fa fa-download"></i></a>
 																			<?php endif ?>
 																			<?php if ($this->CI->cek_hak_akses('h')): ?>
 																				<a href="#" data-href="<?= site_url("{$this->controller}/delete/{$kat}/{$p}/{$o}/{$data['id']}")?>" class="btn bg-maroon btn-flat btn-sm"  title="Hapus" data-toggle="modal" data-target="#confirm-delete"><i class="fa fa-trash-o"></i></a>

@@ -2,6 +2,9 @@
 
 ## 2026-11-24
 
+### Dokumen (`table_dokumen.php`)
+- Menambahkan tombol **Lihat Dokumen** (`bg-teal`, `fa-eye`, `target="_blank"`) pada halaman `/dokumen` (`donjo-app/views/dokumen/table_dokumen.php`) yang mengarah ke `dokumen/tampilkan_berkas/{id}` untuk berkas unggahan maupun URL dokumen eksternal.
+
 ### Modal Informasi (`control_sidebar.blade.php`)
 - Fix: memastikan tombol **Perbarui Aplikasi Sekarang** (`#btn-proses-update-github`) tetap tersembunyi saat `display: none` (ketika versi aplikasi sudah terkini) dan tidak tertimpa aturan `display: flex !important` pada `.info-action-group .btn`.
 
