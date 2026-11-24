@@ -74,6 +74,8 @@
 				</div>
 			</div>
 
+			<?php $this->load->view('sid/kependudukan/_import_removed_members', ['removed_members' => $removed_members ?? []]); ?>
+
 			<div class="box box-primary">
 				<div class="box-header with-border">
 					<h3 class="box-title"><i class="fa fa-users"></i> Anggota Keluarga (<?= count($parsed['members']) ?> Orang)</h3>

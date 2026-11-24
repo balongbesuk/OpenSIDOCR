@@ -198,6 +198,8 @@
 			</div>
 		</div>
 
+		<?php $this->load->view('sid/kependudukan/_import_removed_members', ['removed_members' => $removed_members ?? []]); ?>
+
 		<div class="modal-footer">
 			<button type="button" class="btn btn-social btn-flat btn-danger btn-sm" data-dismiss="modal"><i class="fa fa-times"></i> Batal</button>
 			<button type="submit" class="btn btn-social btn-flat btn-success btn-sm pull-right" id="ok"><i class="fa fa-save"></i> Simpan ke Database</button>

@@ -1357,6 +1357,30 @@ class Keluarga extends Admin_Controller
         }
         unset($m);
 
+        $data['removed_members'] = [];
+        if (! empty($kk['id'])) {
+            $matched_db_ids = array_values(array_filter(array_column($parsed['members'], 'db_id')));
+            $parsed_niks    = array_values(array_filter(array_column($parsed['members'], 'nik')));
+
+            $this->db->select('id, nik, nama, sex, tempatlahir, tanggallahir, kk_level')
+                ->from('tweb_penduduk')
+                ->where('id_kk', $kk['id'])
+                ->where('status_dasar', 1);
+            if (! empty($matched_db_ids)) {
+                $this->db->where_not_in('id', $matched_db_ids);
+            }
+            if (! empty($parsed_niks)) {
+                $this->db->where_not_in('nik', $parsed_niks);
+            }
+            $removed_rows = $this->db->order_by('kk_level', 'ASC')->get()->result_array();
+            foreach ($removed_rows as &$rm) {
+                $rm['sex_label']      = $ref_sex[$rm['sex']] ?? '-';
+                $rm['hubungan_label'] = $ref_shdk[$rm['kk_level']] ?? '-';
+            }
+            unset($rm);
+            $data['removed_members'] = $removed_rows;
+        }
+
         $data['parsed'] = $parsed;
 
         if ($this->input->is_ajax_request()) {

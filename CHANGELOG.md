@@ -1,5 +1,10 @@
 # Changelog
 
+## 2026-11-24
+
+### Impor KK PDF / Scan OCR (`Keluarga.php`)
+- Menambahkan deteksi & kotak peringatan **Pengurangan Anggota Keluarga** pada pratinjau Impor KK (`ajax_import_pdf_preview.php`, `import_pdf_preview.php`, dan partial `_import_removed_members.php`) apabila ada penduduk aktif (`status_dasar = 1`) di KK database yang tidak lagi tercantum pada KK terbaru yang diunggah, lengkap dengan tautan **Cek Penduduk** per anggota.
+
 ## 2026-11-21
 
 ### Artikel Headline & Ticker Beranda (`desa/themes/tema`)
