@@ -31,7 +31,7 @@
 							<thead class="bg-gray">
 								<tr>
 									<th class="text-center">No</th>
-									<th width="230px" class="text-center">Aksi</th>
+									<th class="text-center">Aksi</th>
 									<th class="text-center">Nama Kegiatan</th>
 									<th class="text-center">Sumber Dana</th>
 									<th class="text-center">Anggaran</th>
@@ -87,18 +87,25 @@
 						}
 
 						return `
-							<?php if ($this->CI->cek_hak_akses('u')): ?>
-								<a href="<?= site_url("{$this->controller}/form/"); ?>${data.id}" title="Ubah Data"  class="btn bg-orange btn-flat btn-sm"><i class="fa fa-edit"></i></a>
-							<?php endif; ?>
-							<a href="<?= site_url($this->controller . '/lokasi_maps/'); ?>${data.id}" class="btn bg-olive btn-flat btn-sm" title="Lokasi Pembangunan"><i class="fa fa-map"></i></a>
-							<a href="<?= site_url($this->controller . '/dokumentasi/'); ?>${data.id}" class="btn bg-purple btn-flat btn-sm" title="Rincian Dokumentasi Kegiatan"><i class="fa fa-list-ol"></i></a>
-							<?php if ($this->CI->cek_hak_akses('u')): ?>
-								${status}
-							<?php endif; ?>
-							<?php if ($this->CI->cek_hak_akses('h')): ?>
-								<a href="#" data-href="<?= site_url($this->controller . '/delete/'); ?>${data.id}" class="btn bg-maroon btn-flat btn-sm" title="Hapus" data-toggle="modal" data-target="#confirm-delete"><i class="fa fa-trash-o"></i></a>
-							<?php endif; ?>
-							<a href="<?= site_url('pembangunan/'); ?>${data.slug}" target="_blank" class="btn bg-blue btn-flat btn-sm" title="Lihat Summary"><i class="fa fa-eye"></i></a>
+							<div style="white-space: nowrap;">
+								<div class="btn-group">
+									<button type="button" class="btn btn-social btn-flat btn-info btn-sm" data-toggle="dropdown"><i class="fa fa-arrow-circle-down"></i> Pilih Aksi</button>
+									<ul class="dropdown-menu" role="menu">
+										<?php if ($this->CI->cek_hak_akses('u')): ?>
+											<li><a href="<?= site_url("{$this->controller}/form/"); ?>${data.id}" class="btn btn-social btn-flat btn-block btn-sm"><i class="fa fa-edit"></i> Ubah Data</a></li>
+										<?php endif; ?>
+										<li><a href="<?= site_url($this->controller . '/lokasi_maps/'); ?>${data.id}" class="btn btn-social btn-flat btn-block btn-sm"><i class="fa fa-map"></i> Lokasi Pembangunan</a></li>
+										<li><a href="<?= site_url($this->controller . '/dokumentasi/'); ?>${data.id}" class="btn btn-social btn-flat btn-block btn-sm"><i class="fa fa-list-ol"></i> Rincian Dokumentasi Kegiatan</a></li>
+										<?php if ($this->CI->cek_hak_akses('h')): ?>
+											<li><a href="#" data-href="<?= site_url($this->controller . '/delete/'); ?>${data.id}" class="btn btn-social btn-flat btn-block btn-sm" data-toggle="modal" data-target="#confirm-delete"><i class="fa fa-trash-o"></i> Hapus</a></li>
+										<?php endif; ?>
+										<li><a href="<?= site_url('pembangunan/'); ?>${data.slug}" target="_blank" rel="noopener noreferrer" class="btn btn-social btn-flat btn-block btn-sm"><i class="fa fa-eye"></i> Lihat Summary</a></li>
+									</ul>
+								</div>
+								<?php if ($this->CI->cek_hak_akses('u')): ?>
+									${status}
+								<?php endif; ?>
+							</div>
 							`
 					}
 				},

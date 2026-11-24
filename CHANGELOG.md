@@ -2,6 +2,9 @@
 
 ## 2026-11-24
 
+### Pembangunan (`fadmin/pembangunan/index.php`)
+- Mengelompokkan tombol aksi tabel `/admin_pembangunan` ke dalam dropdown **Pilih Aksi** (`Ubah Data`, `Lokasi Pembangunan`, `Rincian Dokumentasi Kegiatan`, `Hapus`, dan `Lihat Summary`), dengan tombol aktif/nonaktif pembangunan (`fa-unlock`/`fa-lock`) tetap tampil di sampingnya agar status tetap terlihat langsung.
+
 ### Dokumen (`table_dokumen.php`)
 - Menambahkan tombol **Lihat Dokumen** (`bg-teal`, `fa-eye`, `target="_blank"`) pada halaman `/dokumen` (`donjo-app/views/dokumen/table_dokumen.php`) yang mengarah ke `dokumen/tampilkan_berkas/{id}` untuk berkas unggahan maupun URL dokumen eksternal.
 
