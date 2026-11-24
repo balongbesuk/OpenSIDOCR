@@ -155,9 +155,9 @@
                                     <span class="input-group-btn">
                                         <button type="button" class="btn btn-info btn-flat" id="file_browser"><i class="fa fa-search"></i> Pilih</button>
                                     </span>
-                                    <span class="input-group-btn">
-                                        <a target="_blank" href="<?= site_url('pendaftaran_kerjasama/dokumen_template') ?>" type="button" class="btn btn-success btn-flat"><i class="fa fa-download"></i> Unduh Dokumen Kerjasama</a>
-                                    </span>
+                                </div>
+                                <div style="margin-top: 6px;">
+                                    <a target="_blank" rel="noopener noreferrer" href="<?= site_url('pendaftaran_kerjasama/dokumen_template') ?>" class="btn btn-success btn-flat btn-sm"><i class="fa fa-download"></i> Unduh Dokumen Kerjasama</a>
                                 </div>
                                 <?php if ($permohonan = $this->session->errors->messages->permohonan) : ?>
                                     <p class="error"><?= $permohonan ?></p>

@@ -2,6 +2,9 @@
 
 ## 2026-11-24
 
+### Pendaftaran Kerjasama (`pendaftaran_kerjasama/form.php`)
+- Fix: memisahkan tombol **Unduh Dokumen Kerjasama** ke baris bawah `.input-group` pada halaman `/pendaftaran_kerjasama` (`donjo-app/third_party/pendaftaran_kerjasama/views/pendaftaran_kerjasama/form.php`) agar tidak lagi bertumpuk menutupi tombol **Pilih** (`#file_browser`).
+
 ### Laporan Kelompok Rentan (`Laporan_bulanan_model.php` & `Penduduk.php`)
 - Perf: mengganti 20 correlated subquery per RT di `Laporan_bulanan_model::list_data()` (`donjo-app/models/Laporan_bulanan_model.php`) menjadi 1 kali pass agregasi `LEFT JOIN` + `GROUP BY id_cluster` dengan `TIMESTAMPDIFF` dan parameter binding (`EXISTS` untuk cek penduduk).
 - Fix: menambahkan `$_SESSION['umur'] = 'tahun'` pada `Penduduk::lap_statistik()` (`donjo-app/controllers/Penduduk.php`) untuk kelompok umur (`case 3`–`8`) agar rincian data kelompok umur dari `/laporan_rentan` terfilter sesuai rentang umurnya, serta memperbaiki label `BERUMUR 13-16` menjadi `BERUMUR 13-15`.
