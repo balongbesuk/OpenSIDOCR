@@ -644,6 +644,11 @@
             box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08) !important;
         }
     }
+
+    #modal-informasi .info-action-group .btn[style*="display: none"],
+    #modal-informasi .info-action-group .btn[style*="display:none"] {
+        display: none !important;
+    }
 </style>
 
 @if ($ada_update)

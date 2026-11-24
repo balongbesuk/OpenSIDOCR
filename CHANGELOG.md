@@ -2,6 +2,9 @@
 
 ## 2026-11-24
 
+### Modal Informasi (`control_sidebar.blade.php`)
+- Fix: memastikan tombol **Perbarui Aplikasi Sekarang** (`#btn-proses-update-github`) tetap tersembunyi saat `display: none` (ketika versi aplikasi sudah terkini) dan tidak tertimpa aturan `display: flex !important` pada `.info-action-group .btn`.
+
 ### Salinan Kartu Keluarga (`kartu_keluarga.php`)
 - Mengubah label dan ikon tombol menuju `keluarga/anggota` di halaman Salinan Kartu Keluarga (`donjo-app/views/sid/kependudukan/kartu_keluarga.php`) menjadi **Edit / Update Data Keluarga** (`bg-orange`, `fa-edit`) agar lebih sesuai dengan fungsinya.
 
