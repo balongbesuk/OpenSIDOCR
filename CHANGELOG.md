@@ -2,6 +2,9 @@
 
 ## 2026-11-24
 
+### Salinan Kartu Keluarga (`kartu_keluarga.php`)
+- Mengubah label dan ikon tombol menuju `keluarga/anggota` di halaman Salinan Kartu Keluarga (`donjo-app/views/sid/kependudukan/kartu_keluarga.php`) menjadi **Edit / Update Data Keluarga** (`bg-orange`, `fa-edit`) agar lebih sesuai dengan fungsinya.
+
 ### Penyelarasan `design.md` Admin (Header, Modal Informasi, & `/pengguna`)
 - Dropdown Profil Header (`resources/views/admin/layouts/partials/header.blade.php`): tombol **Profil** & **Keluar** disamakan dengan Flexbox 50%-50% (`gap: 8px`, tanpa float & pseudo-element `::before`/`::after`), tinggi `38px` (mobile) / `34px` (desktop), dan `border-radius: 4px`.
 - Modal Informasi & Tentang OpenSIDOCR (`resources/views/admin/layouts/partials/control_sidebar.blade.php`): menumpuk tombol aksi (`.info-action-group`) lebar penuh `38px` di mobile dan `34px` di desktop, membungkus tab navigasi (`flex-wrap: wrap`) agar tidak terpotong di HP, serta menghilangkan overflow horizontal `.modal-body`.
