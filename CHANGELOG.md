@@ -2,6 +2,9 @@
 
 ## 2026-11-24
 
+### Keamanan CSRF (`MY_Security.php`)
+- Fix: mengatasi fatal error `Call to undefined function site_url()` pada `MY_Security::csrf_show_error()` (`donjo-app/core/MY_Security.php`) ketika request gagal CSRF tanpa `HTTP_REFERER` sebelum `url_helper` ter-load, sekaligus memvalidasi skema & men-escape output `HTTP_REFERER` untuk mencegah XSS.
+
 ### Pembangunan (`fadmin/pembangunan/index.php`)
 - Mengelompokkan tombol aksi tabel `/admin_pembangunan` ke dalam dropdown **Pilih Aksi** (`Ubah Data`, `Lokasi Pembangunan`, `Rincian Dokumentasi Kegiatan`, `Hapus`, dan `Lihat Summary`), dengan tombol aktif/nonaktif pembangunan (`fa-unlock`/`fa-lock`) tetap tampil di sampingnya agar status tetap terlihat langsung.
 
