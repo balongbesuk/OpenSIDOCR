@@ -46,53 +46,81 @@ class Laporan_bulanan_model extends MY_Model
     protected $mati;
     protected $hilang;
 
-    private function dusun_sql()
-    {
-        $dusun = $this->session->dusun;
-        if (! empty($dusun)) {
-            return " AND c.dusun = '" . $dusun . "'";
-        }
-    }
-
     public function list_data()
     {
-        $sql = "select c.id as id_cluster,c.rt,c.rw,c.dusun as dusunnya,
-            (select count(id) from penduduk_hidup where config_id=c.config_id and sex='1' and id_cluster=c.id) as L,
-            (select count(id) from penduduk_hidup where config_id=c.config_id and sex='2' and id_cluster=c.id) as P,
-            (select count(id) from penduduk_hidup where config_id=c.config_id and (DATE_FORMAT( FROM_DAYS( TO_DAYS(NOW()) - TO_DAYS( tanggallahir ) ) , '%Y' ) +0)<1 and id_cluster=c.id ) as bayi,
-            (select count(id) from penduduk_hidup where config_id=c.config_id and (DATE_FORMAT( FROM_DAYS( TO_DAYS(NOW()) - TO_DAYS( tanggallahir ) ) , '%Y' ) +0)>=1 and (DATE_FORMAT( FROM_DAYS( TO_DAYS(NOW()) - TO_DAYS( tanggallahir ) ) , '%Y' ) +0)<=5  and id_cluster=c.id ) as balita,
-            (select count(id) from penduduk_hidup where config_id=c.config_id and (DATE_FORMAT( FROM_DAYS( TO_DAYS(NOW()) - TO_DAYS( tanggallahir ) ) , '%Y' ) +0)>=6 and (DATE_FORMAT( FROM_DAYS( TO_DAYS(NOW()) - TO_DAYS( tanggallahir ) ) , '%Y' ) +0)<=12  and id_cluster=c.id ) as sd,
-            (select count(id) from penduduk_hidup where config_id=c.config_id and (DATE_FORMAT( FROM_DAYS( TO_DAYS(NOW()) - TO_DAYS( tanggallahir ) ) , '%Y' ) +0)>=13 and (DATE_FORMAT( FROM_DAYS( TO_DAYS(NOW()) - TO_DAYS( tanggallahir ) ) , '%Y' ) +0)<=15  and id_cluster=c.id ) as smp,
-            (select count(id) from penduduk_hidup where config_id=c.config_id and (DATE_FORMAT( FROM_DAYS( TO_DAYS(NOW()) - TO_DAYS( tanggallahir ) ) , '%Y' ) +0)>=16 and (DATE_FORMAT( FROM_DAYS( TO_DAYS(NOW()) - TO_DAYS( tanggallahir ) ) , '%Y' ) +0)<=18  and id_cluster=c.id ) as sma,
-            (select count(id) from penduduk_hidup where config_id=c.config_id and (DATE_FORMAT( FROM_DAYS( TO_DAYS(NOW()) - TO_DAYS( tanggallahir ) ) , '%Y' ) +0)>60 and id_cluster=c.id ) as lansia,
-            (select count(id) from penduduk_hidup where config_id=c.config_id and id_cluster=c.id and cacat_id in (1,2,3,4,5,6)) as cacat,
-            (select count(id) from penduduk_hidup where config_id=c.config_id and id_cluster=c.id and cacat_id='1') as cacat_fisik,
-            (select count(id) from penduduk_hidup where config_id=c.config_id and id_cluster=c.id and cacat_id='2') as cacat_netra,
-            (select count(id) from penduduk_hidup where config_id=c.config_id and id_cluster=c.id and cacat_id='3') as cacat_rungu,
-            (select count(id) from penduduk_hidup where config_id=c.config_id and id_cluster=c.id and cacat_id='4') as cacat_mental,
-            (select count(id) from penduduk_hidup where config_id=c.config_id and id_cluster=c.id and cacat_id='5') as cacat_fisik_mental,
-            (select count(id) from penduduk_hidup where config_id=c.config_id and id_cluster=c.id and cacat_id='6') as cacat_lainnya,
-            (select count(id) from penduduk_hidup where config_id=c.config_id and id_cluster=c.id and (cacat_id IS NULL OR cacat_id='7')) as tidak_cacat,
-            (select count(id) from penduduk_hidup where config_id=c.config_id and sakit_menahun_id is not null and sakit_menahun_id <>'0' and sakit_menahun_id <>'14' and id_cluster=c.id and sex='1') as sakit_L,
-            (select count(id) from penduduk_hidup where config_id=c.config_id and sakit_menahun_id is not null and sakit_menahun_id <>'0' and sakit_menahun_id <>'14' and id_cluster=c.id and sex='2') as sakit_P,
-            (select count(id) from penduduk_hidup where config_id=c.config_id and hamil='1' and id_cluster=c.id) as hamil
-            from tweb_wil_clusterdesa c WHERE c.config_id={$this->config_id} and rw<>'0' AND rt<>'0' AND (select count(id) from tweb_penduduk where config_id=c.config_id and id_cluster=c.id)>0 ";
-
-        $sql .= $this->dusun_sql();
-        $sql .= ' ORDER BY c.dusun,c.rw,c.rt ';
-        $query = $this->db->query($sql);
-        $data  = $query->result_array();
-
-        //	$data = null;
-        //Formating Output
-        $counter = count($data);
-
-        //	$data = null;
-        //Formating Output
-        for ($i = 0; $i < $counter; $i++) {
-            $data[$i]['no']    = $i + 1;
-            $data[$i]['tabel'] = $data[$i]['rt'];
+        $params      = [$this->config_id, $this->config_id];
+        $dusunFilter = '';
+        $dusun       = $this->session->dusun;
+        if (! empty($dusun)) {
+            $dusunFilter = ' AND c.dusun = ?';
+            $params[]    = $dusun;
         }
+
+        $sql = "SELECT
+                c.id AS id_cluster,
+                c.rt,
+                c.rw,
+                c.dusun AS dusunnya,
+                COALESCE(p.L, 0) AS L,
+                COALESCE(p.P, 0) AS P,
+                COALESCE(p.bayi, 0) AS bayi,
+                COALESCE(p.balita, 0) AS balita,
+                COALESCE(p.sd, 0) AS sd,
+                COALESCE(p.smp, 0) AS smp,
+                COALESCE(p.sma, 0) AS sma,
+                COALESCE(p.lansia, 0) AS lansia,
+                COALESCE(p.cacat, 0) AS cacat,
+                COALESCE(p.cacat_fisik, 0) AS cacat_fisik,
+                COALESCE(p.cacat_netra, 0) AS cacat_netra,
+                COALESCE(p.cacat_rungu, 0) AS cacat_rungu,
+                COALESCE(p.cacat_mental, 0) AS cacat_mental,
+                COALESCE(p.cacat_fisik_mental, 0) AS cacat_fisik_mental,
+                COALESCE(p.cacat_lainnya, 0) AS cacat_lainnya,
+                COALESCE(p.tidak_cacat, 0) AS tidak_cacat,
+                COALESCE(p.sakit_L, 0) AS sakit_L,
+                COALESCE(p.sakit_P, 0) AS sakit_P,
+                COALESCE(p.hamil, 0) AS hamil
+            FROM tweb_wil_clusterdesa c
+            LEFT JOIN (
+                SELECT
+                    id_cluster,
+                    SUM(CASE WHEN sex = '1' THEN 1 ELSE 0 END) AS L,
+                    SUM(CASE WHEN sex = '2' THEN 1 ELSE 0 END) AS P,
+                    SUM(CASE WHEN TIMESTAMPDIFF(YEAR, tanggallahir, CURDATE()) < 1 THEN 1 ELSE 0 END) AS bayi,
+                    SUM(CASE WHEN TIMESTAMPDIFF(YEAR, tanggallahir, CURDATE()) BETWEEN 1 AND 5 THEN 1 ELSE 0 END) AS balita,
+                    SUM(CASE WHEN TIMESTAMPDIFF(YEAR, tanggallahir, CURDATE()) BETWEEN 6 AND 12 THEN 1 ELSE 0 END) AS sd,
+                    SUM(CASE WHEN TIMESTAMPDIFF(YEAR, tanggallahir, CURDATE()) BETWEEN 13 AND 15 THEN 1 ELSE 0 END) AS smp,
+                    SUM(CASE WHEN TIMESTAMPDIFF(YEAR, tanggallahir, CURDATE()) BETWEEN 16 AND 18 THEN 1 ELSE 0 END) AS sma,
+                    SUM(CASE WHEN TIMESTAMPDIFF(YEAR, tanggallahir, CURDATE()) > 60 THEN 1 ELSE 0 END) AS lansia,
+                    SUM(CASE WHEN cacat_id IN (1, 2, 3, 4, 5, 6) THEN 1 ELSE 0 END) AS cacat,
+                    SUM(CASE WHEN cacat_id = '1' THEN 1 ELSE 0 END) AS cacat_fisik,
+                    SUM(CASE WHEN cacat_id = '2' THEN 1 ELSE 0 END) AS cacat_netra,
+                    SUM(CASE WHEN cacat_id = '3' THEN 1 ELSE 0 END) AS cacat_rungu,
+                    SUM(CASE WHEN cacat_id = '4' THEN 1 ELSE 0 END) AS cacat_mental,
+                    SUM(CASE WHEN cacat_id = '5' THEN 1 ELSE 0 END) AS cacat_fisik_mental,
+                    SUM(CASE WHEN cacat_id = '6' THEN 1 ELSE 0 END) AS cacat_lainnya,
+                    SUM(CASE WHEN cacat_id IS NULL OR cacat_id = '7' THEN 1 ELSE 0 END) AS tidak_cacat,
+                    SUM(CASE WHEN sakit_menahun_id IS NOT NULL AND sakit_menahun_id <> '0' AND sakit_menahun_id <> '14' AND sex = '1' THEN 1 ELSE 0 END) AS sakit_L,
+                    SUM(CASE WHEN sakit_menahun_id IS NOT NULL AND sakit_menahun_id <> '0' AND sakit_menahun_id <> '14' AND sex = '2' THEN 1 ELSE 0 END) AS sakit_P,
+                    SUM(CASE WHEN hamil = '1' THEN 1 ELSE 0 END) AS hamil
+                FROM penduduk_hidup
+                WHERE config_id = ?
+                GROUP BY id_cluster
+            ) p ON p.id_cluster = c.id
+            WHERE c.config_id = ?
+                AND c.rw <> '0'
+                AND c.rt <> '0'
+                AND EXISTS (SELECT 1 FROM tweb_penduduk tp WHERE tp.config_id = c.config_id AND tp.id_cluster = c.id)
+                {$dusunFilter}
+            ORDER BY c.dusun, c.rw, c.rt";
+
+        $data = $this->db->query($sql, $params)->result_array();
+
+        foreach ($data as $i => &$row) {
+            $row['no']    = $i + 1;
+            $row['tabel'] = $row['rt'];
+        }
+        unset($row);
 
         return $data;
     }

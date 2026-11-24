@@ -2,6 +2,10 @@
 
 ## 2026-11-24
 
+### Laporan Kelompok Rentan (`Laporan_bulanan_model.php` & `Penduduk.php`)
+- Perf: mengganti 20 correlated subquery per RT di `Laporan_bulanan_model::list_data()` (`donjo-app/models/Laporan_bulanan_model.php`) menjadi 1 kali pass agregasi `LEFT JOIN` + `GROUP BY id_cluster` dengan `TIMESTAMPDIFF` dan parameter binding (`EXISTS` untuk cek penduduk).
+- Fix: menambahkan `$_SESSION['umur'] = 'tahun'` pada `Penduduk::lap_statistik()` (`donjo-app/controllers/Penduduk.php`) untuk kelompok umur (`case 3`–`8`) agar rincian data kelompok umur dari `/laporan_rentan` terfilter sesuai rentang umurnya, serta memperbaiki label `BERUMUR 13-16` menjadi `BERUMUR 13-15`.
+
 ### Keamanan CSRF (`MY_Security.php`)
 - Fix: mengatasi fatal error `Call to undefined function site_url()` pada `MY_Security::csrf_show_error()` (`donjo-app/core/MY_Security.php`) ketika request gagal CSRF tanpa `HTTP_REFERER` sebelum `url_helper` ter-load, sekaligus memvalidasi skema & men-escape output `HTTP_REFERER` untuk mencegah XSS.
 

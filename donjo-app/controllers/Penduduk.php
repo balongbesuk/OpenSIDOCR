@@ -851,6 +851,7 @@ class Penduduk extends Admin_Controller
                 break;
 
             case 3:
+                $_SESSION['umur']     = 'tahun';
                 $_SESSION['umur_min'] = '0';
                 $_SESSION['umur_max'] = '0';
                 $_SESSION['dusun']    = $cluster['dusun'];
@@ -860,6 +861,7 @@ class Penduduk extends Admin_Controller
                 break;
 
             case 4:
+                $_SESSION['umur']     = 'tahun';
                 $_SESSION['umur_min'] = '1';
                 $_SESSION['umur_max'] = '5';
                 $_SESSION['dusun']    = $cluster['dusun'];
@@ -869,6 +871,7 @@ class Penduduk extends Admin_Controller
                 break;
 
             case 5:
+                $_SESSION['umur']     = 'tahun';
                 $_SESSION['umur_min'] = '6';
                 $_SESSION['umur_max'] = '12';
                 $_SESSION['dusun']    = $cluster['dusun'];
@@ -878,15 +881,17 @@ class Penduduk extends Admin_Controller
                 break;
 
             case 6:
+                $_SESSION['umur']     = 'tahun';
                 $_SESSION['umur_min'] = '13';
                 $_SESSION['umur_max'] = '15';
                 $_SESSION['dusun']    = $cluster['dusun'];
                 $_SESSION['rw']       = $cluster['rw'];
                 $_SESSION['rt']       = $cluster['rt'];
-                $pre                  = 'BERUMUR 13-16 ';
+                $pre                  = 'BERUMUR 13-15 ';
                 break;
 
             case 7:
+                $_SESSION['umur']     = 'tahun';
                 $_SESSION['umur_min'] = '16';
                 $_SESSION['umur_max'] = '18';
                 $_SESSION['dusun']    = $cluster['dusun'];
@@ -896,6 +901,7 @@ class Penduduk extends Admin_Controller
                 break;
 
             case 8:
+                $_SESSION['umur']     = 'tahun';
                 $_SESSION['umur_min'] = '61';
                 $_SESSION['dusun']    = $cluster['dusun'];
                 $_SESSION['rw']       = $cluster['rw'];
